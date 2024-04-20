@@ -75,16 +75,19 @@ parse := λ. (: (tail(
             (match (parse-many-expressions remainder) (
                ()
                ( (PME( term remainder )) (tail(
+                  (set ast-parsed-program (Seq(
+                     (close ast-parsed-program)
+                     (close term)
+                  )))
                   (set tokens remainder)
-                  ()
-#                 (set parse-parsed-program (parse-parsed-program (GExpr (head pme)) ))
                )))
             ))
          )))
    )))
 
-   (print 'Parse:\s_s)
-   (print '\n_s)
+   (print 'Parse:\n_s)
+   (print ast-parsed-program)
+   (print '\:\n_s)
 )) Nil);
 
 parse-many-expressions := λ(: tokens S). (: (tail(
