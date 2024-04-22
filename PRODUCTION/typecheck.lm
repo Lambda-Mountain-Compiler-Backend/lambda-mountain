@@ -22,9 +22,9 @@ typecheck := λprogram . (tail(
    )))
    (set typecheck-types-have-changed True)
    (while typecheck-types-have-changed (tail(
+      (debug-memory-usage 'typecheck-iter)
       (set typecheck-types-have-changed ())
       (typecheck-infer-prog program)
-      (debug-memory-usage 'typecheck-iter)
    )))
    (typecheck-assert-complete program)
    (debug-memory-usage 'typecheck)

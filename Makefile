@@ -1,12 +1,13 @@
 
 nostd: prod
-	./production --nostd --perf -o tmp.s tests/strict/match1.lm
+	./production --nostd --parse -o tmp.s tests/strict/match1.lm
 	as -o tmp.o tmp.s
 	ld -o tmp tmp.o
 	./tmp STRICT/cli.lm && echo $?
 
 strict: prod
-	./production --nostd --perf -o tmp.s STRICT/cli.lm
+	time 300 ./production --nostd --parse -o tmp.s STRICT/cli.lm > count.txt
+	sort count.txt | uniq -c | sort -bgr > e-count.txt
 
 test: prod
 	./production -o production1.s PRODUCTION/cli.lm
