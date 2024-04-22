@@ -719,7 +719,7 @@ typecheck-annotate-accessors := λ base-type tag fields-type . (tail(
 ));
 
 typecheck-infer-expr := λctx e used . (tail(
-   (debug-memory-usage 'typecheck-infer-expr)
+   (print-s ('typecheck-infer-expr e))(print-s \n)
    (match e (
       ()
       ( () () )
