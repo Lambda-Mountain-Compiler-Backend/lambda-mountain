@@ -6,8 +6,7 @@ nostd: prod
 	./tmp STRICT/cli.lm && echo $?
 
 strict: prod
-	time 300 ./production --nostd --parse -o tmp.s STRICT/cli.lm > count.txt
-	sort count.txt | uniq -c | sort -bgr > e-count.txt
+	./production --nostd --parse -o tmp.s STRICT/cli.lm
 
 test: prod
 	./production -o production1.s PRODUCTION/cli.lm

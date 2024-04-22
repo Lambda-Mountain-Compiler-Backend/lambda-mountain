@@ -136,7 +136,6 @@ main := (
          (if config-nomacro () (
             (set parse-parsed-program (preprocess parse-parsed-program))
          ))
-         (cli-dump parse-parsed-program)
          (print-s parse-parsed-program)
       )))
       (Typecheck (tail(
