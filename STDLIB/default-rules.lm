@@ -2,54 +2,54 @@
 macro ( ('let x y) )
       ( (λ x . ()) y );
 
-macro ('match t ps) (tail(
-   (let (uuid term) (maybe-deref t))
-   (match-pats( (uuid term) ps (fail PatternMatchFailure_s) ))
+macro ('match match-term match-ps) (tail(
+   (let (uuid term) (maybe-deref match-term))
+   (match-pats( (uuid term) match-ps (fail PatternMatchFailure_s) ))
 ));
 
-macro ('match-pats( term () remainder )) (
-   remainder
+macro ('match-pats( match-pats-term () match-pats-remainder )) (
+   match-pats-remainder
 );
 
-macro ('match-pats( term (ps (lhs rhs)) remainder )) (
+macro ('match-pats( match-pats-term (match-pats-ps (match-pats-lhs match-pats-rhs)) match-pats-remainder )) (
    (match-pats(
-      term
-      ps
-      (match-pats-arm( term lhs rhs remainder ))
+      match-pats-term
+      match-pats-ps
+      (match-pats-arm( match-pats-term match-pats-lhs match-pats-rhs match-pats-remainder ))
    ))
 );
 
-macro ('match-pats-arm( term (:Variable: v) rhs remainder )) (
-   if (tail( (let v (maybe-deref term)) (branchtrue()) ))
-      rhs
-      remainder
+macro ('match-pats-arm( match-pats-arm-1-term (:Variable: v) match-pats-arm-1-rhs match-pats-arm-1-remainder )) (
+   if (tail( (let v (maybe-deref match-pats-arm-1-term)) (branchtrue()) ))
+      match-pats-arm-1-rhs
+      match-pats-arm-1-remainder
 );
 
-macro ('match-pats-arm( term (:Literal: l) rhs remainder )) (
-   if (tail( (let (uuid v) (maybe-deref term)) (==( (uuid v) l )) ))
-      rhs
-      remainder
+macro ('match-pats-arm( match-pats-arm-2-term (:Literal: l) match-pats-arm-2-rhs match-pats-arm-2-remainder )) (
+   if (tail( (let (uuid v) (maybe-deref match-pats-arm-2-term)) (==( (uuid v) l )) ))
+      match-pats-arm-2-rhs
+      match-pats-arm-2-remainder
 );
 
-macro ('match-pats-arm( term (:Tag: l lt) rhs remainder )) (
-   if (tail( (let (uuid v) (maybe-deref term)) (==( (.0( (uuid v) )) l )) ))
-      rhs
-      remainder
+macro ('match-pats-arm( match-pats-arm-3-term (:Tag: l lt) match-pats-arm-3-rhs match-pats-arm-3-remainder )) (
+   if (tail( (let (uuid v) (maybe-deref match-pats-arm-3-term)) (==( (.0( (uuid v) )) l )) ))
+      match-pats-arm-3-rhs
+      match-pats-arm-3-remainder
 );
 
-macro ('match-pats-arm( term ((:Tag: l lt) ( x1 )) rhs remainder )) (tail(
-   (let (uuid v) (maybe-deref term))
+macro ('match-pats-arm( match-pats-arm-4-term ((:Tag: l lt) ( match-pats-arm-4-x1 )) match-pats-arm-4-rhs match-pats-arm-4-remainder )) (tail(
+   (let (uuid v) (maybe-deref match-pats-arm-4-term))
    (if (==( (.0( (uuid v) )) l )) (
-      (match-pats-arm( (.1( (as (uuid v) lt) )) x1 rhs remainder )) 
-   ) remainder)
+      (match-pats-arm( (.1( (as (uuid v) lt) )) match-pats-arm-4-x1 match-pats-arm-4-rhs match-pats-arm-4-remainder )) 
+   ) match-pats-arm-4-remainder)
 ));
 
-macro ('match-pats-arm( term ((:Tag: l lt) ( x2 x1 )) rhs remainder )) (tail(
-   (let (uuid v) (maybe-deref term))
+macro ('match-pats-arm( match-pats-arm-5-term ((:Tag: l lt) ( match-pats-arm-5-x2 match-pats-arm-5-x1 )) match-pats-arm-5-rhs match-pats-arm-5-remainder )) (tail(
+   (let (uuid v) (maybe-deref match-pats-arm-5-term))
    (if (==( (.0( (uuid v) )) l )) (
-      (match-pats-arm( (maybe-deref(.1( (as (uuid v) lt) ))) x1 (
-         (match-pats-arm( (maybe-deref(.2( (as (uuid v) lt) ))) x2 rhs remainder ))
-      ) remainder )) 
-   ) remainder)
+      (match-pats-arm( (maybe-deref(.1( (as (uuid v) lt) ))) match-pats-arm-5-x1 (
+         (match-pats-arm( (maybe-deref(.2( (as (uuid v) lt) ))) match-pats-arm-5-x2 match-pats-arm-5-rhs match-pats-arm-5-remainder ))
+      ) match-pats-arm-5-remainder )) 
+   ) match-pats-5-remainder)
 ));
 
