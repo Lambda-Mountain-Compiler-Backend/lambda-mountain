@@ -328,22 +328,18 @@ compile-stack-call := λ(: ctx CCContext)(: function-name String)(: args AST)(: 
    (let f (maybe-deref(cccontext::lookup( ctx function-name (maybe-deref(typecheck-lookup args)) args ))))
    (let push-args (maybe-deref(compile-stack-call-push-args( ctx args offset 0_i64 ))))
    (let call SNil)
-   (set call (SCons( (close call) (close(SAtom '\o\scall\s_s)) )))
+   (set call (SCons( (close call) (close(SAtom 'push\s%rbp\n_s)) )))
+   (set call (SCons( (close call) (close(SAtom 'mov\s%rsp,\s%rbp\n_s)) )))
+   (set call (SCons( (close call) (ccfragment::get( push-args 'program_s )) )))
    (set call (SCons( (close call) (close(SAtom function-name)) )))
    (set call (SCons( (close call) (close(SAtom '\n_s)) )))
+   (set call (SCons( (close call) (ccfragment::get( push-args 'unframe_s )) )))
+   (set call (SCons( (close call) (close(SAtom 'mov\s%rbp,\s%rsp\n_s)) )))
+   (set call (SCons( (close call) (close(SAtom 'pop\s%rbp\n_s)) )))
    (let r-2 (maybe-deref(ccfragment::set( r 'program_s call ))))(set r r-2)
    (close r)
 
 
-#         (set e-call (expr::set-prog( e-call (
-#            (expr::get-frame e-args)
-#            (expr::get-prog e-args)
-#            (enter-function())
-#            (\t 'call \s (mangle-identifier( function-name (typecheck-lookup body) )) \n)
-#            (\t 'mov \s '%rbp, \s '%rsp              \n
-#             \t 'pop \s '%rbp                        \n)
-#            (expr::get-unframe e-args)
-#         ))))
 #         (set e-call (expr::set-expr( e-call (
 #            (match (typecheck-sizeof (typecheck-rvalue (typecheck-lookup body))) (
 #               ()
