@@ -179,7 +179,6 @@ ccfragment::set-offset := λ(: e CCFragment)(: offset I64). (: (tail(
 
 fragment-apply := λ(: ctx CCContext)(: k String)(: kt Type)(: args FragList)(: sloc AST). (: (tail(
    (let e-proto (maybe-deref(ccfragment::new())))
-   (print 'Fragment\sApply\s_s)(print k)(print kt)(print '\n_s)
    (let arrow (maybe-deref(cccontext::lookup( ctx k kt sloc ))))
    (let chain True_u8)
    (match (maybe-deref(typecheck-slot( kt 'DontChain_s ))) (
@@ -221,20 +220,18 @@ fragment-destructure-lhs := λ(: ctx CCContext)(: lhs S)(: args FragList). (: (t
                )))
                (let tctx (maybe-deref(typecheck-unify-generous( a-type ft ))))
                (let ctx-2 (maybe-deref(fragment-destructure-tctx( ctx tctx ))))(set ctx ctx-2)
-               (print 'Unify\s_s)(print a-type)(print '\s<=>\s_s)(print ft)(print '\n_s)
-               (print 'TCTX:\s_s)(print tctx)(print '\n_s)
                (let new-ctx (CCCtxBind( (close ctx) k ft f )))
                (set ctx new-ctx)
             )))
          ))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( lhs-rst (SCons( (SAtom 'Var_s) (SAtom k) )) )) )) (tail(
+         (let a-type TAny)
          (match lhs (
             ()
             ( (SCons( (SAtom 'App_s) (SCons( _ binding )) )) (tail(
-               ()
-               (let a-type (maybe-deref(typecheck-lookup binding)))
-               (print 'Destructure\s_s)(print k)(print '\s:\s_s)(print(maybe-deref(typecheck-lookup binding)))(print '\n_s)
+               (let at2 (maybe-deref(typecheck-lookup binding)))
+               (set a-type at2)
             )))
          ))
          (match args (
@@ -248,8 +245,6 @@ fragment-destructure-lhs := λ(: ctx CCContext)(: lhs S)(: args FragList). (: (t
                )))
                (let tctx (maybe-deref(typecheck-unify-generous( a-type ft ))))
                (let ctx-2 (maybe-deref(fragment-destructure-tctx( ctx tctx ))))(set ctx ctx-2)
-               (print 'Unify\s_s)(print a-type)(print '\s<=>\s_s)(print ft)(print '\n_s)
-               (print 'TCTX:\s_s)(print tctx)(print '\n_s)
                (let new-ctx (CCCtxBind( (close ctx) k ft f )))
                (set ctx new-ctx)
                (set args fl-rst)
