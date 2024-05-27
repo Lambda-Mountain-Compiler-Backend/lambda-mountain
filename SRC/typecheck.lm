@@ -101,6 +101,9 @@ typecheck-sizeof := λ(: tt Type). (: (tail(
       ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF p1 )) TAny )) )) (
          (set sz 8_u64)
       ))
+      ( (TGround( 'Field_s (TypeSeq( (TypeSeq( TypeEOF p1 )) (TGround( szp TypeEOF )) )) )) (
+         (set sz (*( (typecheck-sizeof p1) (to-u64 szp) )))
+      ))
       ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (
          (set sz (+(
             (typecheck-aligned-sizeof p1)

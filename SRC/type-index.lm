@@ -2,17 +2,17 @@
 type TTBTree (TTBTree( U32 , AST , Type , TTBTree[] , TTBTree[]  ));
 
 # Jenkins One at a Time Hash
-hash := λ(: key Sized<24>). (: (tail(
+hash := λ(: key x+Sized<24>). (: (tail(
    (let i 0_u64)
    (let hash 0_u64)
-#   (while (!=( i 3_u64 )) (tail(
-#      (set h (+( h ([]( (as key Field<U64,3>) i )) )))
-#      (set i (+( i 1_u64 )))
-#      (set h (+( h (<<( h 10_u64 )) )))
-#      (set h (^( h (>>( h 6_u64 )) )))
-#   )))
-#   (set h (+( h (<<( h 3_u64 )) )))
-#   (set h (^( h (>>( h 11_u64 )) )))
-#   (set h (+( h (<<( h 15_u64 )) )))
+   (while (not(==( i 3_u64 ))) (tail(
+      (set hash (+( hash ([]( (as key Field<U64,3>) i )) )))
+      (set i (+( i 1_u64 )))
+#      (set hash (+( hash (<<( hash 10_u64 )) )))
+#      (set hash (^( hash (>>( hash 6_u64 )) )))
+   )))
+#   (set hash (+( hash (<<( hash 3_u64 )) )))
+#   (set hash (^( hash (>>( hash 11_u64 )) )))
+#   (set hash (+( hash (<<( hash 15_u64 )) )))
    hash
 )) U64);
