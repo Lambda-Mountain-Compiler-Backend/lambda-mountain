@@ -34,6 +34,7 @@ is-variable := λ(: s String). (: (tail(
       ( 36_u8 (set r True_u8) )
       ( 38_u8 (set r True_u8) )
       ( 124_u8 (set r True_u8) )
+      ( 94_u8 (set r True_u8) )
       ( 95_u8 (set r True_u8) )
       ( 97_u8 (set r True_u8) )
       ( 98_u8 (set r True_u8) )

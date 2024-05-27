@@ -8,11 +8,11 @@ hash := λ(: key x+Sized<24>). (: (tail(
    (while (not(==( i 3_u64 ))) (tail(
       (set hash (+( hash ([]( (as key Field<U64,3>) i )) )))
       (set i (+( i 1_u64 )))
-#      (set hash (+( hash (<<( hash 10_u64 )) )))
-#      (set hash (^( hash (>>( hash 6_u64 )) )))
+      (set hash (+( hash (<<( hash 10_u64 )) )))
+      (set hash (^( hash (>>( hash 6_u64 )) )))
    )))
-#   (set hash (+( hash (<<( hash 3_u64 )) )))
-#   (set hash (^( hash (>>( hash 11_u64 )) )))
-#   (set hash (+( hash (<<( hash 15_u64 )) )))
+   (set hash (+( hash (<<( hash 3_u64 )) )))
+   (set hash (^( hash (>>( hash 11_u64 )) )))
+   (set hash (+( hash (<<( hash 15_u64 )) )))
    hash
 )) U64);
