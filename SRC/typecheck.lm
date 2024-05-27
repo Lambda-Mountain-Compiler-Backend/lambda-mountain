@@ -165,119 +165,6 @@ merge := λ(: lctx TContext)(: rctx TContext). (: (tail(
    (close lctx)
 )) TContext[]);
 
-print := λ(: tt Type). (: (match tt (
-   ()
-   ( TAny (print '?_s) )
-   ( (TVar( vn )) (tail( (print '`_s) (print vn) )) )
-   ( (TGround( tag TypeEOF )) (print tag) )
-   ( (TGround( tag (TypeSeq( TypeEOF p1 )) )) (tail(
-      (print tag)
-      (print '<_s)
-      (print p1)
-      (print '>_s)
-   )))
-   ( (TGround( tag (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (tail(
-      (print tag)
-      (print '<_s)
-      (print p1)
-      (print ',_s)
-      (print p2)
-      (print '>_s)
-   )))
-   ( (TGround( tag (TypeSeq( (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) p3 )) )) (tail(
-      (print tag)
-      (print '<_s)
-      (print p1)
-      (print ',_s)
-      (print p2)
-      (print ',_s)
-      (print p3)
-      (print '>_s)
-   )))
-   ( (TAnd( (TGround( '->_s (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) rt )) (tail(
-      (print '-><_s)
-      (print p1)
-      (print ',_s)
-      (print p2)
-      (print '>\n_s)
-      (print rt)
-   )))
-   ( (TAnd( lt (TGround( '->_s (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) )) (tail(
-      (print lt)
-      (print '\n_s)
-      (print '-><_s)
-      (print p1)
-      (print ',_s)
-      (print p2)
-      (print '>_s)
-   )))
-   ( (TAnd( lt rt )) (tail(
-      (print lt)
-      (print '\s+\s_s)
-      (print rt)
-   )))
-)) Nil);
-
-serialize-ast := λ(: tt Type). (: (match tt (
-   ()
-   ( TAny (print '\[Variable\s?\]_s) )
-   ( (TVar( vn )) (tail(
-      (print '\[Variable\s_s)
-      (print vn)
-      (print '\]_s)
-   )))
-   ( (TGround( tag TypeEOF )) (tail(
-      (print '\[Literal\s_s)
-      (print tag)
-      (print '\]_s)
-   )))
-   ( (TGround( tag (TypeSeq( TypeEOF p1 )) )) (tail(
-      (print '\[App\s\[_s) 
-      (print '\[Literal\s_s)
-      (print tag)
-      (print '\]\s_s)
-      (serialize-ast p1)
-      (print '\]\]_s)
-   )))
-   ( (TGround( tag (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (tail(
-      (print '\[App\s\[_s) 
-      (print '\[Literal\s_s)
-      (print tag)
-      (print '\]\s_s)
-      (print '\[App\s\[_s) 
-      (serialize-ast p1)
-      (print '\s_s)
-      (serialize-ast p2)
-      (print '\]\]_s)
-      (print '\]\]_s)
-   )))
-   ( (TGround( tag (TypeSeq( (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) p3 )) )) (tail(
-      (print '\[App\s\[_s) 
-      (print '\[Literal\s_s)
-      (print tag)
-      (print '\]\s_s)
-      (print '\[App\s\[_s) 
-      (print '\[App\s\[_s) 
-      (serialize-ast p1)
-      (print '\s_s)
-      (serialize-ast p2)
-      (print '\]\]\s_s)
-      (serialize-ast p3)
-      (print '\]\]_s)
-      (print '\]\]_s)
-   )))
-   ( (TAnd( lt rt )) (tail(
-      (print '\[App\s\[_s)
-      (print '\[Literal\sAnd\]\s_s)
-      (print '\[App\s\[_s)
-      (serialize-ast lt)
-      (print '\s_s)
-      (serialize-ast rt)
-      (print '\]\]_s)
-      (print '\]\]_s)
-   )))
-)) Nil);
-
 close := λ(: x Type). (: (tail(
    (mov( (malloc(sizeof Type)) R8 ))
    (mov( x 0_u64 (as R8 Type[]) ))
@@ -1817,3 +1704,47 @@ is-fragment-type := λ(: tt Type). (: (tail(
    )))
    r
 )) U64);
+
+to-s := λ(: term AST). (: (tail(
+   (let s SNil)
+   (match term (
+      ()
+      ( (Var v) (
+         (set s (SCons(
+            (close(SAtom 'Var_s))
+            (close(SAtom v))
+         )))
+      ))
+      ( (Lit v) (
+         (set s (SCons(
+            (close(SAtom 'Lit_s))
+            (close(SAtom v))
+         )))
+      ))
+      ( (App( lt rt )) (
+         (set s (SCons(
+            (close(SAtom 'App_s))
+            (close(SCons(
+               (to-s lt)
+               (to-s rt)
+            )))
+         )))
+      ))
+      ( (Abs( lt rt )) (
+         (set s (SCons(
+            (close(SAtom 'Abs_s))
+            (close(SCons(
+               (to-s lt)
+               (to-s rt)
+            )))
+         )))
+      ))
+      ( (Asc( t tt )) (tail(
+         (let st1 (maybe-deref(to-s t)))
+         (typecheck-ascript( st1 tt ))
+         (set s st1)
+      )))
+      ( _ () )
+   ))
+   (close s)
+)) S[]);
