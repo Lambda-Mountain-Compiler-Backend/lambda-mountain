@@ -1303,7 +1303,7 @@ typecheck-unify-args := λ(: fpt Type)(: pt Type). (: (tail(
    (let ctx TCtxEOF)
    (match (TPair( fpt pt )) (
       ()
-      ( (TPair( TAny TAny )) (tail(
+      ( (TPair( TAny _ )) (tail(
          (let ctx2 (maybe-deref(tcontext-accept())))
          (set ctx ctx2)
       )))
