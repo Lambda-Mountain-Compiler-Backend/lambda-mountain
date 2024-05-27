@@ -91,6 +91,9 @@ typecheck-sizeof := λ(: tt Type). (: (tail(
       ()
       ( TAny () )
       ( (TVar _) () )
+      ( (TGround( 'Sized_s (TypeSeq( TypeEOF (TGround( szp TypeEOF )) )) )) (
+         (set sz (to-u64 szp))
+      ))
       ( (TGround( tag TypeEOF )) (set sz (typecheck-get-size tag)) )
       ( (TGround( tag (TypeSeq( TypeEOF p1 )) )) (
          (set sz (typecheck-get-size tag))
