@@ -1,1 +1,2 @@
 
+type TTBTree (TTBTree( U64 , AST , Type , TTBTree[] , TTBTree[]  ));
