@@ -613,7 +613,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                ))
             ))
          ))))
-         (set whitespace-mov-local i (+( whitespace-mov-local-i 8_u64 )))
+         (set whitespace-mov-local-i (+( whitespace-mov-local-i 8_u64 )))
       )))
 
       #mov local constructor
