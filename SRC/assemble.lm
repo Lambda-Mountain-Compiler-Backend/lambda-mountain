@@ -606,10 +606,8 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                      (s-app(
                         (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
                         (s-app(
-                           (s-app(
-                              (s-var '.expression_s)
-                              (s-var 'dst_s)
-                           ))
+                           (s-var '.expression_s)
+                           (s-var 'dst_s)
                         ))
                      ))
                   ))
@@ -677,10 +675,8 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                      (s-app(
                         (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
                         (s-app(
-                           (s-app(
-                              (s-var '.expression_s)
-                              (s-var 'dst_s)
-                           ))
+                           (s-var '.expression_s)
+                           (s-var 'dst_s)
                         ))
                      ))
                   ))
