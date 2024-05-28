@@ -1,0 +1,15 @@
+
+import LIB/default-instruction-set.lm;
+import LIB/default-primitives.lm;
+import LIB/default-stdlib.lm;
+import LIB/default-rules.lm;
+import SRC/ast.lm;
+import SRC/type-index.lm;
+
+main := λ. (: (tail(
+   (let c (close TAny))
+   (match (maybe-deref c) (
+      ()
+      ( TAny () )
+   ))
+)) Nil);
