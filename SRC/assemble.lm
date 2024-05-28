@@ -681,6 +681,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                ))
             ))
          ))))
+         (set whitespace-mov-global-i (+( whitespace-mov-global-i 8_u64 )))
       )))
 
       #mov global constructor
