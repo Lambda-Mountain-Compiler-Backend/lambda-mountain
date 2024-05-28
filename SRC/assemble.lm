@@ -601,17 +601,19 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
             (s-app(
                (s-lit '\tmovq\s$0,\s_s)
                (s-app(
-                  (s-var '+_s)
                   (s-app(
-                     (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
+                     (s-var '+_s)
                      (s-app(
+                        (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
                         (s-app(
-                           (s-var '.expression_s)
-                           (s-var 'dst_s)
+                           (s-app(
+                              (s-var '.expression_s)
+                              (s-var 'dst_s)
+                           ))
                         ))
-                        (s-lit '\[%rbp\]\n_s)
                      ))
                   ))
+                  (s-lit '\[%rbp\]\n_s)
                ))
             ))
          ))))
@@ -670,17 +672,19 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
             (s-app(
                (s-lit '\tmovq\s$0,\s_s)
                (s-app(
-                  (s-var '+_s)
                   (s-app(
-                     (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
+                     (s-var '+_s)
                      (s-app(
+                        (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
                         (s-app(
-                           (s-var '.expression_s)
-                           (s-var 'dst_s)
+                           (s-app(
+                              (s-var '.expression_s)
+                              (s-var 'dst_s)
+                           ))
                         ))
-                        (s-lit '\[%r15\]\n_s)
                      ))
                   ))
+                  (s-lit '\[%r15\]\n_s)
                ))
             ))
          ))))
