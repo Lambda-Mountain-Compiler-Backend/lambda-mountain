@@ -12,6 +12,7 @@ main := λ. (: (tail(
    (print(hash (TGround( 'A_s (close TypeEOF) ))))(print '\n_s)
    (print(hash (TGround( 'B_s (close TypeEOF) ))))(print '\n_s)
    (print(hash (TAnd( c c ))))(print '\n_s)
+   (print '2\n_s)
    (print(hash TAny))(print '\n_s)
    (print(hash (TGround( 'A_s (close TypeEOF) ))))(print '\n_s)
    (print(hash (TGround( 'B_s (close TypeEOF) ))))(print '\n_s)
