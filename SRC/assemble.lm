@@ -403,6 +403,15 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let base-type-sz (typecheck-aligned-sizeof base-type))
       (let args-sz (typecheck-aligned-sizeof arg-types))
       (let whitespace-sz (-( (-( base-type-sz 8_u64 )) args-sz )))
+      (let whitespace-push SNil)
+      (let whitespace-push-i 0_u64)
+      (while (<( whitespace-push-i whitespace-sz )) (tail(
+         (set whitespace-push (maybe-deref(s-app(
+            (close whitespace-push)
+            (s-lit 'pushq\s$0\n_s)
+         ))))
+         (set whitespace-push-i (+( whitespace-push-i 8_u64 )))
+      )))
       (let arrow-tt (maybe-deref(tarrow( (maybe-deref(t1 tag)) (maybe-deref(tand( rtype (maybe-deref(t1 'StackVariable_s)) ))) ))))
       (let arrow-dc (TAnd( (close arrow-tt) (t1 'DontChain_s) )))(set arrow-tt arrow-dc)
       (let fragment (maybe-deref(ccfragment::new())))
@@ -414,13 +423,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
             (s-app(
                (s-var '.program_s)
                (s-app(
-                  (s-app(
-                     (s-app(
-                        (s-lit '\tsubq\s$_s)
-                        (s-lit(to-string whitespace-sz))
-                     ))
-                     (s-lit ',\s%rsp\n_s)
-                  ))
+                  (close whitespace-push)
                   (s-app(
                      (s-app(
                         (s-var '.program_s)
@@ -550,6 +553,16 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let base-type-sz (typecheck-aligned-sizeof base-type))
       (let whitespace-sz (-( base-type-sz 8_u64 )))
 
+      (let whitespace-push SNil)
+      (let whitespace-push-i 0_u64)
+      (while (<( whitespace-push-i whitespace-sz )) (tail(
+         (set whitespace-push (maybe-deref(s-app(
+            (close whitespace-push)
+            (s-lit 'pushq\s$0\n_s)
+         ))))
+         (set whitespace-push-i (+( whitespace-push-i 8_u64 )))
+      )))
+
       #push constructor
       (let arrow-tt (maybe-deref(tarrow( (maybe-deref(t1 tag)) rtype ))))
       (let arrow-dc (TAnd( (close arrow-tt) (t1 'DontChain_s) )))(set arrow-tt arrow-dc)
@@ -562,13 +575,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
             (s-app(
                (s-var '.program_s)
                (s-app(
-                  (s-app(
-                     (s-app(
-                        (s-lit '\tsubq\s$_s)
-                        (s-lit(to-string whitespace-sz))
-                     ))
-                     (s-lit ',\s%rsp\n_s)
-                  ))
+                  (close whitespace-push)
                   (s-app(
                      (s-lit '\tpushq\s$_s)
                      (s-app(
@@ -583,6 +590,30 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let ctx-2 (maybe-deref(cccontext::bind(
          ctx 'push_s arrow-tt fragment
       ))))(set ctx ctx-2)
+
+      (let whitespace-mov-local SNil)
+      (let whitespace-mov-local-i 0_u64)
+      (while (<( whitespace-mov-local-i whitespace-sz )) (tail(
+         (set whitespace-mov-local (maybe-deref(s-app(
+            (close whitespace-mov-local)
+            (s-app(
+               (s-lit '\tmovq\s$0,\s_s)
+               (s-app(
+                  (s-var '+_s)
+                  (s-app(
+                     (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
+                     (s-app(
+                        (s-app(
+                           (s-var '.expression_s)
+                           (s-var 'dst_s)
+                        ))
+                        (s-lit '\[%rbp\]\n_s)
+                     ))
+                  ))
+               ))
+            ))
+         ))))
+      )))
 
       #mov local constructor
       (let arrow-tt (maybe-deref(tarrow(
@@ -612,7 +643,10 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                               (s-var '.expression_s)
                               (s-var 'dst_s)
                            ))
-                           (s-lit '\[%rbp\]\n_s)
+                           (s-app(
+                              (s-lit '\[%rbp\]\n_s)
+                              (close whitespace-mov-local)
+                           ))
                         ))
                      ))
                   ))
@@ -623,6 +657,30 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let ctx-2 (maybe-deref(cccontext::bind(
          ctx 'mov_s arrow-tt fragment
       ))))(set ctx ctx-2)
+
+      (let whitespace-mov-global SNil)
+      (let whitespace-mov-global-i 0_u64)
+      (while (<( whitespace-mov-global-i whitespace-sz )) (tail(
+         (set whitespace-mov-global (maybe-deref(s-app(
+            (close whitespace-mov-global)
+            (s-app(
+               (s-lit '\tmovq\s$0,\s_s)
+               (s-app(
+                  (s-var '+_s)
+                  (s-app(
+                     (s-lit(to-string(+( 8_u64 whitespace-mov-local-i ))))
+                     (s-app(
+                        (s-app(
+                           (s-var '.expression_s)
+                           (s-var 'dst_s)
+                        ))
+                        (s-lit '\[%r15\]\n_s)
+                     ))
+                  ))
+               ))
+            ))
+         ))))
+      )))
 
       #mov global constructor
       (let arrow-tt (maybe-deref(tarrow(
@@ -651,8 +709,11 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                      (s-app(
                         (s-lit ',\s%r15\n\tmovq\s$_s)
                         (s-app(
-                           (s-lit(to-string case-number))
-                           (s-lit ',\s0\[%r15\]\n_s)
+                           (s-app(
+                              (s-lit(to-string case-number))
+                              (s-lit ',\s0\[%r15\]\n_s)
+                           ))
+                           (close whitespace-mov-global)
                         ))
                      ))
                   ))

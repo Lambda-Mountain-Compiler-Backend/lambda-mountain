@@ -171,51 +171,21 @@ fragment > := λ(: l LocalVariable+I64)(: r Constant+I64). (: (
    (as RAX I64)
 )) I64);
 
-<< := λ(: l U64)(: r U64). (: (tail(
-   (match r (
-      ()
-      ( 1_u64 (tail( (mov( l RAX )) (shl( 1_u64 RAX )) )))
-      ( 2_u64 (tail( (mov( l RAX )) (shl( 2_u64 RAX )) )))
-      ( 3_u64 (tail( (mov( l RAX )) (shl( 3_u64 RAX )) )))
-      ( 4_u64 (tail( (mov( l RAX )) (shl( 4_u64 RAX )) )))
-      ( 5_u64 (tail( (mov( l RAX )) (shl( 5_u64 RAX )) )))
-      ( 6_u64 (tail( (mov( l RAX )) (shl( 6_u64 RAX )) )))
-      ( 7_u64 (tail( (mov( l RAX )) (shl( 7_u64 RAX )) )))
-      ( 8_u64 (tail( (mov( l RAX )) (shl( 8_u64 RAX )) )))
-      ( 9_u64 (tail( (mov( l RAX )) (shl( 9_u64 RAX )) )))
-      ( 10_u64 (tail( (mov( l RAX )) (shl( 10_u64 RAX )) )))
-      ( 11_u64 (tail( (mov( l RAX )) (shl( 11_u64 RAX )) )))
-      ( 12_u64 (tail( (mov( l RAX )) (shl( 12_u64 RAX )) )))
-      ( 13_u64 (tail( (mov( l RAX )) (shl( 13_u64 RAX )) )))
-      ( 14_u64 (tail( (mov( l RAX )) (shl( 14_u64 RAX )) )))
-      ( 15_u64 (tail( (mov( l RAX )) (shl( 15_u64 RAX )) )))
-      ( 16_u64 (tail( (mov( l RAX )) (shl( 16_u64 RAX )) )))
+fragment << := λ(: l U64+LocalVariable)(: r U64+Constant+Literal). (: (
+   (.program(
+      \t mov \s (.expression l) \[ '%rbp \] , '%rax \n
+      \t shl \s $ (.expression r) , '%rax \n
    ))
-   (as RAX U64)
-)) U64);
+   (.expression rax)
+) U64+Reg64);
 
->> := λ(: l U64)(: r U64). (: (tail(
-   (match r (
-      ()
-      ( 1_u64 (tail( (mov( l RAX )) (shr( 1_u64 RAX )) )))
-      ( 2_u64 (tail( (mov( l RAX )) (shr( 2_u64 RAX )) )))
-      ( 3_u64 (tail( (mov( l RAX )) (shr( 3_u64 RAX )) )))
-      ( 4_u64 (tail( (mov( l RAX )) (shr( 4_u64 RAX )) )))
-      ( 5_u64 (tail( (mov( l RAX )) (shr( 5_u64 RAX )) )))
-      ( 6_u64 (tail( (mov( l RAX )) (shr( 6_u64 RAX )) )))
-      ( 7_u64 (tail( (mov( l RAX )) (shr( 7_u64 RAX )) )))
-      ( 8_u64 (tail( (mov( l RAX )) (shr( 8_u64 RAX )) )))
-      ( 9_u64 (tail( (mov( l RAX )) (shr( 9_u64 RAX )) )))
-      ( 10_u64 (tail( (mov( l RAX )) (shr( 10_u64 RAX )) )))
-      ( 11_u64 (tail( (mov( l RAX )) (shr( 11_u64 RAX )) )))
-      ( 12_u64 (tail( (mov( l RAX )) (shr( 12_u64 RAX )) )))
-      ( 13_u64 (tail( (mov( l RAX )) (shr( 13_u64 RAX )) )))
-      ( 14_u64 (tail( (mov( l RAX )) (shr( 14_u64 RAX )) )))
-      ( 15_u64 (tail( (mov( l RAX )) (shr( 15_u64 RAX )) )))
-      ( 16_u64 (tail( (mov( l RAX )) (shr( 16_u64 RAX )) )))
+fragment >> := λ(: l U64+LocalVariable)(: r U64+Constant+Literal). (: (
+   (.program(
+      \t mov \s (.expression l) \[ '%rbp \] , '%rax \n
+      \t shr \s $ (.expression r) , '%rax \n
    ))
-   (as RAX U64)
-)) U64);
+   (.expression rax)
+) U64+Reg64);
 
 ^ := λ(: l U64)(: r U64). (: (tail(
    (mov( r R8 ))

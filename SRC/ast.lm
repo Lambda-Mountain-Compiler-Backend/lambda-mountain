@@ -467,6 +467,12 @@ serialize-ast := λ(: tt Type). (: (match tt (
    )))
 )) Nil);
 
+close := λ(: x Type). (: (tail(
+   (mov( (malloc(sizeof Type)) R8 ))
+   (mov( x 0_u64 (as R8 Type[]) ))
+   (as R8 Type[])
+)) Type[]);
+
 s-abs := λ(: lhs S[])(: rhs S[]). (: (
    (close(SCons(
       (close(SAtom 'Abs_s))
@@ -500,3 +506,4 @@ s-lit := λ(: s String). (: (
       (close(SAtom s))
    )))
 ) S[]);
+

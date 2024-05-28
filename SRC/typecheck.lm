@@ -171,12 +171,6 @@ merge := λ(: lctx TContext)(: rctx TContext). (: (tail(
    (close lctx)
 )) TContext[]);
 
-close := λ(: x Type). (: (tail(
-   (mov( (malloc(sizeof Type)) R8 ))
-   (mov( x 0_u64 (as R8 Type[]) ))
-   (as R8 Type[])
-)) Type[]);
-
 tsized := λ(: sz String). (: (tail(
    (let sz (TGround(
       sz
