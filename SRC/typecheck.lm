@@ -976,9 +976,10 @@ typecheck-infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed). (: (tail
          (match (typecheck-slot( deref-type 'Array_s )) (
             ()
             ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF TAny )) _ )) )) () )
-            ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF array-base )) TAny )) )) (
-               (set deref-type (maybe-deref(tand( array-base (maybe-deref(t1 'StackVariable_s)) ))))
-            ))
+            ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF array-base )) TAny )) )) (tail(
+               (let deref-type-2 (maybe-deref(tand( array-base (maybe-deref(t1 'StackVariable_s)) ))))
+               (set deref-type deref-type-2)
+            )))
             ( _ () )
          ))
          (typecheck-ascript( term deref-type ))
