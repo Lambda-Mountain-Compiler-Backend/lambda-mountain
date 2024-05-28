@@ -406,10 +406,11 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-push SNil)
       (let whitespace-push-i 0_u64)
       (while (<( whitespace-push-i whitespace-sz )) (tail(
-         (set whitespace-push (maybe-deref(s-app(
+         (let whitespace-push-2 (maybe-deref(s-app(
             (close whitespace-push)
             (s-lit 'pushq\s$0\n_s)
          ))))
+         (set whitespace-push whitespace-push-2)
          (set whitespace-push-i (+( whitespace-push-i 8_u64 )))
       )))
       (let arrow-tt (maybe-deref(tarrow( (maybe-deref(t1 tag)) (maybe-deref(tand( rtype (maybe-deref(t1 'StackVariable_s)) ))) ))))
@@ -556,10 +557,11 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-push SNil)
       (let whitespace-push-i 0_u64)
       (while (<( whitespace-push-i whitespace-sz )) (tail(
-         (set whitespace-push (maybe-deref(s-app(
+         (let whitespace-push-2 (maybe-deref(s-app(
             (close whitespace-push)
             (s-lit 'pushq\s$0\n_s)
          ))))
+         (set whitespace-push whitespace-push-2)
          (set whitespace-push-i (+( whitespace-push-i 8_u64 )))
       )))
 
@@ -594,7 +596,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-mov-local SNil)
       (let whitespace-mov-local-i 0_u64)
       (while (<( whitespace-mov-local-i whitespace-sz )) (tail(
-         (set whitespace-mov-local (maybe-deref(s-app(
+         (let whitespace-mov-local-2 (maybe-deref(s-app(
             (close whitespace-mov-local)
             (s-app(
                (s-lit '\tmovq\s$0,\s_s)
@@ -613,6 +615,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                ))
             ))
          ))))
+         (set whitespace-mov-local whitespace-mov-local-2)
          (set whitespace-mov-local-i (+( whitespace-mov-local-i 8_u64 )))
       )))
 
@@ -662,7 +665,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-mov-global SNil)
       (let whitespace-mov-global-i 0_u64)
       (while (<( whitespace-mov-global-i whitespace-sz )) (tail(
-         (set whitespace-mov-global (maybe-deref(s-app(
+         (let whitespace-mov-global-2 (maybe-deref(s-app(
             (close whitespace-mov-global)
             (s-app(
                (s-lit '\tmovq\s$0,\s_s)
@@ -681,6 +684,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
                ))
             ))
          ))))
+         (set whitespace-mov-global whitespace-mov-global-2)
          (set whitespace-mov-global-i (+( whitespace-mov-global-i 8_u64 )))
       )))
 
