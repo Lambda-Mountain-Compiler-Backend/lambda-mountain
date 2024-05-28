@@ -406,11 +406,10 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-push SNil)
       (let whitespace-push-i 0_u64)
       (while (<( whitespace-push-i whitespace-sz )) (tail(
-         (set whitespace-push-2 (maybe-deref(s-app(
+         (set whitespace-push (maybe-deref(s-app(
             (close whitespace-push)
             (s-lit 'pushq\s$0\n_s)
          ))))
-         (set whitespace-push whitespace-push-2)
          (set whitespace-push-i (+( whitespace-push-i 8_u64 )))
       )))
       (let arrow-tt (maybe-deref(tarrow( (maybe-deref(t1 tag)) (maybe-deref(tand( rtype (maybe-deref(t1 'StackVariable_s)) ))) ))))

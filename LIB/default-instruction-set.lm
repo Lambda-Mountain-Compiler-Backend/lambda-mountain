@@ -183,6 +183,22 @@ fragment mov := λ(: src LocalVariable+Sized<size>)(: index Literal+Constant)(: 
       ))
    ))
 ) Nil);
+fragment mov := λ(: src StackVariable+Sized<size>)(: dst LocalVariable+Sized<size>). (: (
+   (.program (
+      (for word-offset in (range( 0 (/( size 8 )) )) (
+         \t 'pop (+( (*( word-offset 8 )) (.expression dst) )) \[ '%rbp \] \n
+      ))
+   ))
+)) Nil);
+fragment mov := λ(: src StackVariable+Sized<size>)(: dst GlobalVariable+Sized<size>). (: (
+   (.program (
+      \t 'mov \s '$ (.expression dst) , \s '%r15 \n
+      (for word-offset in (range( 0 (/( size 8 )) )) (
+         \t 'pop \s (*( word-offset 8 )) \[ '%r15 \] \n
+      ))
+   ))
+)) Nil);
+
 fragment mov := λ(: src LocalVariable+Sized<size>)(: index Literal+Constant)(: dst LocalVariable+Array<Sized<size>,?>). (: (
    (.program (
       \t 'mov \s (.expression dst) \[ '%rbp \] , \s '%r14 \n
