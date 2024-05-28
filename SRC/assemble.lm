@@ -406,7 +406,7 @@ compile-define-tag-constructor := λ(: ctx CCContext)(: tag String)(: arg-types 
       (let whitespace-push SNil)
       (let whitespace-push-i 0_u64)
       (while (<( whitespace-push-i whitespace-sz )) (tail(
-         (let whitespace-push-2 (maybe-deref(s-app(
+         (set whitespace-push-2 (maybe-deref(s-app(
             (close whitespace-push)
             (s-lit 'pushq\s$0\n_s)
          ))))
