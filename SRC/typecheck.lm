@@ -276,6 +276,7 @@ typecheck-infer-type-constructor := λ(: base-type Type)(: body AST). (: (tail(
             tag
             rtype
          )))
+         (typecheck-set-size( base-type (maybe-deref(t1 'Nil_s)) ))
          (set r 8_u64)
       )))
       ( (App( (Lit tag) args )) (tail(
@@ -293,6 +294,7 @@ typecheck-infer-type-constructor := λ(: base-type Type)(: body AST). (: (tail(
             tag
             (maybe-deref(tarrow( atype rtype )))
          )))
+         (typecheck-set-size( base-type atype ))
          (set r (typecheck-aligned-sizeof atype))
          (set r (+( r 8_u64 )))
       )))
