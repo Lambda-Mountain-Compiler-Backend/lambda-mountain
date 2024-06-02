@@ -14,6 +14,8 @@ list-tail-order-to-head-order := λ(: s S). (: (tail(
    new
 )) S);
 
+noop := λ. (: () Nil);
+
 is-variable := λ(: s String). (: (tail(
    (let r False_u8)
    (match (head-string s) (

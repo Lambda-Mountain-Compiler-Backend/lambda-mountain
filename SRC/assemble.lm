@@ -120,7 +120,7 @@ compile-type := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
             ))) 
          )))
          ()
-         # TODO (let ctx-3 (maybe-deref(compile-define-head-accessor( ctx base-type ))))(set ctx ctx-3)
+         # 'TODO (let ctx-3 (maybe-deref(compile-define-head-accessor( ctx base-type ))))(set ctx ctx-3)
       )))
    ) (tail(
       (let case-number 0_u64)
@@ -492,7 +492,10 @@ compile-define-field-accessors := λ(: ctx CCContext)(: base-type Type)(: field-
 )) CCContext[]);
 
 compile-define-tag-constructor-template := λ(: ctx CCContext)(: tag String)(: arg-types Type)(: base-type Type)(: rtype Type)(: case-number U64). (: (tail(
-   (print 'TODO\sCompile\sTag\sConstructor\s_s)(print tag)(print '\n_s)
+   (let maybe-sized-base-type (maybe-deref(tand( base-type (maybe-deref(tsized '0_s)) ))))
+   (let template-push (maybe-deref(cccontext::lookup( ctx 'template::push_s maybe-sized-base-type ASTEOF ))))
+   (print 'Found\sTemplate\sPush\n_s)
+   # TODO replace tag + return-type in template context
    (close ctx)
 )) CCContext[]);
 
