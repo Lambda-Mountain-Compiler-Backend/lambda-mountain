@@ -253,6 +253,7 @@ compile-define-field-accessor := λ(: ctx CCContext)(: base-type Type)(: field-t
       ( (TGround( 'Reg32_s _ )) (set reg-name 'r15d_s) )
       ( (TGround( 'Reg64_s _ )) (set reg-name 'r15_s) )
       ( (TGround( 'StackVariable_s _ )) () )
+      ( TAny () )
    ))
    (let return-type (maybe-deref(with-representation case-type)))
    (let ftype (maybe-deref(tarrow( (maybe-deref(tand( base-type (maybe-deref(t1 'LocalVariable_s)) ))) return-type ))))
