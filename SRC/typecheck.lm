@@ -69,7 +69,7 @@ typecheck-sizeof := λ(: tt Type). (: (tail(
          (set sz (to-u64 szp))
       ))
       ( (TGround( tag (TypeSeq( TypeEOF p1 )) )) (
-         (set sz (typecheck-get-size tag))
+         (set sz (typecheck-get-size tt))
       ))
       ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF p1 )) TAny )) )) (
          (set sz 8_u64)
@@ -84,10 +84,10 @@ typecheck-sizeof := λ(: tt Type). (: (tail(
          (set sz (*( (typecheck-sizeof p1) (to-u64 szp) )))
       ))
       ( (TGround( tag (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (
-         (set sz (typecheck-get-size tag))
+         (set sz (typecheck-get-size tt))
       ))
       ( (TGround( tag (TypeSeq( (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) p3 )) )) (
-         (set sz (typecheck-get-size tag))
+         (set sz (typecheck-get-size tt))
       ))
       ( (TAnd( lt rt )) (
          (if (typecheck-sizeof lt) (
@@ -119,6 +119,27 @@ typecheck-get-size := λ(: tag String). (: (tail(
          (if (==( kt tag )) (
             (set sz ks)
          ) ())
+         (set sizes rst)
+      )))
+   )))
+   sz
+)) U64);
+
+typecheck-get-size := λ(: tt Type). (: (tail(
+   (let tag '_s)
+   (match tt (
+      ()
+      ( (TGround( tg _ )) (set tag tg) )
+      ( _ () )
+   ))
+   (let sz 0_u64)
+   (let sizes typecheck-type-sizes2)
+   (while (non-zero sizes) (match sizes (
+      ()
+      ( (TSz2Seq( rst kt bt at )) (tail(
+         (if (==( kt tag )) (tail(
+            (print 'Matched\sTag\s_s)(print bt)(print '\s:\s_s)(print at)(print '\n_s)
+         )) ())
          (set sizes rst)
       )))
    )))

@@ -5,10 +5,11 @@ import LIB/default-rules.lm;
 import LIB/default-stdlib.lm;
 import LIB/default-templates.lm;
 
-type XY<x,y> (XY( x , y ));
+type XY<x,y> (XY1( x , y )) | XY2;
 
 main := λ. (: (tail(
-  (let xy (XY( 1_u64 2_i64 )))
+  (let xy1 (XY1( 1_u64 2_i64 )))
+  (let xy2 XY2)
   ()
 )) Nil);
 
