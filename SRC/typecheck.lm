@@ -112,36 +112,39 @@ typecheck-aligned-sizeof := λ(: tt Type). (: (tail(
 
 typecheck-get-size := λ(: tag String). (: (tail(
    (let sz 0_u64)
-   # TODO
-   #(let sizes typecheck-type-sizes)
-   #(while (non-zero sizes) (match sizes (
-   #   ()
-   #   ( (TSzSeq( rst kt ks )) (tail(
-   #      (if (==( kt tag )) (
-   #         (set sz ks)
-   #      ) ())
-   #      (set sizes rst)
-   #   )))
-   #)))
+   (let sizes typecheck-type-sizes)
+   (while (non-zero sizes) (match sizes (
+      ()
+      ( (TSzSeq( rst kt ks )) (tail(
+         (if (==( kt tag )) (
+            (set sz ks)
+         ) ())
+         (set sizes rst)
+      )))
+   )))
    sz
 )) U64);
 
 typecheck-set-size := λ(: base-type Type)(: args-type Type). (: (tail(
    (let tag '_s)
+   (let simple False_u8)
    (match base-type (
       ()
+      ( (TGround( tg TypeEOF )) (tail( (set tag tg) (set simple True_u8) )) )
       ( (TGround( tg _ )) (set tag tg) )
       ( _ (tail(
          (print 'ERROR:\stypecheck-set-size\n_s)
          (exit 1_u64)
       )))
    ))
-   (set typecheck-type-sizes2 (TSz2Seq(
-      (close typecheck-type-sizes2)
-      tag
-      base-type
-      args-type
-   )))
+   (if (==( simple True_u8 )) () (
+      (set typecheck-type-sizes2 (TSz2Seq(
+         (close typecheck-type-sizes2)
+         tag
+         base-type
+         args-type
+      )))
+   ))
 )) Nil);
 
 typecheck-set-size := λ(: tag String)(: sz U64). (: (
@@ -387,7 +390,11 @@ typecheck-infer-global-context := λ(: td AST). (: (tail(
       ( (ASTType( (Lit base-type) case-constructors )) (tail(
          (let bt (maybe-deref(parse-type base-type)))
          (let size (typecheck-infer-type-definition( bt case-constructors )))
-         #(typecheck-set-size( bt size ))
+         (match bt (
+            ()
+            ( (TGround( tag TypeEOF )) (typecheck-set-size( tag size )) )
+            ( _ () )
+         ))
       )))
       ( (Glb( k (Abs( lhs (Asc( rhs rhst )) )) )) (tail(
          (let lt (maybe-deref(typecheck-typeof-lhs lhs)))
