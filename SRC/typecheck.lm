@@ -126,6 +126,11 @@ typecheck-get-size := λ(: tag String). (: (tail(
 )) U64);
 
 typecheck-get-size := λ(: tt Type). (: (tail(
+   (if (is-open tt) (tail(
+      (print 'Cannot\sGet\sSizeof\sOpen\sType:\s_s)
+      (print tt)(print '\n_s)
+      (exit 1_u64)
+   )) ())
    (let tag '_s)
    (match tt (
       ()
@@ -138,7 +143,12 @@ typecheck-get-size := λ(: tt Type). (: (tail(
       ()
       ( (TSz2Seq( rst kt bt at )) (tail(
          (if (==( kt tag )) (tail(
-            (print 'Matched\sTag\s_s)(print bt)(print '\s:\s_s)(print at)(print '\n_s)
+            (let ctx (maybe-deref(typecheck-unify-args( bt tt ))))
+            (let arg-types (maybe-deref(typecheck-unify-ctx( ctx at ))))
+            (set sz (max(
+               sz
+               (+( 8_u64 (typecheck-aligned-sizeof arg-types) ))
+            )))
          )) ())
          (set sizes rst)
       )))

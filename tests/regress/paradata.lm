@@ -9,7 +9,7 @@ type XY<x,y> (XY1( x , y )) | XY2;
 
 main := λ. (: (tail(
   (let xy1 (XY1( 1_u64 2_i64 )))
-  (let xy2 XY2)
+  (let xy2 (: XY2 XY<U8,I16>))
   ()
 )) Nil);
 
