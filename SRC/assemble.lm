@@ -6,7 +6,6 @@ assemble-final                           := '_s;
 assemble-argv-referenced                 := False_u8;
 
 compile := λ(). (: (tail(
-   (print 'Compile\n_s)
    (let global-ctx (maybe-deref(cccontext::new())))
    (let preview-program ast-parsed-program)
    (while (non-zero preview-program) (match preview-program (

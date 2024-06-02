@@ -3,6 +3,7 @@ import LIB/default-instruction-set.lm;
 import LIB/default-primitives.lm;
 import LIB/default-rules.lm;
 import LIB/default-stdlib.lm;
+import LIB/default-templates.lm;
 
 import SRC/ast.lm;
 import SRC/utility.lm;

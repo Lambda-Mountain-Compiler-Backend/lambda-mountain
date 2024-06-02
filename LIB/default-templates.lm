@@ -1,0 +1,30 @@
+
+fragment template::push := λ(: src tag). (: (
+   (.program(
+      (for wsz in (range( 0 (.expression whitespace-size) )) (
+         \t 'pushq \s '$0 \n
+      ))
+      (.program src)
+      \t 'pushq \s (.expression case-number) \n
+   ))
+) return-type+StackVariable);
+
+fragment template::mov := λ(: src tag+Sized<size>)(: dst LocalVariable). (: (
+   (.program(
+      (.program src)
+      (for index in (range( 0 (.expression size) )) (
+         \t 'popq \s (+( (.expression dst) (*( '8 (.expression index) )) )) \[ '%rbp \] \n
+      ))
+   ))
+) Nil);
+
+fragment template::mov := λ(: src tag+Sized<size>)(: dst GlobalVariable). (: (
+   (.program(
+      (.program src)
+      \t 'movq \s '$ (.expression dst) , \s '%r15 \n
+      (for index in (range( 0 (.expression size) )) (
+         \t 'popq \s (*( '8 (.expression index) )) \[ '%r15 \] \n
+      ))
+   ))
+) Nil);
+
