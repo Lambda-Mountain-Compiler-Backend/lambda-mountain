@@ -104,22 +104,26 @@ compile-program-ordered := λ(: global-ctx CCContext)(: program AST). (: (tail(
 compile-type := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
    (let def rhs)
    (let base-type (maybe-deref(typecheck-infer-type-compound( lhs ))))
-   (let case-number 0_u64)
-   (if (is-fragment-type base-type) () (tail(
-      (while (non-zero def) (match def (
-         ()
-         ( (App( (App( tds (Var '|_s) )) body )) (tail(
-            (let ctx-2 (maybe-deref(compile-type-case( ctx base-type body case-number ))))(set ctx ctx-2)
-            (set case-number (+( case-number 1_u64 )))
-            (set def tds)
+   (if (is-open base-type) (
+      (print 'TODO\sComplex\sBase\sType\n_s)
+   ) (tail(
+      (let case-number 0_u64)
+      (if (is-fragment-type base-type) () (tail(
+         (while (non-zero def) (match def (
+            ()
+            ( (App( (App( tds (Var '|_s) )) body )) (tail(
+               (let ctx-2 (maybe-deref(compile-type-case( ctx base-type body case-number ))))(set ctx ctx-2)
+               (set case-number (+( case-number 1_u64 )))
+               (set def tds)
+            )))
+            ( body (tail(
+               (let ctx-2 (maybe-deref(compile-type-case( ctx base-type body case-number ))))(set ctx ctx-2)
+               (set case-number (+( case-number 1_u64 )))
+               (set def ASTEOF)
+            ))) 
          )))
-         ( body (tail(
-            (let ctx-2 (maybe-deref(compile-type-case( ctx base-type body case-number ))))(set ctx ctx-2)
-            (set case-number (+( case-number 1_u64 )))
-            (set def ASTEOF)
-         ))) 
+         (let ctx-3 (maybe-deref(compile-define-head-accessor( ctx base-type ))))(set ctx ctx-3)
       )))
-      (let ctx-3 (maybe-deref(compile-define-head-accessor( ctx base-type ))))(set ctx ctx-3)
    )))
    (close ctx)
 )) CCContext[]);
