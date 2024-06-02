@@ -2,6 +2,7 @@
 #global binding
 compile-global := λ(: ctx CCContext)(: k String)(: term AST). (: (tail(
    (let kt (maybe-deref(typecheck-lookup term)))
+   (print 'Compile\sGlobal\s_s)(print k)(print '\s:\s_s)(print kt)(print '\n_s)
    (match term (
       ()
       ( (Abs( lhs rhs )) (if (is-open kt) () (tail(
@@ -400,7 +401,7 @@ compile-expr-direct := λ(: ctx CCContext)(: term AST)(: stack-offset I64)(: use
                (match f (
                   ()
                   ( (Var fname) (tail(
-                     (let e1 (maybe-deref(compile-stack-call( ctx fname (maybe-deref(typecheck-lookup term)) a stack-offset ))))
+                     (let e1 (maybe-deref(compile-stack-call( ctx fname (maybe-deref(typecheck-lookup term)) a stack-offset used ))))
                      (set e e1)
                   )))
                   ( (Lit fname) (tail(
@@ -464,7 +465,7 @@ compile-destructure-args := λ(: tt Type)(: ctx CCContext)(: lhs AST)(: offset I
    ctx
 )) CCContext);
 
-compile-stack-call := λ(: ctx CCContext)(: function-name String)(: return-type Type)(: args AST)(: offset I64). (: (tail(
+compile-stack-call := λ(: ctx CCContext)(: function-name String)(: return-type Type)(: args AST)(: offset I64)(: used IsUsed). (: (tail(
    (let f (maybe-deref(cccontext::lookup( ctx function-name (maybe-deref(typecheck-lookup args)) args ))))
    (let function-type (maybe-deref(ccfragment::get-type f)))
    (let r (maybe-deref(ccfragment::new())))
@@ -516,18 +517,23 @@ compile-stack-call := λ(: ctx CCContext)(: function-name String)(: return-type 
             ( 2_u64 (set expr 'ax_s))
             ( 4_u64 (set expr 'eax_s))
             ( 8_u64 (set expr 'rax_s))
-            ( rsz (tail(
-               (let rsi 0_u64)
-               (let args-size (typecheck-sizeof(maybe-deref(typecheck-lookup args))))
-               (let rel-off (-( -24_i64 (as args-size I64) )))
-               (while (<( rsi rsz )) (tail(
-                  (set call (SCons( (close call) (close(SAtom '\tpush\s_s)) )))
-                  (set call (SCons( (close call) (close(SAtom(to-string rel-off))) )))
-                  (set call (SCons( (close call) (close(SAtom '\[%rsp\]\n_s)) )))
-                  (set rsi (+( rsi 8_u64 )))
+            ( rsz (
+               (if (==( used Used )) (tail(
+                  (let rsi 0_u64)
+                  (let args-size (typecheck-sizeof(maybe-deref(typecheck-lookup args))))
+                  (let rel-off (-( -24_i64 (as args-size I64) )))
+                  (while (<( rsi rsz )) (tail(
+                     (set call (SCons( (close call) (close(SAtom '\tpush\s_s)) )))
+                     (set call (SCons( (close call) (close(SAtom(to-string rel-off))) )))
+                     (set call (SCons( (close call) (close(SAtom '\[%rsp\]\n_s)) )))
+                     (set rsi (+( rsi 8_u64 )))
+                  )))
+                  (let r-7 (maybe-deref(ccfragment::set-offset( r (-( offset (as rsz I64) )) ))))(set r r-7)
+               )) (tail(
+                  (print 'Dont\sUse\sReturn\n_s)
+                  (let r-7 (maybe-deref(ccfragment::set-offset( r offset ))))(set r r-7)
                )))
-               (let r-7 (maybe-deref(ccfragment::set-offset( r (-( offset (as rsz I64) )) ))))(set r r-7)
-            )))
+            ))
          ))
 
          (let r-3 (maybe-deref(ccfragment::set( r 'program_s call ))))(set r r-3)

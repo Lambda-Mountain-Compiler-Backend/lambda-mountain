@@ -1240,18 +1240,23 @@ is-arrow := λ(: tt Type). (: (tail(
 )) U64);
 
 typecheck-apply-plural := λ(: sloc AST)(: many Type)(: pt Type). (: (tail(
+   (let tt (typecheck-apply-plural( sloc many pt True_u8 )))
+   tt
+)) Type[]);
+
+typecheck-apply-plural := λ(: sloc AST)(: many Type)(: pt Type)(: specialize U8). (: (tail(
    (let r TAny)
    (match many(
       ()
       ( (TAnd( t1 t2 )) (tail(
-         (let r1 (maybe-deref(typecheck-apply-plural( sloc t1 pt ))))
+         (let r1 (maybe-deref(typecheck-apply-plural( sloc t1 pt specialize ))))
          (if (non-zero r1) (set r r1) (tail(
-            (let r2 (maybe-deref(typecheck-apply-plural( sloc t2 pt ))))
+            (let r2 (maybe-deref(typecheck-apply-plural( sloc t2 pt specialize ))))
             (set r r2)
          )))
       )))
       ( (TGround( '->_s _ )) (tail(
-         (let r1 (maybe-deref(typecheck-apply-hard( sloc many pt ))))
+         (let r1 (maybe-deref(typecheck-apply-hard( sloc many pt specialize ))))
          (set r r1)
       )))
       ( _ () )
@@ -1260,6 +1265,11 @@ typecheck-apply-plural := λ(: sloc AST)(: many Type)(: pt Type). (: (tail(
 )) Type[]);
 
 typecheck-apply-hard := λ(: sloc AST)(: ft Type)(: pt Type). (: (tail(
+   (let tt (typecheck-apply-hard( sloc ft pt True_u8 )))
+   tt
+)) Type[]);
+
+typecheck-apply-hard := λ(: sloc AST)(: ft Type)(: pt Type)(: specialize U8). (: (tail(
    (let key '_s)
    (match sloc (
       ()
@@ -1286,9 +1296,11 @@ typecheck-apply-hard := λ(: sloc AST)(: ft Type)(: pt Type). (: (tail(
                (let closed-type (maybe-deref(typecheck-unify-ctx( ctx ft ))))
                (let rt1 (maybe-deref(as-return(maybe-deref(typecheck-unify-ctx( ctx frt ))))))
                (set rt rt1)
-               (if (head-string key) (
-                  (if (is-closing ctx) (
-                     (try-specialize( key ft ctx closed-type ))
+               (if (==( specialize True_u8 )) (
+                  (if (head-string key) (
+                     (if (is-closing ctx) (
+                        (try-specialize( key ft ctx closed-type ))
+                     ) ())
                   ) ())
                ) ())
             )) ())

@@ -61,6 +61,13 @@ compile := λ(). (: (tail(
          (set global-ctx global-ctx-2)
          (set preview-program rst)
       )))
+      ( (Seq( rst _ )) (
+         (set preview-program rst)
+      ))
+   )))
+   (let preview-program ast-parsed-program)
+   (while (non-zero preview-program) (match preview-program (
+      ()
       ( (Seq( rst (ASTType( lhs rhs )) )) (tail(
          (let global-ctx-2 (maybe-deref(compile-type( global-ctx lhs rhs ))))
          (set global-ctx global-ctx-2)
