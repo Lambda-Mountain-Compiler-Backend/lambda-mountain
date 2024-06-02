@@ -104,7 +104,24 @@ compile-type := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
    (let def rhs)
    (let base-type (maybe-deref(typecheck-infer-type-compound( lhs ))))
    (if (is-open base-type) (
-      (print 'TODO\sComplex\sBase\sType\n_s)
+      (let case-number 0_u64)
+      (if (is-fragment-type base-type) () (tail(
+         (while (non-zero def) (match def (
+            ()
+            ( (App( (App( tds (Var '|_s) )) body )) (tail(
+               (let ctx-2 (maybe-deref(compile-type-case-template( ctx base-type body case-number ))))(set ctx ctx-2)
+               (set case-number (+( case-number 1_u64 )))
+               (set def tds)
+            )))
+            ( body (tail(
+               (let ctx-2 (maybe-deref(compile-type-case-template( ctx base-type body case-number ))))(set ctx ctx-2)
+               (set case-number (+( case-number 1_u64 )))
+               (set def ASTEOF)
+            ))) 
+         )))
+         ()
+         # TODO (let ctx-3 (maybe-deref(compile-define-head-accessor( ctx base-type ))))(set ctx ctx-3)
+      )))
    ) (tail(
       (let case-number 0_u64)
       (if (is-fragment-type base-type) () (tail(
@@ -139,6 +156,24 @@ compile-type-case := λ(: ctx CCContext)(: base-type Type)(: rhs AST)(: case-num
          (let rtype (TAnd( (close base-type) (close(parse-type tag)) )))
          (let ctx-3 (maybe-deref(compile-define-tag-constructor( ctx tag atype base-type rtype case-number ))))(set ctx ctx-3)
          (let ctx-4 (maybe-deref(compile-define-field-accessors( ctx (maybe-deref(parse-type tag)) atype case-number ))))(set ctx ctx-4)
+      )))
+      ( _ () )
+   ))
+   (close ctx)
+)) CCContext[]);
+
+compile-type-case-template := λ(: ctx CCContext)(: base-type Type)(: rhs AST)(: case-number U64). (: (tail(
+   (match rhs (
+      ()
+      ( (Lit tag) (tail(
+         (let rtype (TAnd( (close base-type) (close(parse-type tag)) )) )
+         (let ctx-3 (maybe-deref(compile-define-tag-constructor-template( ctx tag TAny base-type rtype case-number ))))(set ctx ctx-3)
+      )))
+      ( (App( (Lit tag) args )) (tail(
+         (let atype (maybe-deref(typecheck-infer-type-compound args)))
+         (let rtype (TAnd( (close base-type) (close(parse-type tag)) )))
+         (let ctx-3 (maybe-deref(compile-define-tag-constructor-template( ctx tag atype base-type rtype case-number ))))(set ctx ctx-3)
+         # TODO (let ctx-4 (maybe-deref(compile-define-field-accessors( ctx (maybe-deref(parse-type tag)) atype case-number ))))(set ctx ctx-4)
       )))
       ( _ () )
    ))
@@ -453,6 +488,11 @@ compile-define-field-accessors := λ(: ctx CCContext)(: base-type Type)(: field-
          (set field-types TAny)
       )))
    )))
+   (close ctx)
+)) CCContext[]);
+
+compile-define-tag-constructor-template := λ(: ctx CCContext)(: tag String)(: arg-types Type)(: base-type Type)(: rtype Type)(: case-number U64). (: (tail(
+   (print 'TODO\sCompile\sTag\sConstructor\s_s)(print tag)(print '\n_s)
    (close ctx)
 )) CCContext[]);
 
