@@ -125,6 +125,16 @@ typecheck-get-size := λ(: tag String). (: (tail(
    sz
 )) U64);
 
+is-parameterized := λ(: tt Type). (: (tail(
+   (let r 0_u64)
+   (match tt (
+      ()
+      ( (TGround( _ (TypeSeq( _ _ )) )) (set r 1_u64) )
+      ( _ () )
+   ))
+   r
+)) U64);
+
 typecheck-get-size := λ(: tt Type). (: (tail(
    (if (is-open tt) (tail(
       (print 'Cannot\sGet\sSizeof\sOpen\sType:\s_s)
@@ -917,6 +927,9 @@ typecheck-infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed). (: (tail
          (match term (
             ()
             ( (Asc( t _ )) (tail(
+               (if (is-parameterized tt) (
+                  (typecheck-ascript( t tt ))
+               ) ())
                (match (maybe-deref(typecheck-slot( tt 'String_s ))) (
                   ()
                   ( (TGround( 'String_s _ )) () )
@@ -1061,13 +1074,15 @@ typecheck-infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed). (: (tail
       ( (Var v) (
          (typecheck-ascript( term (maybe-deref(typecheck-typeof-var( term tctx v ))) ))
       ))
-      ( (Lit l) (tail(
-         (let tt (maybe-deref(typecheck-typeof-tag l)))
-         (if (non-zero tt) (tail(
-            (let tt2 (maybe-deref(as-constant tt)))(set tt tt2)
-            (typecheck-ascript( term tt ))
-         )) ())
-      )))
+      ( (Lit l) (
+         (if (non-zero(typecheck-lookup term)) () (tail(
+            (let tt (maybe-deref(typecheck-typeof-tag l)))
+            (if (non-zero tt) (tail(
+               (let tt2 (maybe-deref(as-constant tt)))(set tt tt2)
+               (typecheck-ascript( term tt ))
+            )) ())
+         )))
+      ))
       ( _ (tail(
          (print 'Unknown\sTerm\sIn\sType\sInference\n_s)
          (print term)
