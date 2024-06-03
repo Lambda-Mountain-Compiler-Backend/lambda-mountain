@@ -109,13 +109,13 @@ compile-program-ordered := λ(: global-ctx CCContext)(: program AST). (: (tail(
 
 compile-type := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
    (let base-type (maybe-deref(typecheck-infer-type-compound( lhs ))))
-   (if (is-open base-type) (tail(
-      (print 'TODO\sComplex\sType\sAssociates\n_s)
-      (print base-type)(print '\n_s)
-   )) (tail(
-      (let ctx-2 (maybe-deref(compile-type-simple( ctx lhs rhs ))))
-      (set ctx ctx-2)
-   )))
+   (let ctx-2 (maybe-deref(compile-type-simple( ctx lhs rhs ))))
+   (set ctx ctx-2)
+   #(if (is-open base-type) (tail(
+   #   (print 'TODO\sComplex\sType\sAssociates\n_s)
+   #   (print base-type)(print '\n_s)
+   #)) (
+   #))
    (close ctx)
 )) CCContext[]);
 
