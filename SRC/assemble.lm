@@ -61,6 +61,13 @@ compile := λ(). (: (tail(
          (set global-ctx global-ctx-2)
          (set preview-program rst)
       )))
+      ( (Seq( rst _ )) (
+         (set preview-program rst)
+      ))
+   )))
+   (let preview-program ast-parsed-program)
+   (while (non-zero preview-program) (match preview-program (
+      ()
       ( (Seq( rst (ASTType( lhs rhs )) )) (tail(
          (let global-ctx-2 (maybe-deref(compile-type( global-ctx lhs rhs ))))
          (set global-ctx global-ctx-2)
@@ -101,6 +108,18 @@ compile-program-ordered := λ(: global-ctx CCContext)(: program AST). (: (tail(
 )) Nil);
 
 compile-type := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
+   (let base-type (maybe-deref(typecheck-infer-type-compound( lhs ))))
+   (if (is-open base-type) (tail(
+      (print 'TODO\sComplex\sType\sAssociates\n_s)
+      (print base-type)(print '\n_s)
+   )) (tail(
+      (let ctx-2 (maybe-deref(compile-type-simple( ctx lhs rhs ))))
+      (set ctx ctx-2)
+   )))
+   (close ctx)
+)) CCContext[]);
+
+compile-type-simple := λ(: ctx CCContext)(: lhs AST)(: rhs AST). (: (tail(
    (let def rhs)
    (let base-type (maybe-deref(typecheck-infer-type-compound( lhs ))))
    (let case-number 0_u64)

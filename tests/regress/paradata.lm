@@ -8,7 +8,7 @@ import LIB/default-templates.lm;
 type XY<x,y> (XY( x , y )) | X | (Y( x ));
 
 main := λ. (: (tail(
-  (let xy1 (XY( 1_u64 2_i8 )))
+  (let xy1 ( (: XY XY<u64,i8>) ( 1_u64 2_i8 )))
   (let xy2 (: X XY<u8,u8>))
   (let xy3 ( (: Y XY<i32,u32>) ( 3_i32 )))
 )) Nil);

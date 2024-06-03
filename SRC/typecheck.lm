@@ -865,6 +865,9 @@ typecheck-infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed). (: (tail
          (match term (
             ()
             ( (Asc( t _ )) (tail(
+               (if (is-parameterized tt) (
+                  (typecheck-ascript( t tt ))
+               ) ())
                (match (maybe-deref(typecheck-slot( tt 'String_s ))) (
                   ()
                   ( (TGround( 'String_s _ )) () )
@@ -1009,13 +1012,15 @@ typecheck-infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed). (: (tail
       ( (Var v) (
          (typecheck-ascript( term (maybe-deref(typecheck-typeof-var( term tctx v ))) ))
       ))
-      ( (Lit l) (tail(
-         (let tt (maybe-deref(typecheck-typeof-tag l)))
-         (if (non-zero tt) (tail(
-            (let tt2 (maybe-deref(as-constant tt)))(set tt tt2)
-            (typecheck-ascript( term tt ))
-         )) ())
-      )))
+      ( (Lit l) (
+         (if (non-zero(typecheck-lookup term)) () (tail(
+            (let tt (maybe-deref(typecheck-typeof-tag l)))
+            (if (non-zero tt) (tail(
+               (let tt2 (maybe-deref(as-constant tt)))(set tt tt2)
+               (typecheck-ascript( term tt ))
+            )) ())
+         )))
+      ))
       ( _ (tail(
          (print 'Unknown\sTerm\sIn\sType\sInference\n_s)
          (print term)
