@@ -1,7 +1,7 @@
 
 develop: compile-production
 	rm -f tmp tmp.o tmp.s
-	./production -o tmp.s tests/regress/stack-efficiency.lm
+	./production -o tmp.s tests/regress/paradata.lm
 	as tmp.s -o tmp.o
 	ld tmp.o -o tmp
 	./tmp
