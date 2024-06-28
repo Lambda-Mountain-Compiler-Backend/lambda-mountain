@@ -197,6 +197,7 @@ is-open := λ(: tt Type). (: (tail(
          (if (is-open lt) (set r 1_u64) ())
          (if (is-open rt) (set r 1_u64) ())
       )))
+      ( (TGround( 'Token_s _ )) () )
       ( (TGround( _ pars )) (
          (while (non-zero pars) (match pars (
             ()

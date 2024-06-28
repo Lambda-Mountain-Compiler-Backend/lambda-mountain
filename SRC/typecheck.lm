@@ -1174,6 +1174,7 @@ is-parameterized := λ(: tt Type). (: (tail(
    (let r 0_u64)
    (match tt (
       ()
+      ( (TGround( 'Token_s _ )) () )
       ( (TGround( _ (TypeSeq( _ _ )) )) (set r 1_u64) )
       ( (TAnd( lt rt )) (tail(
          (if (is-parameterized lt) (set r 1_u64) ())

@@ -3,11 +3,11 @@ import LIB/default.lm;
 
 type Op<op> (Operator);
 
-f := λ(: x U64)(: y U64)(: op Op<op>). (: (
-   (print( ((: op ?)( x y )) ))
+f := λ(: x U64)(: y U64)(: op Op<Token<op>>). (: (
+   (print( (op( x y )) ))
 ) Nil);
 
 main := λ. (: (tail(
-  (f( 2_u64 1_u64 (: Operator Op<+>) ))
-  (f( 2_u64 1_u64 (: Operator Op<->) ))
+  (f( 2_u64 1_u64 (: Operator Op<Token<+>>) ))
+  (f( 2_u64 1_u64 (: Operator Op<Token<->>) ))
 )) Nil);
