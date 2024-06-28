@@ -15,6 +15,9 @@ typecheck-sizeof := λ(: tt Type). (: (tail(
       ( (TGround( 'Sized_s (TypeSeq( TypeEOF (TGround( szp TypeEOF )) )) )) (
          (set sz (to-u64 szp))
       ))
+      ( (TGround( 'Token_s _ )) (
+         (set sz 0_u64)
+      ))
       ( (TGround( tag (TypeSeq( TypeEOF p1 )) )) (
          (set sz (typecheck-get-size tt))
       ))
@@ -286,7 +289,8 @@ typecheck-infer-global-context := λ(: td AST). (: (tail(
    ()
 )) Nil);
 
-typecheck-assert-complete := λ(: term AST). (: (
+typecheck-assert-complete := λ(: term AST). (: (tail(
+   (print 'Assert\s_s)(print term)(print '\n_s)
    (match term (
       ()
       ( ASTEOF (typecheck-assert-one term) )
@@ -355,7 +359,7 @@ typecheck-assert-complete := λ(: term AST). (: (
          (exit 1_u64)
       )))
    ))
-) Nil);
+)) Nil);
 
 typecheck-assert-one := λ(: term AST). (: (
    (if (non-zero(maybe-deref(typeof term))) () (
