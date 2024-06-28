@@ -1,0 +1,13 @@
+
+import LIB/default.lm;
+
+type Op<op> (Operator);
+
+f := λ(: x U64)(: y U64)(: op Op<op>). (: (
+   (print( ((: op ?)( x y )) ))
+) Nil);
+
+main := λ. (: (tail(
+  (f( 2_u64 1_u64 (: Operator Op<+>) ))
+  (f( 2_u64 1_u64 (: Operator Op<->) ))
+)) Nil);

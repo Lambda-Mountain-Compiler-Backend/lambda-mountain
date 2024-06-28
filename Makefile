@@ -1,6 +1,6 @@
 
 develop: compile-production
-	time ./production -o tmp.s tests/regress/btree.lm
+	time ./production -o tmp.s tests/regress/parametric-token.lm
 	as tmp.s -o tmp.o
 	ld tmp.o -o tmp
 	./tmp
