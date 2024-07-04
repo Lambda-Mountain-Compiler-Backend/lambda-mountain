@@ -318,14 +318,16 @@ parse-type-single := λ(: tt String). (: (tail(
                ()
                ( 91_u8 (
                   (if (non-zero buff) (tail(
-                     (let base-type-2 (tarray(
+                     (let base-type-2 (t3(
+                        'Array_s
                         base-type
                         (parse-type(clone-rope buff))
                      )))
                      (set base-type base-type-2)
                      (set buff SNil)
                   )) (tail(
-                     (let base-type-2 (tarray(
+                     (let base-type-2 (t3(
+                        'Array_s
                         base-type
                         TAny
                      )))

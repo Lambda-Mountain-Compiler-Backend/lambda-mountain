@@ -359,7 +359,7 @@ infer-expr := λ(: tctx TContext)(: term AST)(: used IsUsed)(: hint Type). (: (t
          (let tctx2 (TCtxBind(
             (close tctx)
             lname
-            (maybe-deref(tlabel()))
+            (t1 'Label_s)
             ASTEOF
          )))
          (set tctx tctx2)
@@ -684,18 +684,6 @@ tand := λ(: lt Type)(: rt Type). (: (tail(
    )) (set lt rt))
    (close lt)
 )) Type[]);
-
-tarray := λ(: lt Type)(: rt Type). (: (tail(
-   (let tt (TGround( 'Array_s
-      (close(TypeSeq( (close(TypeSeq( (close TypeEOF) lt ))) rt )))
-   )))
-   tt
-)) Type);
-
-tlabel := λ. (: (tail(
-   (let tt (TGround( 'Label_s (close TypeEOF) )))
-   tt
-)) Type);
 
 infer-tctx := λ(: tctx TContext)(: tt TypeList). (: (tail(
    (match tt (

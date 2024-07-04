@@ -198,13 +198,13 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
       )))
       ( (App( (Var 'gensym-label_s) (Var id) )) (tail(
          (let new-ctx (maybe-deref(fragment-context::bind(
-            ctx id (maybe-deref(tlabel())) (maybe-deref(fragment::label( (uuid()) )))
+            ctx id (t1 'Label_s) (maybe-deref(fragment::label( (uuid()) )))
          ))))
          (let e-1 (maybe-deref(fragment::set-context( e new-ctx ))))(set e e-1)
          (let e-2 (maybe-deref(fragment::set-type( e (maybe-deref(t1 'Nil_s)) ))))(set e e-2)
       )))
       ( (App( (Var 'label_s) (Var id) )) (tail(
-         (let l (maybe-deref(fragment-context::lookup( ctx id (maybe-deref(tlabel())) term ))))
+         (let l (maybe-deref(fragment-context::lookup( ctx id (t1 'Label_s) term ))))
          (let prog (SCons(
             (close(fragment::get( l 'expression_s )))
             (close(SAtom ':\n_s))
