@@ -1,0 +1,11 @@
+
+import LIB/default.lm;
+
+type A (A( B , B ));
+type B (B( U64 , U64 ));
+
+main := λ. (: (tail(
+   (let a (A( (B( 1_u64 2_u64 )) (B( 3_u64 4_u64 )) )))
+   (let b (B( 1_u64 2_u64 )))
+   ()
+)) Nil);
