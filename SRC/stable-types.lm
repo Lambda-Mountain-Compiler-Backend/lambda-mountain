@@ -219,6 +219,32 @@ tsized :=  λ(: tag String). (: (tail(
    tt
 )) Type);
 
+substitute := λ(: tctx StringSList)(: t S). (: (tail(
+   (match t (
+      ()
+      ( SNil (set t SNil) )
+      ( (SAtom a) (
+         (while (non-zero tctx) (match tctx (
+            ()
+            ( (SSLSeq( rst k v )) (tail(
+               (if (==( a k )) (
+                  (set t v)
+               ) ())
+               (set tctx rst)
+            )))
+         )))
+      ))
+      ( (SCons( lt rt )) (
+         (set t (SCons(
+            (close(substitute( tctx lt )))
+            (close(substitute( tctx rt )))
+         )))
+      ))
+   ))
+   (let rt t)
+   rt
+)) S);
+
 substitute := λ(: tctx TContext)(: tt TypeList). (: (tail(
    (match tt (
       ()

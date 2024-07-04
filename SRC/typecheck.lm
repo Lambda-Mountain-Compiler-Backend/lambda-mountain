@@ -597,32 +597,6 @@ typecheck-apply-hard := λ(: sloc AST)(: ft Type)(: pt Type)(: do-specialize U8)
    (close rt)
 )) Type[]);
 
-specialize-term := λ(: tctx StringSList)(: t S). (: (tail(
-   (match t (
-      ()
-      ( SNil (set t SNil) )
-      ( (SAtom a) (
-         (while (non-zero tctx) (match tctx (
-            ()
-            ( (SSLSeq( rst k v )) (tail(
-               (if (==( a k )) (
-                  (set t v)
-               ) ())
-               (set tctx rst)
-            )))
-         )))
-      ))
-      ( (SCons( lt rt )) (
-         (set t (SCons(
-            (close(specialize-term( tctx lt )))
-            (close(specialize-term( tctx rt )))
-         )))
-      ))
-   ))
-   (let rt t)
-   rt
-)) S);
-
 try-specialize := λ(: key String)(: ft Type)(: unify-ctx TContext)(: result-type Type). (: (tail(
    (let result-type-2 (normalize result-type))(set result-type result-type-2)
    (let global-ctx global-type-context)

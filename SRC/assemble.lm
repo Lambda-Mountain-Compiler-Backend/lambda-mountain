@@ -187,7 +187,7 @@ compile-define-tag-constructor := λ(: ctx FContext)(: tag String)(: arg-types T
    (let arrow-dc (TAnd( (close arrow-tt) (close(t1 'DontChain_s)) )))(set arrow-tt arrow-dc)
    (let fragment-1 (maybe-deref(fragment::set-type( fragment arrow-dc ))))(set fragment fragment-1)
    (let fragment-2 (maybe-deref(fragment::set( fragment 'fragment-type_s (SAtom 'Fragment_s) ))))(set fragment fragment-2)
-   (let spt (specialize-term( case-tctx (fragment::get( fragment 'fragment_s )) )))
+   (let spt (substitute( case-tctx (fragment::get( fragment 'fragment_s )) )))
    (ascript( spt (typeof( (fragment::get( fragment 'fragment_s )) )) ))
    (let fragment-3 (maybe-deref(fragment::set( fragment 'fragment_s spt ))))(set fragment fragment-3)
    (let ctx-2 (maybe-deref(fragment-context::bind(
@@ -199,7 +199,7 @@ compile-define-tag-constructor := λ(: ctx FContext)(: tag String)(: arg-types T
    (let arrow-dc (TAnd( (close arrow-tt) (close(t1 'DontChain_s)) )))(set arrow-tt arrow-dc)
    (let fragment-1 (maybe-deref(fragment::set-type( fragment arrow-dc ))))(set fragment fragment-1)
    (let fragment-2 (maybe-deref(fragment::set( fragment 'fragment-type_s (SAtom 'Fragment_s) ))))(set fragment fragment-2)
-   (let spt (specialize-term( case-tctx (fragment::get( fragment 'fragment_s )) )))
+   (let spt (substitute( case-tctx (fragment::get( fragment 'fragment_s )) )))
    (ascript( spt (typeof( (fragment::get( fragment 'fragment_s )) )) ))
    (let fragment-3 (maybe-deref(fragment::set( fragment 'fragment_s spt ))))(set fragment fragment-3)
    (let ctx-2 (maybe-deref(fragment-context::bind(
@@ -212,7 +212,7 @@ compile-define-tag-constructor := λ(: ctx FContext)(: tag String)(: arg-types T
    (let arrow-dc (TAnd( (close arrow-tt) (close(t1 'DontChain_s)) )))(set arrow-tt arrow-dc)
    (let fragment-1 (maybe-deref(fragment::set-type( fragment arrow-dc ))))(set fragment fragment-1)
    (let fragment-2 (maybe-deref(fragment::set( fragment 'fragment-type_s (SAtom 'Fragment_s) ))))(set fragment fragment-2)
-   (let spt (specialize-term( case-tctx (fragment::get( fragment 'fragment_s )) )))
+   (let spt (substitute( case-tctx (fragment::get( fragment 'fragment_s )) )))
    (ascript( spt (typeof( (fragment::get( fragment 'fragment_s )) )) ))
    (let fragment-3 (maybe-deref(fragment::set( fragment 'fragment_s spt ))))(set fragment fragment-3)
    (let ctx-2 (maybe-deref(fragment-context::bind(
