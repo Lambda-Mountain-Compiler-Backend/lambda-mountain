@@ -1234,6 +1234,7 @@ sizeof-type := λ(: tt Type). (: (tail(
       ( (TGround( 'FieldsSized_s _ )) (set sz 0_u64) )
       ( (TGround( 'Tag_s _ )) (set sz 0_u64) )
       ( (TGround( 'Constructor_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Label_s _ )) (set sz 0_u64) )
       ( (TGround( 'Literal_s _ )) (set sz 0_u64) )
       ( (TGround( 'Constant_s _ )) (set sz 0_u64) )
       ( (TGround( 'Reg8_s _ )) (set sz 0_u64) )
