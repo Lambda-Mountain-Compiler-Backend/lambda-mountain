@@ -17,7 +17,7 @@ typecheck := λ. (: (tail(
       )))
    )))
    (infer-expr( global-type-context ast-parsed-program Unused TAny))
-   (typecheck-assert-complete ast-parsed-program)
+   (assert-well-typed ast-parsed-program)
 )) Nil);
 
 infer-type-definition := λ(: base-type Type)(: body AST). (: (tail(
@@ -192,14 +192,14 @@ infer-global-context := λ(: td AST). (: (tail(
    ()
 )) Nil);
 
-typecheck-assert-complete := λ(: term AST). (: (
+assert-well-typed := λ(: term AST). (: (
    (match term (
       ()
       ( ASTEOF (typecheck-assert-one term) )
       ( ASTNil (typecheck-assert-one term) )
       ( (Glb( k v )) (
          (if (is-open(typeof term)) () (
-            (typecheck-assert-complete v)
+            (assert-well-typed v)
          ))
       ))
       ( (Frg( k v tlt )) (
@@ -207,54 +207,54 @@ typecheck-assert-complete := λ(: term AST). (: (
       ))
       ( (Typedef( _ _ )) () )
       ( (App( (Abs( (Var lname) ASTNil tlt )) rhs )) (tail(
-         (typecheck-assert-complete rhs)
+         (assert-well-typed rhs)
          (typecheck-assert-one term)
       )))
       ( (App( (Var 'gensym-label_s) _ )) () )
       ( (App( (Var 'label_s) (Var _) )) () )
       ( (App( (App( (Var 'while_s) cond )) body )) (tail(
-         (typecheck-assert-complete cond)
-         (typecheck-assert-complete body)
+         (assert-well-typed cond)
+         (assert-well-typed body)
          (typecheck-assert-one term)
       )))
       ( (App( (App( (App( (Var 'if_s) cond )) t )) f )) (tail(
-         (typecheck-assert-complete cond)
-         (typecheck-assert-complete t)
-         (typecheck-assert-complete f)
+         (assert-well-typed cond)
+         (assert-well-typed t)
+         (assert-well-typed f)
          (typecheck-assert-one term)
       )))
       ( (App( (App( (Var 'set_s) lhs )) rhs )) (tail(
-         (typecheck-assert-complete rhs)
+         (assert-well-typed rhs)
          (typecheck-assert-one term)
       )))
       ( (AType _) () )
       ( (App( (Var 'tail_s) (App( lterm rterm )) )) (tail(
-         (typecheck-assert-complete lterm)
-         (typecheck-assert-complete rterm)
+         (assert-well-typed lterm)
+         (assert-well-typed rterm)
          (typecheck-assert-one term)
       )))
       ( (App( (Var 'maybe-deref_s) rterm )) (tail(
-         (typecheck-assert-complete rterm)
+         (assert-well-typed rterm)
          (typecheck-assert-one term)
       )))
       ( (App( (Var 'scope_s) rterm )) (tail(
-         (typecheck-assert-complete rterm)
+         (assert-well-typed rterm)
          (typecheck-assert-one term)
       )))
       ( (Lit l) (typecheck-assert-one term) )
       ( (Var l) (typecheck-assert-one term) )
       ( (Abs( lhs rhs tlt )) (tail(
-         (typecheck-assert-complete rhs)
+         (assert-well-typed rhs)
          (typecheck-assert-one term)
       )))
       ( (App( l r )) (tail(
-         (typecheck-assert-complete l)
-         (typecheck-assert-complete r)
+         (assert-well-typed l)
+         (assert-well-typed r)
          (typecheck-assert-one term)
       )))
       ( (Seq( l r )) (tail(
-         (typecheck-assert-complete l)
-         (typecheck-assert-complete r)
+         (assert-well-typed l)
+         (assert-well-typed r)
       )))
       ( term (tail(
          (print 'Typecheck\sAssert\sComplete\n_s)
