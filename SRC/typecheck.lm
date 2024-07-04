@@ -74,7 +74,9 @@ infer-type-constructor := λ(: base-type Type)(: body AST). (: (tail(
          (index-fields-of-tag( tag (t3( 'Cons_s base-type atype )) ))
          (.bind( (as (& type-constructors-index) BTreeEq<String,Type>[]) tag (t3( 'Arrow_s atype rtype )) ))
          (set r (sizeof-aligned atype))
-         (set r (+( r 8_u64 )))
+         (if (!=( r size-has-forward-reference )) (
+            (set r (+( r 8_u64 )))
+         ) ())
       )))
       ( _ () )
    ))
@@ -138,6 +140,11 @@ infer-global-context := λ(: td AST). (: (tail(
       ( (Typedef( (Lit base-type) case-constructors )) (tail(
          (let bt (maybe-deref(parse-type base-type)))
          (let size (infer-type-definition( bt case-constructors )))
+         (if (==( size size-has-forward-reference )) (tail(
+            (print 'Size\sOf\sType\sCannot\sBe\sDetermined\sDue\sTo\sForward\sReference:\s_s)
+            (print base-type)(print '\n_s)
+            (exit 1_u64)
+         )) ())
          (match bt (
             ()
             ( (TGround( class TypeEOF )) (index-size-of-class( class size )) )

@@ -29,6 +29,9 @@ types-have-changed := True_u8;
 
 is-special-index := (: BTreeEqEOF BTreeEq<Tuple<String,Type>,U64>);
 
+# indicates that a size cannot be computed
+size-has-forward-reference := 999999_u64;
+
 mark-as-special := λ(: name String)(: tt Type). (: (
    (.bind( (as (& is-special-index) BTreeEq<Tuple<String,Type>,U64>[]) (Pair( name tt )) 1_u64 ))
 ) Nil);
@@ -51,9 +54,10 @@ index-size-of-class := λ(: class String)(: size U64). (: (
    (.bind( (as (& class-to-size-index) BTreeEq<String,U64>[]) class size ))
 ) Nil);
 
-size-of-class := λ(: class String). (: (
-   (.lookup( class-to-size-index class 0_u64 ))
-) U64);
+size-of-class := λ(: class String). (: (tail(
+   (let sz (.lookup( class-to-size-index class size-has-forward-reference )))
+   sz
+)) U64);
 
 index-tag-is-fragment := λ(: tag String). (: (
    (.bind( (as (& tag-is-fragment-index) BTreeEq<String,U64>[]) tag 1_u64 ))
@@ -1223,30 +1227,48 @@ sizeof-type := λ(: tt Type). (: (tail(
       ()
       ( TAny () )
       ( (TVar _) () )
-      ( (TGround( class TypeEOF )) (set sz (size-of-class class)) )
       ( (TGround( 'Sized_s (TypeSeq( TypeEOF (TGround( szp TypeEOF )) )) )) (
          (set sz (to-u64 szp))
       ))
+      ( (TGround( 'Nil_s _ )) (set sz 0_u64) )
+      ( (TGround( 'FieldsSized_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Tag_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Constructor_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Literal_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Constant_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Reg8_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Reg16_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Reg32_s _ )) (set sz 0_u64) )
+      ( (TGround( 'Reg64_s _ )) (set sz 0_u64) )
+      ( (TGround( class TypeEOF )) (set sz (size-of-class class)) )
       ( (TGround( 'Array_s (TypeSeq( (TypeSeq( TypeEOF p1 )) TAny )) )) (
          (set sz 8_u64)
       ))
-      ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (
-         (set sz (+(
-            (sizeof-aligned p1)
-            (sizeof-aligned p2)
-         )))
-      ))
+      ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF p1 )) p2 )) )) (tail(
+         (let p1-sz (sizeof-aligned p1))
+         (let p2-sz (sizeof-aligned p1))
+         (set sz (+( p1-sz p2-sz )))
+         (if (==( p1-sz size-has-forward-reference )) (
+            (set sz p1-sz)
+         ) ())
+         (if (==( p2-sz size-has-forward-reference )) (
+            (set sz p2-sz)
+         ) ())
+      )))
       ( (TGround( 'Field_s (TypeSeq( (TypeSeq( TypeEOF p1 )) (TGround( szp TypeEOF )) )) )) (
          (set sz (*( (sizeof-type p1) (to-u64 szp) )))
       ))
       ( (TGround( tag _ )) (
          (match (.lookup( type-complex-fields-index tag (Pair( TAny TAny )) )) (
             ()
-            ( (Pair( TAny TAny )) () )
+            ( (Pair( TAny TAny )) (set sz size-has-forward-reference) )
             ( (Pair( bt at )) (tail(
                (let ctx (unify( bt tt )))
                (let arg-types (substitute( ctx at )))
-               (set sz (+( 8_u64 (sizeof-aligned arg-types) )))
+               (set sz (sizeof-aligned arg-types))
+               (if (!=( sz size-has-forward-reference )) (
+                  (set sz (+( sz 8_u64 )))
+               ) ())
             )))
          ))
       ))
@@ -1363,6 +1385,10 @@ with-size-recurse := λ(: tt Type). (: (tail(
             (with-size-recurse rt)
          )))
       ))
+      ( (TGround( 'Sized_s ps )) () )
+      ( (TGround( 'FieldsSized_s ps )) () )
+      ( (TGround( 'Tag_s ps )) () )
+      ( (TGround( 'Constructor_s ps )) () )
       ( (TGround( tag ps )) (
          (set tt (TGround( tag (close(with-size ps)) )))
       ))
