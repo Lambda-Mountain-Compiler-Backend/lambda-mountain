@@ -101,11 +101,11 @@ fn run_bootstrap(target: &str) -> String {
                       .expect("failed to execute process")
                       .wait_with_output()
                       .expect("failed to wait for process");
-   if !exit.status.success() {
-      let stderr = String::from_utf8_lossy(&exit.stderr).to_string();
-      return format!("timeout 30 ./a.out error code: {} on target {}", stderr, target);
+   let actual = if exit.status.success() {
+      String::from_utf8_lossy(&exit.stdout).to_string()
+   } else {
+      "Error: ".to_owned() + &String::from_utf8_lossy(&exit.stderr).to_string()
    };
-   let actual = String::from_utf8_lossy(&exit.stdout).to_string();
    rm("tmp.s");
    rm("tmp.o");
    rm("a.out");
