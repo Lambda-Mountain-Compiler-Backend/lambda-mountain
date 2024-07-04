@@ -1511,3 +1511,39 @@ guess-representation := λ(: tt Type). (: (tail(
    )))
    tt
 )) Type);
+
+unify-hint := λ(: hint Type)(: tt Type). (: (tail(
+   (match (Pair( hint tt )) (
+      ()
+      ( (Pair( (TGround( hint-tag hint-args )) (TGround( tt-tag tt-args )) )) (
+         (if (==( hint-tag tt-tag )) (
+            (set tt hint)
+         ) (
+            (set tt (TGround( tt-tag (close(unify-hint( hint tt-args ))) )))
+         ))
+      ))
+      ( (Pair( _ (TAnd( lt rt )) )) (
+         (set tt (TAnd(
+            (close(unify-hint( hint lt )))
+            (close(unify-hint( hint rt )))
+         )))
+      ))
+      ( _ () )
+   ))
+   tt
+)) Type);
+
+unify-hint := λ(: hint Type)(: tt TypeList). (: (tail(
+   (match tt (
+      ()
+      ( TypeEOF () )
+      ( (TypeSeq( rst p1 )) (
+         (set tt (TypeSeq(
+            (close(unify-hint( hint rst )))
+            (unify-hint( hint p1 ))
+         )))
+      ))
+      ( _ () )
+   ))
+   tt
+)) TypeList);
