@@ -232,8 +232,8 @@ preprocess-apply-maybe := λ(: program AST). (: (tail(
             ( CtxEOF (set macros rst) )
             ( ctx (tail(
                (let p (apply( ctx rhs )))
-               (let c (maybe-deref(extract-uuids( program CtxEOF p ))))
-               (let u (maybe-deref(substitute-uuids( c p ))))
+               (let c (extract-uuids( program CtxEOF p )))
+               (let u (substitute-uuids( c p )))
                (let n (preprocess-apply u))
                (set return (relocate( n (location-of program) )))
                (set macros MEOF)
