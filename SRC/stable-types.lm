@@ -1245,21 +1245,17 @@ sizeof-aligned := λ(: tt Type). (: (tail(
    sz
 )) U64);
 
-set-size := λ(: base-type Type)(: args-type Type). (: (tail(
+set-type-fields := λ(: base-type Type)(: args-type Type). (: (tail(
    (let tag '_s)
-   (let simple False_u8)
    (match base-type (
       ()
-      ( (TGround( tg TypeEOF )) (tail( (set tag tg) (set simple True_u8) )) )
       ( (TGround( tg _ )) (set tag tg) )
       ( _ (tail(
-         (print 'ERROR:\stypecheck-set-size\n_s)
+         (print 'ERROR:\sset-size\n_s)(print base-type)(print '\n_s)
          (exit 1_u64)
       )))
    ))
-   (if (==( simple True_u8 )) () (
-      (.bind( (as (& type-complex-fields-index) BTreeEq<String,Tuple<Type,Type>>[]) tag (Pair( base-type args-type )) ))
-   ))
+   (.bind( (as (& type-complex-fields-index) BTreeEq<String,Tuple<Type,Type>>[]) tag (Pair( base-type args-type )) ))
 )) Nil);
 
 typeof-lhs := λ(: lhs AST). (: (tail(
@@ -1541,4 +1537,115 @@ typecheck := λ. (: (tail(
    )))
    (infer-expr( global-type-context ast-parsed-program Unused TAny ))
    (assert-well-typed ast-parsed-program)
+)) Nil);
+
+infer-type-definition := λ(: base-type Type)(: body AST). (: (tail(
+   (let r 0_u64)
+   (match body (
+      ()
+      ( (App( (App( tds (Var '|_s) )) case )) (tail(
+         (let r1 (infer-type-definition( base-type tds )))
+         (let r2 (infer-type-constructor( base-type case )))
+         (set r (max( r1 r2 )))
+      )))
+      ( case (
+         (set r (infer-type-constructor( base-type case )))
+      ))
+   ))
+   r
+)) U64);
+
+infer-type-constructor := λ(: base-type Type)(: body AST). (: (tail(
+   (let r 0_u64)
+   (match body (
+      ()
+      ( (Lit tag) (tail(
+         (annotate-head-accessor( base-type ))
+         (let rtype (and(
+            (and(
+               base-type
+               (t2( 'Tag_s (t1 tag) ))
+            ))
+            (and(
+               (t1 'Constant_s)
+               (and(
+                  (t2( 'Constructor_s (t1 tag) ))
+                  (t2( 'FieldsSized_s (t1 '0_s) ))
+               ))
+            ))
+         )))
+         (index-class-of-tag( tag base-type ))
+         (index-fields-of-tag( tag TAny ))
+         (.bind( (as (& type-constructors-index) BTreeEq<String,Type>[]) tag rtype ))
+         (set r 8_u64)
+      )))
+      ( (App( (Lit tag) args )) (tail(
+         (let atype (type-of-s args))
+         (let rtype (and(
+            base-type
+            (t2( 'Tag_s (t1 tag) ))
+         )))
+         (set-type-fields( base-type atype ))
+         (annotate-head-accessor( base-type ))
+         (annotate-accessors( base-type (t2( 'Tag_s (parse-type tag) )) atype ))
+         (index-class-of-tag( tag base-type ))
+         (index-fields-of-tag( tag (t3( 'Cons_s base-type atype )) ))
+         (.bind( (as (& type-constructors-index) BTreeEq<String,Type>[]) tag (t3( 'Arrow_s atype rtype )) ))
+         (set r (sizeof-aligned atype))
+         (set r (+( r 8_u64 )))
+      )))
+      ( _ () )
+   ))
+   r
+)) U64);
+
+annotate-head-accessor := λ(: base-type Type). (: (tail(
+   (let tt (and( (t1 'U64_s) (t1 'Reg64_s) )))
+   (set global-type-context (TCtxBind(
+      (close global-type-context)
+      '.0_s
+      (t3( 'Arrow_s base-type tt ))
+      ASTEOF
+   )))
+)) Nil);
+
+annotate-accessors := λ(: base-type Type)(: tag-type Type)(: args-type Type). (: (tail(
+   (let base-type-2 (and(
+      base-type
+      tag-type
+   )))
+   (set base-type base-type-2)
+   (let field-number 1_u64)
+   (while (non-zero args-type) (match args-type (
+      ()
+      ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF lt )) rt )) )) (tail(
+         (set rt (guess-representation rt))
+         (let accessor-name (clone-rope(SCons(
+            (close (SAtom '._s))
+            (close (SAtom (to-string field-number)))
+         ))))
+         (set global-type-context (TCtxBind(
+            (close global-type-context)
+            accessor-name
+            (t3( 'Arrow_s base-type rt ))
+            ASTEOF
+         )))
+         (set field-number (+( field-number 1_u64 )))
+         (set args-type lt)
+      )))
+      ( rt (tail(
+         (set rt (guess-representation rt))
+         (let accessor-name (clone-rope(SCons(
+            (close (SAtom '._s))
+            (close (SAtom (to-string field-number)))
+         ))))
+         (set global-type-context (TCtxBind(
+            (close global-type-context)
+            accessor-name
+            (t3( 'Arrow_s base-type rt ))
+            ASTEOF
+         )))
+         (set args-type TAny)
+      )))
+   )))
 )) Nil);

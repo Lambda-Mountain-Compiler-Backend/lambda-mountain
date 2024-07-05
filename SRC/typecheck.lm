@@ -1,116 +1,4 @@
 
-infer-type-definition := λ(: base-type Type)(: body AST). (: (tail(
-   (let r 0_u64)
-   (match body (
-      ()
-      ( (App( (App( tds (Var '|_s) )) case )) (tail(
-         (let r1 (infer-type-definition( base-type tds )))
-         (let r2 (infer-type-constructor( base-type case )))
-         (set r (max( r1 r2 )))
-      )))
-      ( case (
-         (set r (infer-type-constructor( base-type case )))
-      ))
-   ))
-   r
-)) U64);
-
-infer-type-constructor := λ(: base-type Type)(: body AST). (: (tail(
-   (let r 0_u64)
-   (match body (
-      ()
-      ( (Lit tag) (tail(
-         (set-size( base-type (maybe-deref(t1 'Nil_s)) ))
-         (typecheck-annotate-head-accessor( base-type ))
-         (let rtype (maybe-deref(tand(
-            (maybe-deref(tand(
-               base-type
-               (t2( 'Tag_s (t1 tag) ))
-            )))
-            (maybe-deref(tand(
-               (t1 'Constant_s)
-               (maybe-deref(tand(
-                  (t2( 'Constructor_s (t1 tag) ))
-                  (t2( 'FieldsSized_s (t1 '0_s) ))
-               )))
-            )))
-         ))))
-         (index-class-of-tag( tag base-type ))
-         (index-fields-of-tag( tag TAny ))
-         (.bind( (as (& type-constructors-index) BTreeEq<String,Type>[]) tag rtype ))
-         (set r 8_u64)
-      )))
-      ( (App( (Lit tag) args )) (tail(
-         (let atype (maybe-deref(type-of-s args)))
-         (let rtype (maybe-deref(tand(
-            base-type
-            (t2( 'Tag_s (t1 tag) ))
-         ))))
-         (set-size( base-type atype ))
-         (typecheck-annotate-head-accessor( base-type ))
-         (typecheck-annotate-accessors( base-type (t2( 'Tag_s (maybe-deref(parse-type tag)) )) atype ))
-         (index-class-of-tag( tag base-type ))
-         (index-fields-of-tag( tag (t3( 'Cons_s base-type atype )) ))
-         (.bind( (as (& type-constructors-index) BTreeEq<String,Type>[]) tag (t3( 'Arrow_s atype rtype )) ))
-         (set r (sizeof-aligned atype))
-         (set r (+( r 8_u64 )))
-      )))
-      ( _ () )
-   ))
-   r
-)) U64);
-
-typecheck-annotate-head-accessor := λ(: base-type Type). (: (tail(
-   (let tt (maybe-deref(tand( (maybe-deref(t1 'U64_s)) (maybe-deref(t1 'Reg64_s)) ))))
-   (set global-type-context (TCtxBind(
-      (close global-type-context)
-      '.0_s
-      (t3( 'Arrow_s base-type tt ))
-      ASTEOF
-   )))
-)) Nil);
-
-typecheck-annotate-accessors := λ(: base-type Type)(: tag-type Type)(: args-type Type). (: (tail(
-   (let base-type-2 (maybe-deref(tand(
-      base-type
-      tag-type
-   ))))
-   (set base-type base-type-2)
-   (let field-number 1_u64)
-   (while (non-zero args-type) (match args-type (
-      ()
-      ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF lt )) rt )) )) (tail(
-         (let rt-s (maybe-deref(guess-representation rt)))(set rt rt-s)
-         (let accessor-name (clone-rope(SCons(
-            (close (SAtom '._s))
-            (close (SAtom (to-string field-number)))
-         ))))
-         (set global-type-context (TCtxBind(
-            (close global-type-context)
-            accessor-name
-            (t3( 'Arrow_s base-type rt ))
-            ASTEOF
-         )))
-         (set field-number (+( field-number 1_u64 )))
-         (set args-type lt)
-      )))
-      ( rt (tail(
-         (let rt-s (maybe-deref(guess-representation rt)))(set rt rt-s)
-         (let accessor-name (clone-rope(SCons(
-            (close (SAtom '._s))
-            (close (SAtom (to-string field-number)))
-         ))))
-         (set global-type-context (TCtxBind(
-            (close global-type-context)
-            accessor-name
-            (t3( 'Arrow_s base-type rt ))
-            ASTEOF
-         )))
-         (set args-type TAny)
-      )))
-   )))
-)) Nil);
-
 infer-global-context := λ(: td AST). (: (tail(
    (match td (
       ()
@@ -174,62 +62,62 @@ infer-global-context := λ(: td AST). (: (tail(
 assert-well-typed := λ(: term AST). (: (
    (match term (
       ()
-      ( ASTEOF (typecheck-assert-one term) )
-      ( ASTNil (typecheck-assert-one term) )
+      ( ASTEOF (assert-one-typed term) )
+      ( ASTNil (assert-one-typed term) )
       ( (Glb( k v )) (
          (if (is-open(typeof term)) () (
             (assert-well-typed v)
          ))
       ))
       ( (Frg( k v tlt )) (
-         (typecheck-assert-one v)
+         (assert-one-typed v)
       ))
       ( (Typedef( _ _ )) () )
       ( (App( (Abs( (Var lname) ASTNil tlt )) rhs )) (tail(
          (assert-well-typed rhs)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( (Var 'gensym-label_s) _ )) () )
       ( (App( (Var 'label_s) (Var _) )) () )
       ( (App( (App( (Var 'while_s) cond )) body )) (tail(
          (assert-well-typed cond)
          (assert-well-typed body)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( (App( (App( (Var 'if_s) cond )) t )) f )) (tail(
          (assert-well-typed cond)
          (assert-well-typed t)
          (assert-well-typed f)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( (App( (Var 'set_s) lhs )) rhs )) (tail(
          (assert-well-typed rhs)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (AType _) () )
       ( (App( (Var 'tail_s) (App( lterm rterm )) )) (tail(
          (assert-well-typed lterm)
          (assert-well-typed rterm)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( (Var 'maybe-deref_s) rterm )) (tail(
          (assert-well-typed rterm)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( (Var 'scope_s) rterm )) (tail(
          (assert-well-typed rterm)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
-      ( (Lit l) (typecheck-assert-one term) )
-      ( (Var l) (typecheck-assert-one term) )
+      ( (Lit l) (assert-one-typed term) )
+      ( (Var l) (assert-one-typed term) )
       ( (Abs( lhs rhs tlt )) (tail(
          (assert-well-typed rhs)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (App( l r )) (tail(
          (assert-well-typed l)
          (assert-well-typed r)
-         (typecheck-assert-one term)
+         (assert-one-typed term)
       )))
       ( (Seq( l r )) (tail(
          (assert-well-typed l)
@@ -242,7 +130,7 @@ assert-well-typed := λ(: term AST). (: (
    ))
 ) Nil);
 
-typecheck-assert-one := λ(: term AST). (: (
+assert-one-typed := λ(: term AST). (: (
    (if (non-zero(maybe-deref(typeof term))) () (
       (exit-error( 'Unable\sto\sinfer\stype\sof\sexpression_s term ))
    ))
