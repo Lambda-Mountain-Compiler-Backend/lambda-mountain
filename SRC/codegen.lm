@@ -43,7 +43,7 @@ compile-global := λ(: ctx FContext)(: k String)(: term AST). (: (tail(
          (set text (SCons( (close text) (close text-etc) )))
          (set assemble-text-section (SCons( (close assemble-text-section) (close text) )))
       ))))
-      ( (App( (Lit ':_t) (App( t (AType tt) )) )) (tail(
+      ( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) (tail(
          (let clean-tt (maybe-deref(without-representation kt)))
          (let mid (mangle-identifier( k clean-tt )))
          (set assemble-data-section (SCons(
@@ -114,12 +114,12 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
       ()
       ( ASTNil () )
       ( ASTEOF () )
-      ( (Var( id )) (tail(
+      ( (Var( id _ )) (tail(
          (let e-1 (maybe-deref(fragment-context::lookup( ctx id (maybe-deref(typeof term)) term ))))(set e e-1)
          (let e-2 (maybe-deref(fragment::set-context( e ctx ))))(set e e-2)
          (let e-3 (maybe-deref(fragment::set-offset( e stack-offset ))))(set e e-3)
       )))
-      ( (Lit( val_t )) (tail(
+      ( (Lit( val _ )) (tail(
          (let ltype (maybe-deref(typeof term)))
          (match (slot( ltype 'String_s )) (
             ()
@@ -180,25 +180,25 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e-2 (maybe-deref(fragment::set-context( e ctx ))))(set e e-2)
          (let e-3 (maybe-deref(fragment::set-type( e ltype ))))(set e e-3)
       )))
-      ( (App( (Lit ':_t) (App( t (AType tt) )) )) (tail(
+      ( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) (tail(
          (let e1 (maybe-deref(compile-expr( ctx t stack-offset used ))))
          (set e e1)
       )))
-      ( (App( (Var 'tail_s) (App( lt rt )) )) (tail(
+      ( (App( (Var( 'tail_s _ )) (App( lt rt )) )) (tail(
          (let e1 (maybe-deref(compile-expr( ctx lt stack-offset Unused ))))
          (let e2 (maybe-deref(compile-expr( (maybe-deref(fragment::get-context e1)) rt (fragment::get-offset e1) Used ))))
          (let e12 (maybe-deref(fragment::chain( e1 e2 ))))
          (let e12-2 (maybe-deref(fragment::set-type( e12 (maybe-deref(typeof term)) ))))(set e12 e12-2)
          (set e e12)
       )))
-      ( (App( (Var 'gensym-label_s) (Var id) )) (tail(
+      ( (App( (Var( 'gensym-label_s _ )) (Var( id _ )) )) (tail(
          (let new-ctx (maybe-deref(fragment-context::bind(
             ctx id (t1 'Label_s) (maybe-deref(fragment::label( (uuid()) )))
          ))))
          (let e-1 (maybe-deref(fragment::set-context( e new-ctx ))))(set e e-1)
          (let e-2 (maybe-deref(fragment::set-type( e (maybe-deref(t1 'Nil_s)) ))))(set e e-2)
       )))
-      ( (App( (Var 'label_s) (Var id) )) (tail(
+      ( (App( (Var( 'label_s _ )) (Var( id _ )) )) (tail(
          (let l (maybe-deref(fragment-context::lookup( ctx id (t1 'Label_s) term ))))
          (let prog (SCons(
             (close(fragment::get( l 'expression_s )))
@@ -207,12 +207,12 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e-2 (maybe-deref(fragment::set( e 'program_s prog ))))(set e e-2)
          (let e-3 (maybe-deref(fragment::set-type( e (maybe-deref(t1 'Nil_s)) ))))(set e e-3)
       )))
-      ( (App( (Var 'scope_s) t )) (tail(
+      ( (App( (Var( 'scope_s _ )) t )) (tail(
          (let e1 (maybe-deref(compile-expr( ctx t stack-offset Used ))))
          (let e1-2 (maybe-deref(fragment::set-context( e1 ctx ))))
          (set e e1-2)
       )))
-      ( (App( (Var 'maybe-deref_s) t )) (tail(
+      ( (App( (Var( 'maybe-deref_s _ )) t )) (tail(
          (let e1 (maybe-deref(compile-expr( ctx t stack-offset Used ))))
          (set e e1)
          (let tt (maybe-deref(typeof t)))
@@ -243,7 +243,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             ( _ () )
          ))
       )))
-      ( (App( (Var 'sizeof_s) (AType tt) )) (tail(
+      ( (App( (Var( 'sizeof_s _ )) (AType tt) )) (tail(
          (let sz (sizeof-type( tt )))
          (let e1 (maybe-deref(fragment::expression(to-string sz))))
          (let et (TAnd( 
@@ -261,11 +261,11 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e1-4 (maybe-deref(fragment::set-offset( e1 stack-offset ))))(set e1 e1-4)
          (set e e1)
       )))
-      ( (App( (Var 'as_s) (App( t (AType tt) )) )) (tail(
+      ( (App( (Var( 'as_s _ )) (App( t (AType tt) )) )) (tail(
          (let e-1 (maybe-deref(compile-expr( ctx t stack-offset used ))))(set e e-1)
          (let e-2 (maybe-deref(fragment::set-type( e (maybe-deref(typeof term)) ))))(set e e-2)
       )))
-      ( (App( (App( (Var 'set_s) (Var k) )) rhs )) (tail(
+      ( (App( (App( (Var( 'set_s _ )) (Var( k _ )) )) rhs )) (tail(
          (let kt (maybe-deref(typeof rhs)))
 
          (let e1 (maybe-deref(compile-expr( ctx rhs stack-offset Used ))))
@@ -279,7 +279,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e3-2 (maybe-deref(fragment::set-context( e ctx ))))(set e e3-2)
          (let e3-3 (maybe-deref(fragment::set-offset( e stack-offset ))))(set e e3-3)
       )))
-      ( (App( (App( (Var 'while_s) cond )) body )) (tail(
+      ( (App( (App( (Var( 'while_s _ )) cond )) body )) (tail(
          (let e1 (maybe-deref(compile-expr( ctx cond stack-offset Used ))))
          (let e1-2 (maybe-deref(as-branch-conditional e1)))(set e1 e1-2)
          (let e2 (maybe-deref(compile-expr( (maybe-deref(fragment::get-context e1)) body (fragment::get-offset e1) Unused ))))
@@ -321,7 +321,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e3-7 (maybe-deref(fragment::set-type( e3 (maybe-deref(typeof term)) ))))(set e3 e3-7)
          (set e e3)
       )))
-      ( (App( (App( (App( (Var 'if_s) cond )) t )) f )) (tail(
+      ( (App( (App( (App( (Var( 'if_s _ )) cond )) t )) f )) (tail(
          (let rsp-offset (+( stack-offset -8_i64 )))
          (let e1 (maybe-deref(compile-expr( ctx cond rsp-offset Used ))))
          (let e1-4 (maybe-deref(as-branch-conditional e1)))(set e1 e1-4)
@@ -374,7 +374,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let e1-10 (maybe-deref(fragment::set-type( e1 (maybe-deref(typeof term)) ))))(set e1 e1-10)
          (set e e1)
       )))
-      ( (App( (Abs( (Var lhs) ASTNil tlt )) rhs )) (tail(
+      ( (App( (Abs( (Var( lhs _ )) ASTNil tlt )) rhs )) (tail(
          (let rtype (maybe-deref(typeof rhs)))
          (let rtype-clean (maybe-deref(without-representation rtype)))(set rtype rtype-clean)
          (let rtype-2 (TAnd( (close rtype) (close(t1 'LocalVariable_s)) )))(set rtype rtype-2)
@@ -408,19 +408,19 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             ( (TGround( 'Arrow_s _ )) (
                (match f (
                   ()
-                  ( (Var fname) (tail(
+                  ( (Var( fname _ )) (tail(
                      (let e1 (maybe-deref(compile-stack-call( ctx fname (maybe-deref(typeof term)) a stack-offset used ))))
                      (set e e1)
                   )))
-                  ( (App( (Lit ':_t) (App( (Var fname) (AType ft) )) )) (tail(
+                  ( (App( (Lit( ':_s _ )) (App( (Var( fname _ )) (AType ft) )) )) (tail(
                      (let e1 (maybe-deref(compile-stack-call( ctx fname (maybe-deref(typeof term)) a stack-offset used ))))
                      (set e e1)
                   )))
-                  ( (Lit fname_t) (tail(
+                  ( (Lit( fname _ )) (tail(
                      (let e1 (maybe-deref(compile-constructor( ctx fname (maybe-deref(typeof term)) (maybe-deref(typeof a)) a stack-offset ))))
                      (set e e1)
                   )))
-                  ( (App( (Lit ':_t) (App( (Lit fname_t) (AType ft) )) )) (tail(
+                  ( (App( (Lit( ':_s _ )) (App( (Lit( fname _ )) (AType ft) )) )) (tail(
                      (let e1 (maybe-deref(compile-constructor( ctx fname (maybe-deref(typeof term)) (maybe-deref(typeof a)) a stack-offset ))))
                      (set e e1)
                   )))
@@ -452,7 +452,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
 compile-destructure-args := λ(: tt Type)(: ctx FContext)(: lhs AST)(: offset I64). (: (tail(
    (match lhs (
       ()
-      ( (App( rst (App( (Lit ':_t) (App( (Var k) (AType kt) )) )) )) (
+      ( (App( rst (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) )) (
          (match (slot( tt 'Cons_s )) (
             ()
             ( (TGround( 'Cons_s (TypeSeq( (TypeSeq( TypeEOF rst-tt )) p2 )) )) (tail(
@@ -470,7 +470,7 @@ compile-destructure-args := λ(: tt Type)(: ctx FContext)(: lhs AST)(: offset I6
             ( _ (exit-error( 'Destructure\sExpected\sCons_s lhs )))
          ))
       ))
-      ( (App( (Lit ':_t) (App( (Var k) (AType kt) )) )) (tail(
+      ( (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) (tail(
          (let kt-2 (TAnd( (close kt) (close(t1 'LocalVariable_s)) )))(set kt kt-2)
          (let sz (sizeof-aligned kt))
          (let new-offset (-( offset (as sz I64) )))

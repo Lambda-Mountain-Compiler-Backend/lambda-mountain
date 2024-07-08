@@ -16,18 +16,18 @@ index-typedefs := λ(: program AST). (: (
 index-typedefs := λ(: def AST)(: index U64) . (: (
    (match def (
       ()
-      ( (App( (App( tds (Var '|_s) )) (Lit tag_t) )) (tail(
+      ( (App( (App( tds (Var( '|_s _ )) )) (Lit( tag _ )) )) (tail(
          (index-index-of-tag( tag index ))
          (index-typedefs( tds (+( index 1_u64 )) ))
       )))
-      ( (App( (App( tds (Var '|_s) )) (App( (Lit tag_t) _ )) )) (tail(
+      ( (App( (App( tds (Var( '|_s _ )) )) (App( (Lit( tag _ )) _ )) )) (tail(
          (index-index-of-tag( tag index ))
          (index-typedefs( tds (+( index 1_u64 )) ))
       )))
-      ( (Lit tag_t) (
+      ( (Lit( tag _ )) (
          (index-index-of-tag( tag index ))
       ))
-      ( (App( (Lit tag_t) _ )) (
+      ( (App( (Lit( tag _ )) _ )) (
          (index-index-of-tag( tag index ))
       ))
       ( ASTEOF () )
@@ -63,13 +63,13 @@ is-macro-head := λ(: s String)(: arity U64). (: (tail(
    (let found 0_u64)
    (while (non-zero macros) (match macros (
       ()
-      ( (MSeq( rst (Macro( (App( (Lit mv_t) p1 )) mrhs )) )) (tail(
+      ( (MSeq( rst (Macro( (App( (Lit( mv _ )) p1 )) mrhs )) )) (tail(
          (if (&&( (==( arity 1_u64 )) (==( s mv )) )) (
             (set found 1_u64)
          ) ())
          (set macros rst)
       )))
-      ( (MSeq( rst (Macro( (App( (App( (Lit mv_t) p1 )) p2 )) mrhs )) )) (tail(
+      ( (MSeq( rst (Macro( (App( (App( (Lit( mv _ )) p1 )) p2 )) mrhs )) )) (tail(
          (if (&&( (==( arity 2_u64 )) (==( s mv )) )) (
             (set found 1_u64)
          ) ())
@@ -86,9 +86,9 @@ preprocess-apply-literals := λ(: program AST). (: (tail(
    (let r program)
    (match program (
       ()
-      ( (Lit l) (
-         (if (has-suffix( (key-of l) '_t_s )) (tail(
-            (let lpfx (remove-suffix( (key-of l) '_t_s )))
+      ( (Lit( lk l )) (
+         (if (has-suffix( lk '_t_s )) (tail(
+            (let lpfx (remove-suffix( lk '_t_s )))
             (set r (App(
                (close(Lit(with-key( l 'Token_s ))))
                (close(App(
@@ -104,9 +104,9 @@ preprocess-apply-literals := λ(: program AST). (: (tail(
             )))
          )) ())
       ))
-      ( (Var l) (
-         (if (has-suffix( (key-of l) '_t_s )) (tail(
-            (let lpfx (remove-suffix( (key-of l) '_t_s )))
+      ( (Var( lk l )) (
+         (if (has-suffix( lk '_t_s )) (tail(
+            (let lpfx (remove-suffix( lk '_t_s )))
             (set r (App(
                (close(Lit(with-key( l 'Token_s ))))
                (close(App(
@@ -158,25 +158,25 @@ preprocess-apply := λ(: program AST). (: (tail(
    (let r program)
    (match program (
       ()
-      ( (App( (App( (Lit ':_t) (App( t (AType tt) )) )) nt )) (
+      ( (App( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) nt )) (
          (set r (App(
             (close(App( (close(Lit(token-with-key( program ':_s )))) (close(App( (close(preprocess-apply t)) (close(AType tt)) ))) )))
             (close(preprocess-apply( nt )))
          )))
       ))
-      ( (App( (App( (Lit ':_t) mvar )) (Lit mtype) )) (
+      ( (App( (App( (Lit( ':_s _ )) mvar )) (Lit( mtype _ )) )) (
          (set r (App( (close(Lit(token-with-key( program ':_s )))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
       ))
-      ( (App( (App( (Lit ':_t) mvar )) (Var mtype) )) (
+      ( (App( (App( (Lit( ':_s _ )) mvar )) (Var( mtype _ )) )) (
          (set r (App( (close(Lit(token-with-key( program ':_s )))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
       ))
-      ( (App( (App( (Var 'as_t) (App( t (AType tt) )) )) nt )) (
+      ( (App( (App( (Var( 'as_s _ )) (App( t (AType tt) )) )) nt )) (
          (set r (App(
             (close(App( (close(Var(token-with-key( program 'as_s )))) (close(App( (close(preprocess-apply t)) (close(AType tt)) ))) )))
             (close(preprocess-apply( nt )))
          )))
       ))
-      ( (App( (App( (Var 'as_t) mvar )) (Lit mtype) )) (
+      ( (App( (App( (Var( 'as_s _ )) mvar )) (Lit( mtype _ )) )) (
          (set r (App( (close(Var(token-with-key( program 'as_s )))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
       ))
       ( (App( (App( (Var 'as_t) mvar )) (Var mtype) )) (
@@ -185,16 +185,16 @@ preprocess-apply := λ(: program AST). (: (tail(
       ( (App( (Var 'sizeof_t) (Var mtype) )) (
          (set r (App( (close(Var(token-with-key( program 'sizeof_s )))) (close(AType(parse-type mtype))) )))
       ))
-      ( (App( (Var 'sizeof_t) (Lit mtype) )) (
+      ( (App( (Var 'sizeof_t) (Lit( mtype _ )) )) (
          (set r (App( (close(Var(token-with-key( program 'sizeof_s )))) (close(AType(parse-type mtype))) )))
       ))
-      ( (Lit l) (tail(
+      ( (Lit( lk l )) (tail(
          (let suffixes parse-suffixes)
          (while (non-zero suffixes) (match suffixes (
             ()
             ( (SfxSeq( rst sfxs sfxtt )) (
-               (if (has-suffix( (key-of l) sfxs )) (tail(
-                  (let lpfx (remove-suffix( (key-of l) sfxs )))
+               (if (has-suffix( lk sfxs )) (tail(
+                  (let lpfx (remove-suffix( lk sfxs )))
                   (set r (App(
                      (close(Lit(with-key( l ':_s ))))
                      (close(App( (close(Lit(with-key( l lpfx )))) (close(AType sfxtt)) )))
@@ -206,13 +206,13 @@ preprocess-apply := λ(: program AST). (: (tail(
             ))
          )))
       )))
-      ( (Var l) (tail(
+      ( (Var( lk l )) (tail(
          (let suffixes parse-suffixes)
          (while (non-zero suffixes) (match suffixes (
             ()
             ( (SfxSeq( rst sfxs sfxtt )) (
-               (if (has-suffix( (key-of l) sfxs )) (tail(
-                  (let lpfx (remove-suffix( (key-of l) sfxs )))
+               (if (has-suffix( lk sfxs )) (tail(
+                  (let lpfx (remove-suffix( lk sfxs )))
                   (set r (App(
                      (close(Lit(with-key( l ':_s ))))
                      (close(App( (close(Lit(with-key( l lpfx )))) (close(AType sfxtt)) )))
@@ -224,25 +224,25 @@ preprocess-apply := λ(: program AST). (: (tail(
             ))
          )))
       )))
-      ( (App( (Var vn) vt )) (
-         if (is-macro-head( (key-of vn) 1_u64 )) (tail(
-            (let applied (preprocess-apply-hard( (key-of vn) 1_u64 program )))
+      ( (App( (Var( vn vtk )) vt )) (
+         if (is-macro-head( vn 1_u64 )) (tail(
+            (let applied (preprocess-apply-hard( vn 1_u64 program )))
             (set r applied)
          )) (
             (set r (App(
-               (close(preprocess-apply(Var vn)))
+               (close(preprocess-apply(Var( vn vtk ))))
                (close(preprocess-apply vt))
             )))
          )
       ))
-      ( (App( (App( (Var vn) vt1 )) vt2 )) (
-         if (is-macro-head( (key-of vn) 2_u64 )) (tail(
-            (let applied (preprocess-apply-hard( (key-of vn) 2_u64 program )))
+      ( (App( (App( (Var( vn vtk )) vt1 )) vt2 )) (
+         if (is-macro-head( vn 2_u64 )) (tail(
+            (let applied (preprocess-apply-hard( vn 2_u64 program )))
             (set r applied)
          )) (
             (set r (App(
                (close(preprocess-apply(App(
-                  (close(Var vn))
+                  (close(Var( vn vtk )))
                   (close vt1)
                ))))
                (close(preprocess-apply vt2))
@@ -289,12 +289,12 @@ preprocess-apply-hard := λ(: macro-name String)(: arity U64)(: program AST). (:
          (let go False_u8)
          (match lhs (
             ()
-            ( (App( (Lit m_t) _ )) (
+            ( (App( (Lit( m _ )) _ )) (
                (if (&&( (==( macro-name m)) (==( arity 1_u64 )) )) (
                   (set go True_u8)
                ) ())
             ))
-            ( (App( (App( (Lit m_t) _ )) _ )) (
+            ( (App( (App( (Lit( m _ )) _ )) _ )) (
                (if (&&( (==( macro-name m)) (==( arity 2_u64 )) )) (
                   (set go True_u8)
                ) ())
@@ -332,9 +332,9 @@ apply := λ(: ctx Context)(: term AST). (: (tail(
       ()
       ( ASTEOF () )
       ( ASTNil () )
-      ( (Lit _) () )
+      ( (Lit( _ _ )) () )
       ( (AType _) () )
-      ( (Var n) (
+      ( (Var( n _ )) (
          (while (non-zero ctx) (match ctx (
             ()
             ( (CtxBind( rst k v )) (
@@ -417,28 +417,28 @@ try-destructure-macro := λ(: loc SourceLocation)(: lhs AST)(: term AST). (: (ta
             ) ())
          )) ())
       )))
-      ( (Pair( (Lit ':Any:_t) (Var '__t) )) (
+      ( (Pair( (Lit( ':Any:_s _ )) (Var( '__s _ )) )) (
          (set r CtxNil)
       ))
-      ( (Pair( (Lit pl_t) (Var el_t) )) (
+      ( (Pair( (Lit( pl _ )) (Var( el _ )) )) (
          (if (==( pl el )) (set r CtxNil) ())
       ))
-      ( (Pair( (Lit pl_t) (Lit el_t) )) (
+      ( (Pair( (Lit( pl _ )) (Lit( el _ )) )) (
          (if (==( pl el )) (set r CtxNil) ())
       ))
-      ( (Pair( (App( (Lit ':Literal:_t) (Var pv_t) )) (Lit el_t) )) (
+      ( (Pair( (App( (Lit( ':Literal:_s _ )) (Var( pv _ )) )) (Lit( el _ )) )) (
          (if (==( (index-of-tag el) unknown-index-of-tag ))
              (set r (CtxBind( (close CtxNil) pv (relocate( term loc )) )))
              ()
          )
       ))
-      ( (Pair( (App( (Lit ':Variable:_t) _ )) (Var '__t) )) (
+      ( (Pair( (App( (Lit( ':Variable:_s _ )) _ )) (Var( '__s _ )) )) (
          ()
       ))
-      ( (Pair( (App( (Lit ':Variable:_t) (Var pv_t) )) (Var el_t) )) (
+      ( (Pair( (App( (Lit( ':Variable:_s _ )) (Var( pv _ )) )) (Var( el _ )) )) (
          (set r (CtxBind( (close CtxNil) pv (relocate( term loc )) )))
       ))
-      ( (Pair( (App( (App( (Lit ':Tag:_t) (Var pv_t) )) (Var pt_t) )) (Lit el) )) (
+      ( (Pair( (App( (App( (Lit( ':Tag:_s _ )) (Var( pv _ )) )) (Var( pt _ )) )) (Lit( el _ )) )) (
          (if (==( (index-of-tag (key-of el)) unknown-index-of-tag )) () (tail(
             (set r CtxNil)
             (set r (CtxBind( (close r) pv (
@@ -461,7 +461,7 @@ try-destructure-macro := λ(: loc SourceLocation)(: lhs AST)(: term AST). (: (ta
             )))
          )))
       ))
-      ( (Pair( (Var pv_t) _ )) (
+      ( (Pair( (Var( pv _ )) _ )) (
          (set r (CtxBind( (close CtxNil) pv (relocate( term loc )) )))
       ))
       ( _ () )
@@ -528,7 +528,7 @@ substitute-uuids := λ(: ctx Context)(: term AST). (: (tail(
    (let return term)
    (match return (
       ()
-      ( (App( (Var 'uuid_t) (Var x_t) )) (
+      ( (App( (Var( 'uuid_s _ )) (Var( x _ )) )) (
          (while (non-zero ctx) (match ctx (
             ()
             ( (CtxBind( rst k v )) (
@@ -593,7 +593,7 @@ extract-uuids := λ(: loc SourceLocation)(: ctx Context)(: term AST). (: (tail(
    (let return ctx)
    (match term (
       ()
-      ( (App( (Var 'uuid_t) (Var x) )) (tail(
+      ( (App( (Var( 'uuid_s _ )) (Var( x _ )) )) (tail(
          (let id (uuid()))
          (let lctx (CtxBind( (close ctx) (key-of x) (Var(with-key( x id ))) )))
          (set return lctx)

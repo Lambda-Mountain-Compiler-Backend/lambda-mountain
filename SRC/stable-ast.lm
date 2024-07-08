@@ -5,7 +5,7 @@ type TypeList TypeEOF | (TypeSeq( TypeList[] , Type )); zero TypeList TypeEOF;
 type SourceLocation (SourceLocation( String , U64 , U64 ));
 type Token (Token( String , U64 , SourceLocation ));
 
-type AST ASTEOF | ASTNil | (App( AST[] , AST[] )) | (Var( Token )) | (Lit( Token )) | (Abs( AST[] , AST[] , Type )) | (AType( Type ))
+type AST ASTEOF | ASTNil | (App( AST[] , AST[] )) | (Var( String , Token )) | (Lit( String , Token )) | (Abs( AST[] , AST[] , Type )) | (AType( Type ))
                 | (Seq( AST[] , AST[] )) | (Glb( Token , AST[] )) | (Typedef( AST[] , AST[] )) | (Frg( Token , AST[] , Type )); zero AST ASTEOF;
 
 type FragmentKV (FKVEOF) | (FKVSeq( FragmentKV[] , String , S )); zero FragmentKV FKVEOF;
@@ -89,8 +89,8 @@ print := λ(: t AST). (: (tail(
       ()
       ( ASTEOF (print 'EOF_s) )
       ( ASTNil (print '\[\]_s) )
-      ( (Var a) (print a) )
-      ( (Lit a_t) (tail( (print '\`_s) (print a) )))
+      ( (Var( a _ )) (print a) )
+      ( (Lit( a _ )) (tail( (print '\`_s) (print a) )))
       ( (AType a) (print a) )
       ( (Typedef( lhs rhs )) (tail(
          (print 'type\s_s)
@@ -138,12 +138,12 @@ serialize-ast := λ(: t AST). (: (tail(
       ()
       ( ASTEOF (print '\[\]_s) )
       ( ASTNil (print 'Nil_s) )
-      ( (Var a) (tail(
+      ( (Var( a _ )) (tail(
          (print '\[Variable\s_s)
          (print a)
          (print '\]_s)
       )))
-      ( (Lit a_t) (tail(
+      ( (Lit( a _ )) (tail(
          (print '\[Literal\s_s)
          (print a)
          (print '\]_s)

@@ -9,7 +9,7 @@ parse-lambda := λ(: tokens List<Token>). (: (tail(
    (let remainder (: LEOF List<Token>))
    (match (parse-one-expression tokens) (
       ()
-      ( (PME( (Lit '._t) pr )) (match (parse-many-expressions pr) (
+      ( (PME( (Lit( '._s _ )) pr )) (match (parse-many-expressions pr) (
          ()
          ( (PME( le lr )) (tail(
             (set expr (Abs( (close ASTNil) (close le) TAny )))
@@ -25,7 +25,7 @@ parse-lambda := λ(: tokens List<Token>). (: (tail(
    (while (non-zero tokens) (
       (match (parse-one-expression tokens) (
          ()
-         ( (PME( (Lit '._t) r )) (
+         ( (PME( (Lit( '._s _ )) r )) (
             (match (parse-many-expressions r) (
                ()
                ( (PME( le lr )) (tail(
@@ -220,14 +220,14 @@ parse-one-expression := λ(: tokens List<Token>). (: (tail(
       ( (LCons( '\`_t
                 (LCons( i r ))
         )) (tail(
-         (set expr (Lit i))
+         (set expr (Lit( (key-of i) i )))
          (set remainder r)
       )))
       ( (LCons( a r )) (tail(
          (if (is-variable(key-of a)) (
-            (set expr (Var a))
+            (set expr (Var( (key-of a) a )))
          ) (
-            (set expr (Lit a))
+            (set expr (Lit( (key-of a) a )))
          ))
          (set remainder r)
       )))

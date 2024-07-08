@@ -63,8 +63,8 @@ location-of := λ(: term AST). (: (tail(
    (let r (SourceLocation( 'Unknown_s 0_u64 0_u64 )))
    (match term (
       ()
-      ( (Var v) (set r (location-of v)) )
-      ( (Lit v) (set r (location-of v)) )
+      ( (Var( _ v )) (set r (location-of v)) )
+      ( (Lit( _ v )) (set r (location-of v)) )
       ( (App( tl tr )) (tail(
          (set r (location-of tl))
          (if (not(non-zero r)) (set r (location-of tr)) ())
