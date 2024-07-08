@@ -517,14 +517,12 @@ relocate := λ(: term AST)(: loc SourceLocation). (: (tail(
             (close(relocate( rt loc )))
          )))
       ))
-      ( (Glb( k t )) (tail(
-         (set k (clone-rope(SAtom k)))
-         (map-location( k loc ))
+      ( (Glb( k t )) (
          (set return (Glb(
-            k
+            (with-location( k loc ))
             (close(relocate( t loc )))
          )))
-      )))
+      ))
       ( (Frg( k t tlt )) (
          (set return (Frg(
             (with-location( k loc ))
@@ -636,11 +634,11 @@ extract-uuids := λ(: loc SourceLocation)(: ctx Context)(: term AST). (: (tail(
          (let rctx (extract-uuids( loc lctx rt )))
          (set return rctx)
       )))
-      ( (Glb( k t )) (tail(
+      ( (Glb( _ t )) (tail(
          (let rctx (extract-uuids( loc ctx t )))
          (set return rctx)
       )))
-      ( (Frg( k t tlt )) (tail(
+      ( (Frg( _ t _ )) (tail(
          (let rctx (extract-uuids( loc ctx t )))
          (set return rctx)
       )))

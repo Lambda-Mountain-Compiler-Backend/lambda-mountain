@@ -6,7 +6,7 @@ type SourceLocation (SourceLocation( String , U64 , U64 ));
 type Token (Token( String , U64 , SourceLocation ));
 
 type AST ASTEOF | ASTNil | (App( AST[] , AST[] )) | (Var( String )) | (Lit( String )) | (Abs( AST[] , AST[] , Type )) | (AType( Type ))
-                | (Seq( AST[] , AST[] )) | (Glb( String , AST[] )) | (Typedef( AST[] , AST[] )) | (Frg( Token , AST[] , Type )); zero AST ASTEOF;
+                | (Seq( AST[] , AST[] )) | (Glb( Token , AST[] )) | (Typedef( AST[] , AST[] )) | (Frg( Token , AST[] , Type )); zero AST ASTEOF;
 
 type FragmentKV (FKVEOF) | (FKVSeq( FragmentKV[] , String , S )); zero FragmentKV FKVEOF;
 type Fragment (Fragment( FragmentKV[] , I64 , Type , FContext[] ));
@@ -98,7 +98,7 @@ print := λ(: t AST). (: (tail(
          (print '\s=\s_s)
          (print rhs)
       )))
-      ( (Glb( k v )) (tail(
+      ( (Glb( k_t v )) (tail(
          (print k)
          (print '\s:=\s_s)
          (print v)
@@ -156,7 +156,7 @@ serialize-ast := λ(: t AST). (: (tail(
          (serialize-ast rhs)
          (print '\]\]_s)
       )))
-      ( (Glb( lhs rhs )) (tail(
+      ( (Glb( lhs_t rhs )) (tail(
          (print '\[Global\s\[_s)
          (print lhs)
          (print '\s_s)

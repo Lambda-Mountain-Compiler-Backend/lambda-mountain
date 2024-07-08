@@ -44,7 +44,7 @@ compile := λ(). (: (tail(
    (let preview-program ast-parsed-program)
    (while (non-zero preview-program) (match preview-program (
       ()
-      ( (Seq( rst (Glb( k rhs )) )) (tail(
+      ( (Seq( rst (Glb( k_t rhs )) )) (tail(
          (if (==( k 'main_s )) (set assemble-argv-referenced True_u8) ())
          (let open False_u8)
          (let kt (typeof rhs))
@@ -115,7 +115,7 @@ compile-program-ordered := λ(: global-ctx FContext)(: program AST). (: (tail(
    ))
    (match program (
       ()
-      ( (Seq( rst (Glb( k rhs )) )) (tail(
+      ( (Seq( rst (Glb( k_t rhs )) )) (tail(
          (compile-program-ordered( global-ctx rst ))
          (if (==( open True_u8 )) () (
             (compile-global( global-ctx k rhs ))

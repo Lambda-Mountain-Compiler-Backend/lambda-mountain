@@ -500,13 +500,13 @@ parse := λ. (: (tail(
             (parse ())
             (set tokens remainder)
          )))
-         ( (LCons( 'zero_t (LCons( base-type_t (LCons( tag-type_t remainder )) )) )) (tail(
+         ( (LCons( 'zero_t (LCons( base-type (LCons( tag-type_t remainder )) )) )) (tail(
             (set ast-parsed-program (Seq(
                (close ast-parsed-program)
-               (close (Glb( 'non-zero_s (close(Abs(
+               (close (Glb( (with-key( base-type 'non-zero_s )) (close(Abs(
                   (close(App(
                      (close(Lit(clone-rope(SAtom ':_s))))
-                     (close(App( (close(Var(clone-rope(SAtom 't_s)))) (close(AType(parse-type base-type))) )))
+                     (close(App( (close(Var(clone-rope(SAtom 't_s)))) (close(AType(parse-type(key-of base-type)))) )))
                   )))
                   (close(App(
                      (close(Lit(clone-rope(SAtom ':_s))))
@@ -524,7 +524,7 @@ parse := λ. (: (tail(
                                     (close(Lit ':_s))
                                     (close(App(
                                        (close(Lit tag-type))
-                                       (close(AType(parse-type base-type)))
+                                       (close(AType(parse-type(key-of base-type))))
                                     )))
                                  )))
                               )))
@@ -538,7 +538,7 @@ parse := λ. (: (tail(
             )))
             (set tokens remainder)
          )))
-         ( (LCons( key_t (LCons( ':=_t remainder )) )) (
+         ( (LCons( key (LCons( ':=_t remainder )) )) (
             (match (parse-many-expressions remainder) (
                ()
                ( (PME( re rr )) (tail(
