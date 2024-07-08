@@ -151,11 +151,11 @@ compile-type := λ(: ctx FContext)(: lhs AST)(: rhs AST). (: (tail(
 compile-type-case := λ(: ctx FContext)(: base-type Type)(: rhs AST)(: case-number U64). (: (tail(
    (match rhs (
       ()
-      ( (Lit tag) (tail(
+      ( (Lit tag_t) (tail(
          (let rtype (TAnd( (close base-type) (close(parse-type tag)) )) )
          (let ctx-3 (maybe-deref(compile-define-tag-constructor( ctx tag TAny base-type rtype case-number ))))(set ctx ctx-3)
       )))
-      ( (App( (Lit tag) args )) (tail(
+      ( (App( (Lit tag_t) args )) (tail(
          (let atype (maybe-deref(type-of-s args)))
          (let rtype (TAnd( (close base-type) (close(parse-type tag)) )))
          (let ctx-3 (maybe-deref(compile-define-tag-constructor( ctx tag atype base-type rtype case-number ))))(set ctx ctx-3)

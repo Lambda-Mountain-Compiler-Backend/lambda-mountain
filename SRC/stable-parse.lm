@@ -9,7 +9,7 @@ parse-lambda := λ(: tokens List<Token>). (: (tail(
    (let remainder (: LEOF List<Token>))
    (match (parse-one-expression tokens) (
       ()
-      ( (PME( (Lit '._s) pr )) (match (parse-many-expressions pr) (
+      ( (PME( (Lit '._t) pr )) (match (parse-many-expressions pr) (
          ()
          ( (PME( le lr )) (tail(
             (set expr (Abs( (close ASTNil) (close le) TAny )))
@@ -25,7 +25,7 @@ parse-lambda := λ(: tokens List<Token>). (: (tail(
    (while (non-zero tokens) (
       (match (parse-one-expression tokens) (
          ()
-         ( (PME( (Lit '._s) r )) (
+         ( (PME( (Lit '._t) r )) (
             (match (parse-many-expressions r) (
                ()
                ( (PME( le lr )) (tail(
@@ -218,13 +218,13 @@ parse-one-expression := λ(: tokens List<Token>). (: (tail(
          ))
       ))
       ( (LCons( '\`_t
-                (LCons( i_t r ))
+                (LCons( i r ))
         )) (tail(
          (set expr (Lit i))
          (set remainder r)
       )))
-      ( (LCons( a_t r )) (tail(
-         (if (is-variable a) (
+      ( (LCons( a r )) (tail(
+         (if (is-variable(key-of a)) (
             (set expr (Var a))
          ) (
             (set expr (Lit a))
@@ -505,25 +505,25 @@ parse := λ. (: (tail(
                (close ast-parsed-program)
                (close (Glb( (with-key( base-type 'non-zero_s )) (close(Abs(
                   (close(App(
-                     (close(Lit(clone-rope(SAtom ':_s))))
-                     (close(App( (close(Var(clone-rope(SAtom 't_s)))) (close(AType(parse-type(key-of base-type)))) )))
+                     (close(Lit(with-key( base-type ':_s ))))
+                     (close(App( (close(Var(with-key( base-type 't_s )))) (close(AType(parse-type(key-of base-type)))) )))
                   )))
                   (close(App(
-                     (close(Lit(clone-rope(SAtom ':_s))))
+                     (close(Lit(with-key( base-type ':_s ))))
                      (close(App(
                         (close(App(
-                           (close(Var(clone-rope(SAtom '!=_s))))
+                           (close(Var(with-key( base-type '!=_s ))))
                            (close(App(
                               (close(App(
-                                 (close(Var(clone-rope(SAtom '.0_s))))
-                                 (close(Var(clone-rope(SAtom 't_s))))
+                                 (close(Var(with-key( base-type '.0_s ))))
+                                 (close(Var(with-key( base-type 't_s ))))
                               )))
                               (close(App(
-                                 (close(Var(clone-rope(SAtom '.0_s))))
+                                 (close(Var(with-key( base-type '.0_s ))))
                                  (close(App(
-                                    (close(Lit ':_s))
+                                    (close(Lit(with-key( base-type ':_s ))))
                                     (close(App(
-                                       (close(Lit tag-type))
+                                       (close(Lit(with-key( base-type tag-type ))))
                                        (close(AType(parse-type(key-of base-type))))
                                     )))
                                  )))
