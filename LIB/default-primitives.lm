@@ -219,3 +219,27 @@ fragment : DontChain as-branch-conditional := λ(: l Reg8). (: (
    ))
    (.expression( 'jne ))
 ) BranchConditional);
+
+fragment : DontChain primitive::if := λ(: ctx ?)(: e1 ?)(: e2 ?)(: e3 ?). (: (
+   (.program (
+      \t push \s '%rbp \n
+      (.frame e1)
+      (.program e1)
+      \t (.expression e1) \s (uuid label-true-branch) \n
+      (.frame e3)
+      (.program e3)
+      (.unframe e3)
+      \t jmp \s (uuid label-end) \n
+      (uuid label-true-branch) ': \n
+      (.frame e2)
+      (.program e2)
+      (uuid label-end) ': \n
+      \t 'mov \s (.rsp-offset ctx) \[ '%rbp \] , '%rsp \n
+      \t 'add \s '$ (.end-offset ctx) ', \s '%rsp \n
+   ))
+   (.unframe(
+      (.unframe e1)
+      (.unframe e2)
+      \t 'add \s '$8 , \s '%rsp \n
+   ))
+) Nil);

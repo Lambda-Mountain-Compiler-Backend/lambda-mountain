@@ -529,50 +529,16 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let label-true-branch (uuid()))
          (let label-end (uuid()))
 
-         #(set e (fragment-apply( ctx stack-offset 'if_s
-         #   (FLSeq( (FLSeq( (FLSeq( (close FLEOF) e1 )) e2 )) e3 )) (typeof term) term
-         #)))
+         (let ectx (fragment::new()))
+         #(set ectx (fragment::set( ectx 'rsp-offset_s (SAtom(to-string rsp-offset)) ))) 
+         #(set ectx (fragment::set( ectx 'end-offset_s (SAtom(to-string end-offset)) ))) 
 
-         (let text SNil)
-         (set text (SCons( (close text) (close(SAtom '\tpush\s%rbp\n_s)) )))
-         (set text (SCons( (close text) (close(fragment::get( e1 'frame_s ))) )))
-         (set text (SCons( (close text) (close(fragment::get( e1 'program_s ))) )))
-         (set text (SCons( (close text) (close(SAtom '\t_s)) )))
-         (set text (SCons( (close text) (close(fragment::get( e1 'expression_s ))) )))
-         (set text (SCons( (close text) (close(SAtom '\s_s)) )))
-         (set text (SCons( (close text) (close(SAtom label-true-branch)) )))
-         (set text (SCons( (close text) (close(SAtom '\n_s)) )))
-         (set text (SCons( (close text) (close(fragment::get( e3 'frame_s ))) )))
-         (set text (SCons( (close text) (close(fragment::get( e3 'program_s ))) )))
-         (set text (SCons( (close text) (close(fragment::get( e3 'unframe_s ))) )))
-         (set text (SCons( (close text) (close(SAtom '\tjmp\s_s)) )))
-         (set text (SCons( (close text) (close(SAtom label-end)) )))
-         (set text (SCons( (close text) (close(SAtom '\n_s)) )))
-         (set text (SCons( (close text) (close(SAtom label-true-branch)) )))
-         (set text (SCons( (close text) (close(SAtom ':\n_s)) )))
-         (set text (SCons( (close text) (close(fragment::get( e2 'frame_s ))) )))
-         (set text (SCons( (close text) (close(fragment::get( e2 'program_s ))) )))
-         (set text (SCons( (close text) (close(SAtom label-end)) )))
-         (set text (SCons( (close text) (close(SAtom ':\n_s)) )))
-         (set text (SCons( (close text) (close(SAtom '\tmov\s_s)) )))
-         (set text (SCons( (close text) (close(SAtom (to-string rsp-offset))) )))
-         (set text (SCons( (close text) (close(SAtom '\[%rbp\],\s%rsp\n_s)) )))
-         (set text (SCons( (close text) (close(SAtom '\tadd\s$_s)) )))
-         (set text (SCons( (close text) (close(SAtom (to-string end-offset))) )))
-         (set text (SCons( (close text) (close(SAtom ',\s%rsp\n_s)) )))
-         (set e (fragment::set( e1 'program_s text )))
+         (set e (fragment-apply( ctx stack-offset 'primitive::if_s
+            (FLSeq( (FLSeq( (FLSeq( (FLSeq( (close FLEOF) ectx )) e1 )) e2 )) e3 )) (typeof term) term
+         )))
+
          (set e (fragment::set-context( e (fragment::get-context e2) )))
          (set e (fragment::set-offset( e end-offset )))
-         (set e (fragment::set( e 'frame_s SNil )))
-         (set e (fragment::set( e 'unframe_s
-            (SCons(
-               (close(fragment::get( e1 'unframe_s )))
-               (close(SCons(
-                  (close(fragment::get( e2 'unframe_s )))
-                  (close(SAtom '\tadd\s$8,\s%rsp\n_s ))
-               )))
-            ))
-         )))
          (set e (fragment::set-type( e (typeof term) )))
       )))
       ( (App( (Abs( (Var( lhs _ )) ASTNil tlt )) rhs )) (tail(
