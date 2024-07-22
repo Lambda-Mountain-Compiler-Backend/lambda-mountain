@@ -530,11 +530,11 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let label-end (uuid()))
 
          (let ectx (fragment::new()))
-         #(set ectx (fragment::set( ectx 'rsp-offset_s (SAtom(to-string rsp-offset)) ))) 
-         #(set ectx (fragment::set( ectx 'end-offset_s (SAtom(to-string end-offset)) ))) 
+         (set ectx (fragment::set( ectx 'rsp-offset_s (SAtom(to-string rsp-offset)) ))) 
+         (set ectx (fragment::set( ectx 'end-offset_s (SAtom(to-string end-offset)) ))) 
 
          (set e (fragment-apply( ctx stack-offset 'primitive::if_s
-            (FLSeq( (FLSeq( (FLSeq( (FLSeq( (close FLEOF) ectx )) e1 )) e2 )) e3 )) (typeof term) term
+            (FLSeq( (close(FLSeq( (close(FLSeq( (close(FLSeq( (close FLEOF) ectx ))) e1 ))) e2 ))) e3 )) (typeof term) term
          )))
 
          (set e (fragment::set-context( e (fragment::get-context e2) )))
