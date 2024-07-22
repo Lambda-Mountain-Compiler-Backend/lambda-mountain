@@ -87,6 +87,7 @@ compile := λ(). (: (tail(
       ))
    )))
    (compile-program-ordered( global-ctx ast-parsed-program ))
+   (print 'Finish\s_s)(print (-( cons-page-tail cons-page-head )))(print '\n_s)
    (compile-finish())
    (compile-write())
 )) Nil);

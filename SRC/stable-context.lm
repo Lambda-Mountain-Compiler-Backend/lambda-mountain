@@ -57,7 +57,7 @@ fragment-context::lookup := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST
          ))
       ))
    )))
-   (if (&&( (non-zero( found )) (==( hard True_u8 )) )) () (tail(
+   (if (||( (non-zero( found )) (==( hard False_u8 )) )) () (tail(
       (print 'Context::lookup\s_s)(print k)(print '\s:\s_s)(print kt)(print '\n_s)
       (exit-error( 'Context::lookup\sCould\sNot\sFind\sSymbol_s sloc ))
    )))
