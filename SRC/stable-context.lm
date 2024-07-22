@@ -15,7 +15,15 @@ fragment-context::new := λ. (: (tail(
    r
 )) FContext);
 
-fragment-context::lookup := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST). (: (tail(
+fragment-context::lookup := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST). (: (
+   (fragment-context::lookup( ctx k kt sloc True_u8 ))
+) Fragment);
+
+fragment-context::lookup-soft := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST). (: (
+   (fragment-context::lookup( ctx k kt sloc False_u8 ))
+) Fragment);
+
+fragment-context::lookup := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST)(: hard U8). (: (tail(
    (let r (fragment::new()))
    (let found TAny)
    (while (non-zero ctx) (match ctx (
@@ -49,7 +57,7 @@ fragment-context::lookup := λ(: ctx FContext)(: k String)(: kt Type)(: sloc AST
          ))
       ))
    )))
-   (if (non-zero( found )) () (tail(
+   (if (&&( (non-zero( found )) (==( hard True_u8 )) )) () (tail(
       (print 'Context::lookup\s_s)(print k)(print '\s:\s_s)(print kt)(print '\n_s)
       (exit-error( 'Context::lookup\sCould\sNot\sFind\sSymbol_s sloc ))
    )))

@@ -217,11 +217,29 @@ fragment::render := λ(: ctx FContext)(: s S). (: (tail(
    return
 )) S);
 
+fragment::render-ctx := (: FCtxEOF FContext);
 fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
+   (set fragment::render-ctx ctx)
+   (let r (fragment::render-impl( s )))
+   r
+)) S);
+fragment::render-impl := λ(: s S). (: (tail(
+   (let ctx fragment::render-ctx)
    (let r SNil)
    (match s (
       ()
       ( SNil () )
+      ( (SCons( (SAtom 'uuid_s) (SAtom v) )) (tail(
+         (let f (fragment-context::lookup( ctx v TAny ASTEOF )))
+         (set r (fragment::get( f 'expression_s )))
+         (if (non-zero r) () (tail(
+            (set f (fragment::expression(uuid())))
+            (set fragment::render-ctx (FCtxBind(
+               (close fragment::render-ctx) v TAny f
+            )))
+            (set r (fragment::get( f 'expression_s )))
+         )))
+      )))
       ( (SCons( (SAtom 'Var_s) (SAtom v) )) (tail(
          (print 'Raw\sVariables\sNot\sPermitted\sIn\sFragments:\s_s)
          (print v)(print '\n_s)
@@ -229,7 +247,7 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
       )))
       ( (SCons( (SAtom 'Lit_s) (SAtom v) )) (set r (SAtom v)) )
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom 'inv_s) )) lc )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
@@ -239,7 +257,7 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string (-( 0_i64 li )) )))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom 'align_s) )) lc )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
@@ -249,14 +267,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string li)))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '>_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -270,14 +288,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          ))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom 'max_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -287,14 +305,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string(max( li ri )))))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '+_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -304,14 +322,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string(+( li ri )))))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '-_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -321,14 +339,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string(-( li ri )))))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '*_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -338,14 +356,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          (set r (SAtom(to-string(*( li ri )))))
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '/_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -357,14 +375,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          ) ())
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom '%_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -376,14 +394,14 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          ) ())
       )))
       ( (SCons( (SAtom 'App_s) (SCons( (SCons( (SAtom 'Var_s) (SAtom 'range_s) )) (SCons( (SAtom 'App_s) (SCons( lc rc )) )) )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
+         (let lt (fragment::render-impl( lc )))
          (let li 0_i64)
          (match lt (
             ()
             ( (SAtom lai) (set li (to-i64 lai)) )
             ( _ () )
          ))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let rt (fragment::render-impl( rc )))
          (let ri 0_i64)
          (match rt (
             ()
@@ -402,10 +420,10 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
             )) )) rc
          )) )) body
       )) )) (tail(
-         (let lt (fragment::render-impl( ctx lc )))
-         (let rt (fragment::render-impl( ctx rc )))
+         (let lt (fragment::render-impl( lc )))
+         (let rt (fragment::render-impl( rc )))
          (if (==( lt rt )) (tail(
-            (let bodyt (fragment::render-impl( ctx body )))
+            (let bodyt (fragment::render-impl( body )))
             (set r bodyt)
          )) ())
       )))
@@ -420,7 +438,7 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
             )) )) iter
          )) )) body
       )) )) (tail(
-         (let iter-result (fragment::render-impl( ctx iter )))
+         (let iter-result (fragment::render-impl( iter )))
          (while (non-zero iter-result) (match iter-result (
             ()
             ( (SCons( (SAtom i) rst )) (tail(
@@ -454,8 +472,8 @@ fragment::render-impl := λ(: ctx FContext)(: s S). (: (tail(
          )))
       ))
       ( (SCons( (SAtom 'App_s) (SCons( ls rs )) )) (tail(
-         (let lf (fragment::render-impl( ctx ls )))
-         (let rf (fragment::render-impl( ctx rs )))
+         (let lf (fragment::render-impl( ls )))
+         (let rf (fragment::render-impl( rs )))
          (set r (SCons( (close lf) (close rf) )))
       )))
       ( u (tail(
