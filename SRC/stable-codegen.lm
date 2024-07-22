@@ -529,6 +529,10 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let label-true-branch (uuid()))
          (let label-end (uuid()))
 
+         #(set e (fragment-apply( ctx stack-offset 'if_s
+         #   (FLSeq( (FLSeq( (FLSeq( (close FLEOF) e1 )) e2 )) e3 )) (typeof term) term
+         #)))
+
          (let text SNil)
          (set text (SCons( (close text) (close(SAtom '\tpush\s%rbp\n_s)) )))
          (set text (SCons( (close text) (close(fragment::get( e1 'frame_s ))) )))
