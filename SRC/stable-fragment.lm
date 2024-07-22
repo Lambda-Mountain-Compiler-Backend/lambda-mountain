@@ -229,8 +229,11 @@ fragment::render-impl := λ(: s S). (: (tail(
    (match s (
       ()
       ( SNil () )
-      ( (SCons( (SAtom 'uuid_s) (SAtom v) )) (tail(
-         (let f (fragment-context::lookup( ctx v TAny ASTEOF )))
+      ( (SCons( (SAtom 'App_s) (SCons(
+           (SCons( (SAtom 'Var_s) (SAtom 'uuid_s) ))
+           (SCons( (SAtom 'Var_s) (SAtom v) ))
+        )) )) (tail(
+         (let f (fragment-context::lookup-soft( ctx v TAny ASTEOF )))
          (set r (fragment::get( f 'expression_s )))
          (if (non-zero r) () (tail(
             (set f (fragment::expression(uuid())))
@@ -460,10 +463,6 @@ fragment::render-impl := λ(: s S). (: (tail(
          (if (==( (head-string op) 46_u8 )) (tail(
             (let f (fragment-context::lookup( ctx v TAny ASTEOF )))
             (let fe (fragment::get( f (tail-string op) )))
-            (if (non-zero fe) () (tail(
-               (print 'Referenced\sVariable\sIn\sFragment\sWas\sNull\s_s)
-               (print '._s)(print op)(print '\s_s)(print v)(print '\n_s)(exit 1_u64)
-            )))
             (set r fe)
          )) (tail(
             (print 'Raw\sVariables\sNot\sPermitted\sIn\sFragments:\s_s)

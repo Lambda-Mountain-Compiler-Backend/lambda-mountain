@@ -524,7 +524,9 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             (compile-expr( ctx cond rsp-offset Used )) cond
          )))
          (let e2 (compile-expr( (fragment::get-context e1) t (fragment::get-offset e1) used )))
+         (set e2 (fragment::set-type( e2 (typeof t) )))
          (let e3 (compile-expr( (fragment::get-context e1) f (fragment::get-offset e1) used )))
+         (set e3 (fragment::set-type( e3 (typeof f) )))
          (let end-offset (fragment::get-offset e2))
          (let label-true-branch (uuid()))
          (let label-end (uuid()))
@@ -532,6 +534,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let ectx (fragment::new()))
          (set ectx (fragment::set( ectx 'rsp-offset_s (SAtom(to-string rsp-offset)) ))) 
          (set ectx (fragment::set( ectx 'end-offset_s (SAtom(to-string end-offset)) ))) 
+         (set ectx (fragment::set-type( ectx (t1( 'ImplicitContext_s )) )))
 
          (set e (fragment-apply( ctx stack-offset 'primitive::if_s
             (FLSeq( (close(FLSeq( (close(FLSeq( (close(FLSeq( (close FLEOF) ectx ))) e1 ))) e2 ))) e3 )) (typeof term) term
