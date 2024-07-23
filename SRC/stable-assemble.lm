@@ -2,7 +2,7 @@
 assemble-text-section                    := (: SNil S);
 assemble-init-section                    := (: SNil S);
 assemble-data-section                    := (: SNil S);
-assemble-final                           := '_s;
+assemble-final                           := (: SNil S);
 assemble-argv-referenced                 := False_u8;
 
 compile := λ(). (: (tail(
@@ -89,6 +89,7 @@ compile := λ(). (: (tail(
    (compile-program-ordered( global-ctx ast-parsed-program ))
    (print 'Finish\s_s)(print (-( cons-page-tail cons-page-head )))(print '\n_s)
    (compile-finish())
+   (print 'Write\n_s)
    (compile-write())
 )) Nil);
 
@@ -210,7 +211,7 @@ compile-finish := λ. (: (tail(
       (set output (SCons( (close output) (close(compile-data-header())) )))
       (set output (SCons( (close output) (close assemble-data-section) )))
    )) ())
-   (set assemble-final (clone-rope(escape-string output)))
+   (set assemble-final (escape-string output))
 )) Nil);
 
 compile-write := λ. (: (tail(

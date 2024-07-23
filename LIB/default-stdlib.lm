@@ -447,6 +447,32 @@ write-file := λ(: fp String)(: data String). (: (tail(
    (system-call( 3_u64 fd 0_u64 0_u64 )) ()
 )) Nil);
 
+write-file := λ(: fp String)(: data S). (: (tail(
+   #open file
+   (let fd (system-call( 2_u64 (as fp U64) 577_u64 420_u64 )))
+
+   #write to file
+   (write-file( fd data ))
+
+   #close file
+   (system-call( 3_u64 fd 0_u64 0_u64 )) ()
+)) Nil);
+
+write-file := λ(: fd U64)(: data S). (: (tail(
+   (match data (
+      ()
+      ( (SAtom dt) (
+         #write to file
+         (system-call( 1_u64 fd (as dt U64) (length dt) ))
+      ))
+      ( (SCons( ld rd )) (tail(
+         (write-file( fd ld ))
+         (write-file( fd rd ))
+      )))
+      ( _ () )
+   )) ()
+)) Nil);
+
 to-string := λ(: i U64). (: (tail(
    (let r SNil)
    (let c 0_u8)
