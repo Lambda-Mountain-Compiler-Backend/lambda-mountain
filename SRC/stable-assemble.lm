@@ -211,11 +211,10 @@ compile-finish := λ. (: (tail(
       (set output (SCons( (close output) (close(compile-data-header())) )))
       (set output (SCons( (close output) (close assemble-data-section) )))
    )) ())
-   (set assemble-final (escape-string output))
+   (set assemble-final output)
 )) Nil);
 
-compile-write := λ. (: (tail(
-   ()
-   (write-file( config-target assemble-final ))
-)) Nil);
+compile-write := λ. (: (
+   (write-escaped-file( config-target assemble-final ))
+) Nil);
 

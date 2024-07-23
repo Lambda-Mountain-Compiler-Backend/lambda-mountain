@@ -173,6 +173,36 @@ escape-string := λ(: s S). (: (tail(
    s
 )) S);
 
+write-escaped-file := λ(: fp String)(: s S). (: (tail(
+   #open file
+   (let fd (system-call( 2_u64 (as fp U64) 577_u64 420_u64 )))
+
+   #write to file
+   (write-escaped-file( fd s ))
+
+   #close file
+   (system-call( 3_u64 fd 0_u64 0_u64 )) ()
+)) Nil);
+
+write-escaped-file := λ(: fd U64)(: s S). (: (
+   (while (non-zero s) (match s (
+      ()
+      ( (SCons( (SAtom data) tl )) (tail(
+         (system-call( 1_u64 fd (as data U64) (length data) ))
+         (set s tl)
+      )))
+      ( (SCons( hd tl )) (tail(
+         (write-escaped-file( fd hd ))
+         (set s tl)
+      )))
+      ( (SAtom data) (tail(
+         (system-call( 1_u64 fd (as data U64) (length data) ))
+         (set s SNil)
+      )))
+      ( _ (set s SNil) )
+   )))
+) Nil);
+
 escape-string := λ(: s String). (: (tail(
    (let e SNil)
    (while (head-string s) (
