@@ -662,6 +662,11 @@ fragment-apply := λ(: ctx FContext)(: offset I64)(: k String)(: args FragmentLi
       ( (TGround( 'DontChain_s _ )) (set chain False_u8) )
       ( _ () )
    ))
+   (print 'Check\sPrefix\n_s)
+   (if (has-prefix( k 'primitive::if_s )) (
+      (set chain False_u8)
+   ) ())
+   (print 'Checked\sPrefix\n_s)
 
    (let tctx (unify( (slot( arrow-tt 'Arrow_s )) direct-type )))
    (set ctx (union( ctx tctx )))
