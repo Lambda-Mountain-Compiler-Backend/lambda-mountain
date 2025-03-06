@@ -1,0 +1,290 @@
+
+type SerialVal = SerialUInt { val: U64 }
+               | SerialInt  { val: I64 }
+               | SerialFlt  { val: F64 }
+               | SerialBool { val: U8 }
+               | SerialStr  { val: String }
+               | SerialVec  { val: Vector<SerialVal[]> }
+               | SerialDict { val: HashtableEq<SerialVal[], SerialVal[]> }
+               ;
+
+interface Serializable {
+   let serialize(self: Serializable): SerialVal;
+}
+
+interface Deserializable {
+   let deserialize(val: SerialVal, ty: Type<Deserializable>): Deserializable;
+}
+
+# TODO: failable casts between number types
+
+type SerialVal => Serializable;
+type SerialVal => Deserializable;
+
+let deserialize(val: SerialVal, ty: Type<SerialVal>): SerialVal = (
+   val
+);
+
+let serialize(val: SerialVal): SerialVal = (
+   val
+);
+
+type Bool => Serializable;
+type Bool => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<Bool>): Bool = (
+   deserialize(vali,type(U64)) as Bool
+);
+
+let serialize(val: Bool): SerialVal = (
+   SerialBool { val }
+);
+
+type U64 => Serializable;
+type U64 => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<U64>): U64 = (
+   match vali {
+      SerialBool { val=val } => ( val as U64 );
+      SerialUInt { val=val } => ( val );
+      SerialInt  { val=val } => (
+         if val < 0 {
+            fail("cannot deserialize negative int to u64");
+         };
+         val as U64
+      );
+      SerialFlt { val=val } => (
+         if val != ((val as U64) as F64) {
+            fail("cannot deserialize decimal number to u64");
+         };
+         if val < 0 {
+            fail("cannot deserialize negative number to u64");
+         };
+         val as U64
+      );
+      SerialStr { val=val } => ( to-u64(val) );
+      other => ( fail("cannot deserialize u64 from this SerialVal"); );
+   }
+);
+
+let serialize(val: U64): SerialVal = (
+   SerialUInt { val }
+);
+
+type I64 => Serializable;
+type I64 => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<I64>): I64 = (
+   match vali {
+      SerialBool { val=val } => ( val as I64 );
+      SerialUInt { val=val } => ( val as I64 );
+      SerialInt  { val=val } => ( val );
+      SerialFlt { val=val } => (
+         if val != ((val as I64) as F64) {
+            fail("cannot deserialize decimal number to i64");
+         };
+         val as I64
+      );
+      SerialStr { val=val } => ( to-i64(val) );
+      other => ( fail("cannot deserialize i64 from this SerialVal"); );
+   }
+);
+
+let serialize(val: I64): SerialVal = (
+   SerialInt { val }
+);
+
+type F64 => Serializable;
+type F64 => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<F64>): F64 = (
+   match vali {
+      SerialBool { val=val } => ( val as F64 );
+      SerialUInt { val=val } => ( val as F64 );
+      SerialInt  { val=val } => ( val as F64 );
+      SerialFlt  { val=val } => ( val );
+      SerialStr  { val=val } => ( to-f64(val) );
+      other => ( fail("cannot deserialize f64 from this SerialVal"); );
+   }
+);
+
+let serialize(val: F64): SerialVal = (
+   SerialFlt { val }
+);
+
+type String => Serializable;
+type String => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<String>): String = (
+   match vali {
+      SerialStr  { val=val } => ( val );
+      other => ( fail("cannot deserialize string from this SerialVal"); );
+   }
+);
+
+let serialize(val: String): SerialVal = (
+   SerialStr { val }
+);
+
+type CString => Serializable;
+type CString => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<CString>): CString = (
+   match vali {
+      SerialStr  { val=val } => ( untern(val) );
+      other => ( fail("cannot deserialize string from this SerialVal"); );
+   }
+);
+
+let serialize(val: CString): SerialVal = (
+   SerialStr { (to-smart-string(val)) }
+);
+
+type Iterable<Serializable> => Serializable;
+type FromVector<Deserializable> => Deserializable;
+
+let deserialize(vali: SerialVal, ty: Type<ot+FromVector<eltt+Deserializable>>): ot = (
+   match vali {
+      SerialVec { val=val } => (
+         let out = mk-vector(type(eltt), val.length());
+         for x in val.unsafe-iter() {
+            out = out.push(deserialize(x,type(eltt)));
+         };
+         out.move-to(ty)
+      );
+      r => ( fail("can only deserialize collection from serialvec"); );
+   }
+);
+
+let serialize(self: Iterable<t+Serializable>): SerialVal = (
+   let out = mk-vector(type(SerialVal), length-or-zero(self));
+   for x in self.unsafe-iter() {
+      out = out.push(close(serialize(x)));
+   };
+   SerialVec { out }
+);
+
+type HashtableEq<Serializable,Serializable> => Serializable;
+type HashtableEq<Deserializable,Deserializable> => Deserializable;
+
+let deserialize(val: SerialVal, ty: Type<HashtableEq<k+Deserializable,v+Deserializable>>): HashtableEq<k,v> = (
+   let out = {} :: HashtableEq<k,v>;
+   match val {
+      SerialDict { val=val } => (
+         for kv in val.unsafe-iter() {
+            let k = deserialize(open(kv.first), type(k));
+            let v = deserialize(open(kv.second), type(v));
+            out = out.bind(k, v);
+         };
+      );
+      r => ( fail("can only deserialize map from serialdict") );
+   };
+   out
+);
+
+let serialize(self: HashtableEq<k+Serializable,v+Serializable>): SerialVal = (
+   let out = {} :: HashtableEq<SerialVal, SerialVal>;
+
+   for x in self.unsafe-iter() {
+      out = out.bind(
+         close(serialize(x.first)), 
+         close(serialize(x.second)));
+   };
+
+   SerialDict { out }
+);
+
+type JsonSerializeCfg = JsonSerializeCfg { pretty: U8, indent: U64 };
+
+let to-smart-string(self: SerialVal): String = (
+   self.to-json(JsonSerializeCfg { true, 2 }, 0)
+);
+
+let to-smart-string(self: Serializable): String = (
+   to-smart-string(serialize(self))
+);
+
+let .to-json(self: SerialVal, cfg: JsonSerializeCfg): String = (
+   self.to-json(cfg, 0_u64)
+);
+
+let .to-json(self: SerialVal, cfg: JsonSerializeCfg, depth: U64): String = (
+   match self {
+      SerialUInt { val=val } => ( to-smart-string(val) );
+      SerialInt  { val=val } => ( to-smart-string(val) );
+      SerialFlt  { val=val } => ( to-smart-string(val) );
+
+      SerialBool { val=val } => (
+         if val { "true" }
+         else { "false" }
+      );
+
+      SerialStr  { val=val } => ( "\"\{val}\"" );
+
+      SerialVec  { val=val } => (
+         let out = "[";
+         if cfg.pretty {
+            let first = true;
+            for x in val.unsafe-iter() {
+               if first {
+                  first = false;
+               } else {
+                  out = out + ",\n";
+               };
+               out = out + " ".repeat(depth * cfg.indent);
+               out = out + open(x).to-json(cfg, depth + 1);
+            };
+            if val.length() > 0 {
+               out = out + "\n";
+            };
+         } else {
+            let first = true;
+            for x in val.unsafe-iter() {
+               if first {
+                  first = false;
+               } else {
+                  out = out + ", ";
+               };
+               out = out + open(x).to-json(cfg, depth + 1);
+            };
+         };
+         out = out + "]";
+      );
+
+      SerialDict { val=val } => (
+         let out = "{";
+         if cfg.pretty {
+            let first = true;
+            let any = false;
+            for x in val.unsafe-iter() {
+               any = true;
+               if first {
+                  first = false;
+               } else {
+                  out = out + ",\n";
+               };
+               out = out + " ".repeat(depth * cfg.indent);
+               out = out + open(x.first).to-json(cfg, depth + 1);
+               out = out + ": ";
+               out = out + open(x.second).to-json(cfg, depth + 1);
+            };
+            if any {
+               out = out + "\n";
+            };
+         } else {
+            let first = true;
+            for x in val.unsafe-iter() {
+               if first {
+                  first = false;
+               } else {
+                  out = out + ", ";
+               };
+               out = out + open(x.first).to-json(cfg, depth + 1);
+               out = out + ": ";
+               out = out + open(x.second).to-json(cfg, depth + 1);
+            };
+         };
+         out = out + "}";
+      );
+   }
+);
