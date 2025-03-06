@@ -82,39 +82,43 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
          ))
       )
       ( t (
-         (let clean-tt (.without-tag kt))
-         (let mid (mangle-identifier( k clean-tt )))
+         (if (.is-t( (typeof t) 'C_s )) (
+            (std-c-compile-global( ctx k term ))
+         ) (
+            (let clean-tt (.without-tag kt))
+            (let mid (mangle-identifier( k clean-tt )))
 
-         (let e (compile-expr( ctx t 0_i64 Used )))
+            (let e (compile-expr( ctx t 0_i64 Used )))
 
-         (let text SNil)
-         (match (.slot( kt 'Array_s )) (
-            ()
-            ( (TGround( 'Array_s (LCons( _ (LCons(
-                 (TGround( 'Arrow_s (LCons( ranget (LCons( domaint _ )) )) )) _
-              )) )) )) (
-               (set text (SCons( (close text) (close(mangle-c-type ranget)) )))
-               (set text (SCons( (close text) (close(SAtom '\s\[*_s)) )))
-               (set text (SCons( (close text) (close(SAtom mid)) )))
-               (set text (SCons( (close text) (close(SAtom '\]\[_s)) )))
-               (set text (SCons( (close text) (close(mangle-c-type domaint)) )))
-               (set text (SCons( (close text) (close(SAtom '\]\:\n_s)) )))
-               (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+            (let text SNil)
+            (match (.slot( kt 'Array_s )) (
+               ()
+               ( (TGround( 'Array_s (LCons( _ (LCons(
+                    (TGround( 'Arrow_s (LCons( ranget (LCons( domaint _ )) )) )) _
+                 )) )) )) (
+                  (set text (SCons( (close text) (close(mangle-c-type ranget)) )))
+                  (set text (SCons( (close text) (close(SAtom '\s\[*_s)) )))
+                  (set text (SCons( (close text) (close(SAtom mid)) )))
+                  (set text (SCons( (close text) (close(SAtom '\]\[_s)) )))
+                  (set text (SCons( (close text) (close(mangle-c-type domaint)) )))
+                  (set text (SCons( (close text) (close(SAtom '\]\:\n_s)) )))
+                  (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+               ))
+               ( _ (
+                  (set text (SCons( (close text) (close(mangle-c-type clean-tt)) )))
+                  (set text (SCons( (close text) (close(SAtom '\s_s)) )))
+                  (set text (SCons( (close text) (close(SAtom mid)) )))
+                  (set text (SCons( (close text) (close(SAtom '\:\n_s)) )))
+                  (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+               ))
             ))
-            ( _ (
-               (set text (SCons( (close text) (close(mangle-c-type clean-tt)) )))
-               (set text (SCons( (close text) (close(SAtom '\s_s)) )))
-               (set text (SCons( (close text) (close(SAtom mid)) )))
-               (set text (SCons( (close text) (close(SAtom '\:\n_s)) )))
-               (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
-            ))
+
+            (set text (SAtom mid))
+            (set text (SCons( (close text) (close(SAtom '=_s)) )))
+            (set text (SCons( (close text) (close(.get( e 'expression_s ))) )))
+            (set text (SCons( (close text) (close(SAtom '\:\n_s)) )))
+            (set assemble-global-initializer-section (SCons( (close assemble-global-initializer-section) (close text) )))
          ))
-
-         (set text (SAtom mid))
-         (set text (SCons( (close text) (close(SAtom '=_s)) )))
-         (set text (SCons( (close text) (close(.get( e 'expression_s ))) )))
-         (set text (SCons( (close text) (close(SAtom '\:\n_s)) )))
-         (set assemble-global-initializer-section (SCons( (close assemble-global-initializer-section) (close text) )))
       ))
    ))
 ) Nil);

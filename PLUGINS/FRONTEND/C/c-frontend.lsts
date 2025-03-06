@@ -1,8 +1,21 @@
 
 let c-frontend(fp: CString): Nil = (
    frontend(c"LIB/c-primitives.lsts"); # hard coded dependency
-   let tokens = std-c-tokenize-string(fp, read-file(fp));
+
+   let tmp = intern(mktemp(untern("/tmp/lm.tmp.XXXXXX") as U8[]) as CString);
+   let cmd = "cpp /dev/null -o " + tmp;
+   cmd = cmd + " -U__USE_MISC";
+   cmd = cmd + " -D__STRICT_ANSI__";
+   cmd = cmd + " -D__LM__";
+   cmd = cmd + " -include \"" + intern(fp) + "\"";
+
+   if system(untern(cmd) as U8[]) != 0 {
+      fail("cpp failed. command: \"" + cmd + "\"");
+   };
+
+   let tokens = std-c-tokenize-string(fp, read-file(untern(tmp)));
    std-c-parse(tokens);
 );
+
 
 register-frontend(c".c", c-frontend);

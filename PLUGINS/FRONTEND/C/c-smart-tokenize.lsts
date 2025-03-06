@@ -12,6 +12,17 @@ let std-c-tokenize-string(file-path: String, text: String): List<Token> = (
       "\t".. rest => text = rest;
       "\n".. rest => text = rest;
 
+      (comment=r/^\/\/[^\n]*/).. rest => (
+         text = rest;
+      );
+
+      # TODO, allow * character in block comments
+      # posix extended regular expressions don't do well here
+      # this isn't very important though because cpp should remove comments
+      (comment=r/\/[*]([^*])*[*]\//).. rest => (
+         text = rest;
+      );
+
       "...".. rest => (tokens = cons(text[:"...".length], tokens); text = rest;);
       "<<=".. rest => (tokens = cons(text[:"<<=".length], tokens); text = rest;);
       ">>=".. rest => (tokens = cons(text[:">>=".length], tokens); text = rest;);
@@ -85,7 +96,7 @@ let std-c-tokenize-string(file-path: String, text: String): List<Token> = (
          tokens = cons(text[:id.length], tokens); text = rest;
       );
 
-      (comment=r/^#[^\n]*[\n]/).. rest => (
+      (comment=r/^#[^\n]*/).. rest => (
          text = rest;
       );
 

@@ -1,6 +1,27 @@
 
-let std-c-compile-expr(ctx: FContext, t: AST): Fragment = (
-   match t {
+let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
+   let f = match t {
+      App{ left:Abs{lhs=lhs:Var{name=key}, rhs:ASTNil{}}, rhs=right } => (
+         let lt = typeof(lhs);
+         let v = mk-fragment().set(c"expression",SAtom{uuid()});
+         let f = mk-fragment();
+         f.context = close(ctx.bind( name, lt, f ));
+         (let pre, let post) = std-c-mangle-declaration(lt);
+         f = f.set(c"frame", f.get(c"frame") + pre + SAtom{c" "}
+                 + (if lt.is-t(c"C") then SAtom{name} else v.get(c"expression"))
+                 + SAtom{c" "} + post + SAtom{c";"});
+         match rhs {
+            App{ left:Lit{key:c":"}, right:App{ left:Var{key:c"__uninitialized"}, right:AType{tt=tt} } } => ();
+            _ => (
+               let rf = std-c-compile-expr(ctx, rhs, false);
+               f = f.set(c"frame", f.get(c"frame") + rf.get(c"frame"));
+               f = f.set(c"expression", SAtom(c"(")
+                 + (if lt.is-t(c"C") then SAtom{name} else v.get(c"expression"))
+                 + SAtom{c"="} + rf.get(c"expression") + SAtom{c")"});
+            );
+         };
+         f
+      );
       App{ left:Lit{key:c":"}, right:App{ left:Lit{val=key}, right:AType{tt=tt} } } => (
          if tt.is-t(c"C") && tt.r1.is-t(c"uint8_t") then mk-expression(val)
          else if tt.is-t(c"C") && tt.r1.is-t(c"uint16_t") then mk-expression(val)
@@ -13,7 +34,8 @@ let std-c-compile-expr(ctx: FContext, t: AST): Fragment = (
          else (fail("Unknown C Literal Type: \{tt}"); mk-fragment());
       );
       App{ left:Lit{key:c":"}, right:App{ inner-term=left, right:AType{tt=tt} } } => (
-         std-c-compile-expr(ctx, inner-term);
+         let f = std-c-compile-expr(ctx, inner-term, is-stmt);
+         is-stmt = false; f;
       );
       App{ left:Var{key:c"c::compound"}, terms=right } => (
          let e = mk-fragment();
@@ -26,11 +48,12 @@ let std-c-compile-expr(ctx: FContext, t: AST): Fragment = (
             _ => terms = ASTEOF;
          }};
          for ct in terms-list.reverse().iter() {
-            let f = std-c-compile-expr(ctx, ct);
+            let f = std-c-compile-expr(ctx, ct, true);
             ctx = open(f.context);
-            e = std-c-chain( e, f );
+            e = std-c-chain( e, f, true );
          };
-         e = e.set(c"expression", SAtom{c"{"} + e.get(c"expression") + SAtom{c"}"} );
+         e = e.set(c"expression", SAtom{c"{"} + e.get(c"frame") + e.get(c"expression") + SAtom{c"}"} );
+         e = e.set(c"frame", SNil );
          e
       );
       App{ is-cons=is-cons, left=left, right=right } => (
@@ -45,13 +68,20 @@ let std-c-compile-expr(ctx: FContext, t: AST): Fragment = (
                 );
              }
           } else {
-             fail("TODO: std-c-compile-expr cons"); mk-fragment();
+             let f1 = std-c-compile-expr(ctx, left, true);
+             ctx = open(f1.context);
+             let f2 = std-c-compile-expr(ctx, right, true);
+             let f3 = std-c-chain(f1, f2, is-stmt);
+             is-stmt = false;
+             f3
           }
       );
       _ => (
          print("TODO: std-c-compile-expr\n");
          std-c-print(t); exit(1); mk-fragment();
       );
-   }
+   };
+   if is-stmt && non-zero(f.get(c"expression")) then f = f.set(c"expression", f.get(c"expression") + SAtom{c";"});
+   f.type = typeof(t); f
 );
 

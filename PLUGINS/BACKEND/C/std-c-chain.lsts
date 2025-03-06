@@ -1,5 +1,11 @@
 
-let std-c-chain(f1: Fragment, f2: Fragment): Fragment = (
-   f2 = f2.set( c"expression", f1.get(c"expression") + f2.get(c"expression") );
+let std-c-chain(f1: Fragment, f2: Fragment, is-stmt: Bool): Fragment = (
+   f2 = f2.set( c"frame", f1.get(c"frame") + f2.get(c"frame") );
+   if is-stmt {
+      f2 = f2.set( c"expression", f1.get(c"expression") + f2.get(c"expression") );
+   } else {
+      f2 = f2.set( c"expression", SAtom{c"({"}
+         + f1.get(c"expression") + f2.get(c"expression") + SAtom{c"})"});
+   };
    f2
 );

@@ -10,7 +10,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                      kt = kt.slot(c"...").r1;
                      if can-unify(kt, typeof(re)) {
                         if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(re))); };
-                        let c1 = std-c-compile-expr(caller-ctx, re);
+                        let c1 = std-c-compile-expr(caller-ctx, re, false);
                         caller-ctx = open(c1.context);
                         callee-ctx = bind-vararg(callee-ctx, k, kt, c1);
                         (callee-ctx, caller-ctx) = std-c-compile-args(callee-ctx, caller-ctx, lhs, le);
@@ -19,7 +19,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                      }
                   } else {
                      if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(re))); };
-                     let c1 = std-c-compile-expr(caller-ctx, re);
+                     let c1 = std-c-compile-expr(caller-ctx, re, false);
                      caller-ctx = open(c1.context);
                      callee-ctx = callee-ctx.bind(k, kt, c1);
                      (callee-ctx, caller-ctx) = std-c-compile-args(callee-ctx, caller-ctx, lhs-rst, le);
@@ -31,7 +31,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                kt = kt.slot(c"...").r1;
                if can-unify(kt, typeof(rhs)) {
                   if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(rhs))); };
-                  let c1 = std-c-compile-expr(caller-ctx, rhs);
+                  let c1 = std-c-compile-expr(caller-ctx, rhs, false);
                   caller-ctx = open(c1.context);
                   callee-ctx = bind-vararg(callee-ctx, k, kt, c1);
                } else {
@@ -39,7 +39,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                }
             } else {
                if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(rhs))); };
-               let c1 = std-c-compile-expr(caller-ctx, rhs);
+               let c1 = std-c-compile-expr(caller-ctx, rhs, false);
                caller-ctx = open(c1.context);
                callee-ctx = callee-ctx.bind(k, kt, c1);
             }
@@ -53,7 +53,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                   if kt.is-t(c"...") {
                      kt = kt.slot(c"...").r1;
                      if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(re))); };
-                     let c1 = std-c-compile-expr(caller-ctx, re);
+                     let c1 = std-c-compile-expr(caller-ctx, re, false);
                      caller-ctx = open(c1.context);
                      callee-ctx = bind-vararg(callee-ctx, k, kt, c1);
                      (callee-ctx, caller-ctx) = std-c-compile-args(callee-ctx, caller-ctx, lhs, le);
@@ -67,7 +67,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                kt = kt.slot(c"...").r1;
                if can-unify(kt, typeof(rhs)) {
                   if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(rhs))); };
-                  let c1 = std-c-compile-expr(caller-ctx, rhs);
+                  let c1 = std-c-compile-expr(caller-ctx, rhs, false);
                   caller-ctx = open(c1.context);
                   callee-ctx = bind-vararg(callee-ctx, k, kt, c1);
                } else {
@@ -75,7 +75,7 @@ let std-c-compile-args(callee-ctx: FContext, caller-ctx: FContext, lhs: AST, rhs
                }
             } else {
                if kt.is-open { callee-ctx = union(callee-ctx, unify(kt, typeof(rhs))); };
-               let c1 = std-c-compile-expr(caller-ctx, rhs);
+               let c1 = std-c-compile-expr(caller-ctx, rhs, false);
                caller-ctx = open(c1.context);
                callee-ctx = callee-ctx.bind(k, kt, c1);
             }

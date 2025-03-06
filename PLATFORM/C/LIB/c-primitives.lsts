@@ -5,6 +5,8 @@ import PLATFORM/C/LIB/blob.lm;
 import PLATFORM/C/LIB/primitives.lm;
 import PLATFORM/C/LIB/primitives.lsts;
 
+#type C<$"int8_t"> => C<$"int16_t">;
+
 let :Blob $"c::compound"(ts: Cons<Any,last>): last = (
 );
 
@@ -12,5 +14,5 @@ let :Blob $"c::compound"(ts: last): last = (
 );
 
 let :Blob $"c::return"(ts: x): x = (
-   l"return "; ts; l";";
+   l"return "; ts;
 );

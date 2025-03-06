@@ -13,27 +13,6 @@ min := λ(: x U64)(: y U64). (: (
    (if (<=( x y )) x y)
 ) U64);
 
-to-string := λ(: i U64). (: (
-   (let r SNil)
-   (let c 0_u8)
-   (while (not(==( i 0_u64 ))) (
-      (let ci (as (+( (%( i 10_u64 )) 48_u64 )) U8))
-      (set i (/( i 10_u64 )))
-      (set r (SCons(
-         (close(SAtom(clone-rope ci)))
-         (close r)
-      )))
-   ))
-   (if (non-zero r) () (
-      (set r (SAtom '0_s))
-   ))
-   (clone-rope r)
-) String);
-
-to-smart-string := λ(: i U64). (: (
-   (intern(to-string i))
-) SmartString);
-
 deep-hash := λ(: x U64). (: (hash x) U64);
 
 to-u64 := λ(: s String). (: (

@@ -36,9 +36,9 @@ let .reserve-additional(v: Vector<t>, additional: U64): Vector<t> = (
 let .push(v: Vector<t>, i: t): Vector<t> = (
    if v.length >= v.capacity {
       let new-cap = if v.capacity == 0 {
-         4
+         4_u64
       } else { # mul 1.5
-         (v.capacity << 1) + v.capacity
+         (v.length >> 1_u64) + v.length
       };
       v = v.realloc(new-cap);
    };
@@ -98,6 +98,53 @@ let .clone(self: Vector<t>): Vector<t> = (
     self.to-vector();
 );
 
+# shrinks the vector if it has way too many elements. shouldn't be called manually
+let .shrink(v: Vector<t>): Vector<t> = (
+    let too-much = v.capacity - v.length;
+    let minimum = (v.length >> 1) + v.length; # mul 1.5
+    if too-much > minimum {
+       v = v.realloc(minimum);
+    };
+    v
+);
+
+let .remove-front(v: Vector<t>, num: U64): Vector<t> = (
+    if num > v.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
+    };
+
+    let i = num;
+    while i < v.length() {
+        v[i-num] = v[i];
+        i = i + 1;
+    };
+    v.length = v.length - num;
+
+    v.shrink();
+);
+
+let .remove-back(v: Vector<t>, num: U64): Vector<t> = (
+    if num > v.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
+    };
+
+    v.length = v.length - num;
+
+    v.shrink();
+);
+
+let .pop(v: Vector<t>): Tuple<Vector<t>, t> = (
+    if v.length() == 0 {
+        fail("Tried to pop from empty Vector.");
+    };
+
+    let lasti = v.length - 1;
+    let last = v[lasti];
+    v = v.remove-back(1);
+
+    Tuple { v, last }
+);
+
 let $"[]"( v: Vector<t>, i: U64 ): t = (
    if i >= v.length {
       fail("Vector Index Out of Bounds");
@@ -126,6 +173,17 @@ let .iter(v: Vector<t>): CollectionIteratorBase<Vector<t>> = (
 # If you modify the vector after creating the iterator, weird things will happen
 let .unsafe-iter(v: Vector<t>): CollectionIteratorBase<Vector<t>> = (
    VectorIter { v, 0_u64 }
+);
+
+let .reverse-self(v: Vector<t>): Nil = (
+   let i = 0_u64;
+   while i < (v.length >> 1) {
+      let ri = v.length - i - 1;
+      let temp = v[i];
+      v[i] = v[ri];
+      v[ri] = temp;
+      i = i + 1;
+   };
 );
 
 let .sort(v: Vector<t>): Vector<t> = (
@@ -164,21 +222,6 @@ let .push-all(self: Vector<t>, val: Iterable<t>): Vector<t> = (
    self
 );
 
-interface FromVector<t> {
-   let .move-to(self: Vector<t>, out: Type<FromVector<t>>): FromVector<t>;
-}
-
-# MAKES INPUT VECTOR INVALID
-let .move-to(self: Vector<U8>, res: Type<CString>): CString = (
-   self = self.push(0_u8);
-   (self.data as U8[]) as CString
-);
-
-# MAKES INPUT VECTOR INVALID
-let .move-to(self: Vector<U8>, res: Type<SmartString>): SmartString = (
-   intern(self.move-to(type(CString)))
-);
-
 let .collect(x: Iterator<t>, to: Vector<t>): Vector<t> = (
    let rem = remaining-or-zero(x);
    if rem != 0 {
@@ -195,4 +238,24 @@ let .collect(x: Iterator<t>, tot: Type<Vector<t>>): Vector<t> = (
    let to = mk-vector(type(t), 0);
    to = x.collect(to);
    to
+);
+
+interface FromVector<t> {
+   let .move-to(self: Vector<t>, out: Type<FromVector<t>>): FromVector<t>;
+};
+
+type CString => FromVector<U8>;
+
+# MAKES INPUT VECTOR INVALID
+let .move-to(self: Vector<U8>, res: Type<CString>): CString = (
+   self = self.push(0_u8);
+   self = self.shrink();
+   (self.data as U8[]) as CString
+);
+
+type SmartString => FromVector<U8>;
+
+# MAKES INPUT VECTOR INVALID
+let .move-to(self: Vector<U8>, res: Type<SmartString>): SmartString = (
+   intern(self.move-to(type(CString)))
 );

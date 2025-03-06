@@ -11,6 +11,9 @@ let std-c-print(t: AST): Nil = (
       Abs{lhs=lhs,rhs=rhs} => (
          print("(fn "); std-c-print(lhs); print(" = "); std-c-print(rhs); print(")");
       );
+      Glb{key=key,val=val} => (
+         print("let \{key.key} = "); std-c-print(val); print(" = "); print(";");
+      );
       AType{tt=tt} => print(tt);
    };
 );

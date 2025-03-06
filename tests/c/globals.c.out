@@ -1,0 +1,4 @@
+int global_x = 5;
+int global_y;
+int global_z = 4;
+int main(){}

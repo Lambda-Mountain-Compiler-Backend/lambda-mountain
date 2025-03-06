@@ -62,7 +62,13 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
       ))
       ( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) (
          (set tt (.rewrite-type-alias tt))
-         (set tctx (infer-expr( tctx t Unscoped tt used )))
+         (match t (
+            ()
+            ( (Var( '__uninitialized_s _ )) (
+               (ascript-normal( t tt ))
+            ))
+            ( _ (set tctx (infer-expr( tctx t Unscoped tt used ))) )
+         ))
          (let inner-tt (typeof t))
          (if (non-zero inner-tt) (
             (ascript-normal( term tt ))
@@ -144,16 +150,7 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
                (exit-error( (+( 'Variable\sName\sIs\sAlready\sBound\sIn\sOuter\sScope\s_s lname )) term ))
             ) ())
          ) ())
-         (match rhs (
-            ()
-            ( (App( (Lit( ':_s _ )) (App( (@( u (Var( '__uninitialized_s _ )) )) (AType tt) )) )) (
-               (ascript-normal( u tt ))
-               (ascript-normal( rhs tt ))
-            ))
-            ( _ (
-               (infer-expr( tctx rhs Unscoped TAny Tail ))
-            ))
-         ))
+         (infer-expr( tctx rhs Unscoped TAny Tail ))
          (let tt (typeof rhs))
          (if (non-zero tt) () (
             (exit-error( 'Unable\sto\sinfer\stype\sof\sexpression_s rhs ))

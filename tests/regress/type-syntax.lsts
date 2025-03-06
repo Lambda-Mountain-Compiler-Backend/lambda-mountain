@@ -1,0 +1,11 @@
+
+import LIB/default.lsts;
+
+type $"A" => $"B";
+
+type A = A{};
+
+let f(b: B): B = b;
+
+f(A);
+

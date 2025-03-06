@@ -26,7 +26,6 @@ import PLATFORM/C/LIB/u64.lsts;
 import PLATFORM/C/LIB/i64.lsts;
 import PLATFORM/C/LIB/f64.lsts;
 import PLATFORM/C/LIB/usize.lsts;
-import PLATFORM/C/LIB/buffer.lm;
 import PLATFORM/C/LIB/string.lm;
 import PLATFORM/C/LIB/string.lsts;
 import PLATFORM/C/LIB/smart-string.lm;

@@ -24,3 +24,20 @@ declare-unop( not, raw-type(U64), raw-type(U64), ( l"(!"; x; l")"; ) );
 declare-unop( into-branch-conditional, raw-type(U64), raw-type(BranchConditional), x );
 
 let cmp(l: U64, r: U64): Ord = if l==r then Equal else if l<r then LessThan else GreaterThan;
+
+let to-string(i: U64): CString = (
+   let out = mk-vector(type(U8), 8);
+
+   while i > 0 {
+      let ci = ((i % 10) + 48) as U8;
+      i = i / 10;
+      out = out.push(ci);
+   };
+
+   out.reverse-self();
+   out.move-to(type(CString))
+);
+
+let to-smart-string(i: U64): SmartString = (
+   intern(to-string(i))
+);

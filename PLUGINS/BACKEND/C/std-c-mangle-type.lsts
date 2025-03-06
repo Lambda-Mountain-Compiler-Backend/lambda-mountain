@@ -29,6 +29,6 @@ let std-c-mangle-type-internal(tt: Type): S = (
       TGround{tag:c"C", parameters:[TGround{tag1=tag}..]} => (
          SAtom{tag1}
       );
-      _ => fail("TODO: std-c-mangle-type \{tt}\n");
+      _ => SNil;
    }
 );

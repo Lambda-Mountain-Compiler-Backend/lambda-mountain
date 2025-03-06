@@ -50,6 +50,7 @@ let lsts-has-assign(tokens: List<Token>): U64 = (
 );
 
 let lsts-substitute-type-aliases(s: CString): CString = (
+   if s.has-prefix(c"$") then untern(intern(s)[2_i64:-1_i64]) else
    if s == c"String" then c"SmartString" else
    if s == c"CString" then c"String" else
    s.remove-suffix(c"_u64")
@@ -140,12 +141,13 @@ let lsts-parse-type(tokens: List<Token>): Tuple<Type,List<Token>> = (
    } else if lsts-parse-head(tokens)==c"?" {
       tokens = tail(tokens);
       TAny {}
-   } else if lsts-is-ident-head(lsts-parse-head(tokens)) && not(lsts-parse-head(tokens).has-suffix(c"_u64")) {
+   } else if lsts-is-ident-head(lsts-parse-head(tokens)) && not(lsts-parse-head(tokens).has-suffix(c"_u64"))
+          && not(lsts-parse-head(tokens).has-prefix(c"$")) {
       let varname = lsts-parse-head(tokens); tokens = tail(tokens);
       TVar { varname }
    } else {
       let base = lsts-substitute-type-aliases(lsts-parse-head(tokens));
-      lsts-parse-expect(c"Type", lsts-is-lit-head(lsts-parse-head(tokens)), tokens); tokens = tail(tokens);
+      tokens = tail(tokens);
       while non-zero(tokens) && lsts-parse-head(tokens)==c":" {
          lsts-parse-expect(c":", tokens); tokens = tail(tokens);
          lsts-parse-expect(c":", tokens); tokens = tail(tokens);
