@@ -182,7 +182,7 @@ let .skip(self: TryZipIterator<ai,bi>, num: U64): TryZipIterator<ai,bi> = (
    TryZipIterator { self.aii.skip(num), self.bii.skip(num) }
 );
 
-let .next(p: TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>>[]): Maybe<Tuple<Maybe<at>,Maybe<bt>>> = (
+let .next(p: s+TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>>[]): Maybe<Tuple<Maybe<at>,Maybe<bt>>> = (
    let v = open(p);
    let av = (&v.aii).next();
    let bv = (&v.bii).next();

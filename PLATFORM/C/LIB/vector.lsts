@@ -98,53 +98,6 @@ let .clone(self: Vector<t>): Vector<t> = (
     self.to-vector();
 );
 
-# shrinks the vector if it has way too many elements. shouldn't be called manually
-let .shrink(v: Vector<t>): Vector<t> = (
-    let too-much = v.capacity - v.length;
-    let minimum = (v.length >> 1) + v.length; # mul 1.5
-    if too-much > minimum {
-       v = v.realloc(minimum);
-    };
-    v
-);
-
-let .remove-front(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
-    };
-
-    let i = num;
-    while i < v.length() {
-        v[i-num] = v[i];
-        i = i + 1;
-    };
-    v.length = v.length - num;
-
-    v.shrink();
-);
-
-let .remove-back(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
-    };
-
-    v.length = v.length - num;
-
-    v.shrink();
-);
-
-let .pop(v: Vector<t>): Tuple<Vector<t>, t> = (
-    if v.length() == 0 {
-        fail("Tried to pop from empty Vector.");
-    };
-
-    let lasti = v.length - 1;
-    let last = v[lasti];
-    v = v.remove-back(1);
-
-    Tuple { v, last }
-);
-
 let $"[]"( v: Vector<t>, i: U64 ): t = (
    if i >= v.length {
       fail("Vector Index Out of Bounds");
