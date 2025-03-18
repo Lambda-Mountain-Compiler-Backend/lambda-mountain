@@ -1,6 +1,6 @@
 
-type List<x> => Iterable<x>;
-type List<x> => Collection<x>;
+type List<x> implements Iterable<x>;
+type List<x> implements Collection<x>;
 
 let $"[]"(tt: List<x>, idx: U64): x = (
    while idx > 0 {
@@ -24,7 +24,7 @@ let .unique(ls: List<x>): List<x> = (
 );
 
 type ListIter<x> = ListIter { list: List<x> };
-type ListIter<x> => Iterator<x>;
+type ListIter<x> implements Iterator<x>;
 
 let .next(ls: ListIter<x>[]): Maybe<x> = (
    match open(ls.list) {

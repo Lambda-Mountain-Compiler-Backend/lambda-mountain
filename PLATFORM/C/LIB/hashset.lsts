@@ -1,6 +1,6 @@
 
 type Hashset<t> = Hashset { back: HashtableEq<t,U8> };
-type Hashset<t> => Iterable<t>;
+type Hashset<t> implements Iterable<t>;
 
 let mk-hashset(ty: Type<t>): Hashset<t> = (
    Hashset { ({} :: HashtableEq<t,U8>) }
@@ -35,7 +35,7 @@ let .collect(x: Iterator<t>, tot: Type<Hashset<t>>): Hashset<t> = (
 );
 
 type HashsetIter<t> = HashsetIter { back: HashtableEqIter<t,U8> };
-type HashsetIter<t> => Iterator<t>;
+type HashsetIter<t> implements Iterator<t>;
 
 let .next(vp: HashsetIter<t>[]): Maybe<t> = (
    let v = open(vp);

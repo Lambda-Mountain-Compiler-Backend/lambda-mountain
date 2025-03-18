@@ -1,21 +1,21 @@
 
 interface Collection<t> {
-   let .length(self: Collection<t>): U64;
-   let $"[]"(self: Collection<t>, idx: U64): t;
-}
+   let .length(x: self): U64;
+   let $"[]"(x: self, idx: U64): t;
+};
 
 interface Iterator<t> {
-   let .next(self: Iterator<t>[]): Maybe<t>;
-}
+   let .next(x: self[]): Maybe<t>;
+};
 
 interface Iterable<t> {
-   let .iter(self: Iterable<t>): Iterator<t>;
-   let .unsafe-iter(self: Iterable<t>): Iterator<t>;
-}
+   let .iter(x: self): Iterator<t>;
+   let .unsafe-iter(x: self): Iterator<t>;
+};
 
 interface IteratorRemaining {
-   let .remaining(self: IteratorRemaining+Iterator<t>): U64;
-}
+   let .remaining(x: self + Iterator<t>): U64;
+};
 
 let remaining-or-zero(from: t+Iterator<x>): U64 = (
    0
@@ -62,8 +62,8 @@ let .skip(self: t+Iterator<x>, num: U64): t = (
 );
 
 type RangeIter = RangeIter { i: U64, len: U64, step: U64 };
-type RangeIter => Iterable<U64>;
-type RangeIter => IteratorRemaining;
+type RangeIter implements Iterable<U64>;
+type RangeIter implements IteratorRemaining;
 
 let .remaining(self: RangeIter): U64 = (
    (self.len - self.i) / self.step
@@ -91,8 +91,8 @@ let range(len: U64): RangeIter = (
 );
 
 type SkipIterator<i+Iterator<t>> = SkipIterator { ii: i, to_skip: U64 };
-type SkipIterator<i+Iterator<t>> => Iterator<t>;
-type SkipIterator<i+Iterator<t>+IteratorRemaining> => IteratorRemaining;
+type SkipIterator<i+Iterator<t>> implements Iterator<t>;
+type SkipIterator<i+Iterator<t>+IteratorRemaining> implements IteratorRemaining;
 
 let .remaining(self: SkipIterator<i+Iterator<t>+IteratorRemaining>): U64 = (
    self.ii.remaining() - self.to_skip
@@ -114,8 +114,8 @@ let .next(vp: SkipIterator<i+Iterator<t>>[]): Maybe<t> = (
 );
 
 type LimitIterator<i+Iterator<t>> = LimitIterator { ii: i, idx: U64, limit: U64 };
-type LimitIterator<Iterator<t>> => Iterator<t>;
-type LimitIterator<Iterator<t>> => IteratorRemaining;
+type LimitIterator<Iterator<t>> implements Iterator<t>;
+type LimitIterator<Iterator<t>> implements IteratorRemaining;
 
 let .remaining(self: LimitIterator<t>): U64 = (
    self.limit - self.idx
@@ -139,8 +139,8 @@ let .limit(iter: i+Iterator<t>, amount: U64): LimitIterator<i> = (
 );
 
 type ZipIterator<ai+Iterator<at>, bi+Iterator<bt>> = ZipIterator { aii: ai, bii: bi };
-type ZipIterator<Iterator<at>, Iterator<bt>> => Iterator<Tuple<at,bt>>;
-type ZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining> => IteratorRemaining;
+type ZipIterator<Iterator<at>, Iterator<bt>> implements Iterator<Tuple<at,bt>>;
+type ZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining> implements IteratorRemaining;
 
 let .remaining(self: ZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining>): U64 = (
    min(self.aii.remaining(), self.bii.remaining())
@@ -171,8 +171,8 @@ let .zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): ZipIterator<ait,bit> = (
 );
 
 type TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>> = TryZipIterator { aii: ai, bii: bi };
-type TryZipIterator<Iterator<at>, Iterator<bt>> => Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
-type TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining> => IteratorRemaining;
+type TryZipIterator<Iterator<at>, Iterator<bt>> implements Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
+type TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining> implements IteratorRemaining;
 
 let .remaining(self: TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining>): U64 = (
    max(self.aii.remaining(), self.bii.remaining())
@@ -203,8 +203,8 @@ let .try-zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): TryZipIterator<ait,bit
 );
 
 type EnumerateIterator<i+Iterator<t>> = EnumerateIterator { ii: i, idx: U64 };
-type EnumerateIterator<Iterator<t>> => Iterator<Tuple<U64,t>>;
-type EnumerateIterator<Iterator<t>+IteratorRemaining> => IteratorRemaining;
+type EnumerateIterator<Iterator<t>> implements Iterator<Tuple<U64,t>>;
+type EnumerateIterator<Iterator<t>+IteratorRemaining> implements IteratorRemaining;
 
 let .remaining(self: EnumerateIterator<Iterator<t>+IteratorRemaining>): U64 = (
    self.ii.remaining()
@@ -236,8 +236,8 @@ let .enumerate(i: t+Iterator<x>): EnumerateIterator<x> = (
 );
 
 type CollectionIteratorBase<c> = CollectionIteratorBase { coll: c, idx: U64 };
-type CollectionIteratorBase<Collection<t>> => Iterator<t>;
-type CollectionIteratorBase<Collection<t>> => IteratorRemaining;
+type CollectionIteratorBase<Collection<t>> implements Iterator<t>;
+type CollectionIteratorBase<Collection<t>> implements IteratorRemaining;
 
 let .remaining(self: CollectionIteratorBase<c+Collection<t>>): U64 = (
    self.coll.length() - self.idx
@@ -438,7 +438,7 @@ let .collect(x: it+Iterator<t>): Vector<t> = (
 );
 
 type UniqueIter<t,i+Iterator<t>> = UniqueIter { set: Hashset<t>, ii: i };
-type UniqueIter<t,i> => Iterator<t>;
+type UniqueIter<t,i> implements Iterator<t>;
 
 let .next(vp: UniqueIter<t,i>[]): Maybe<t> = (
    let v = open(vp);
@@ -471,7 +471,7 @@ let .unique(self: i+Iterator<t>): UniqueIter<t,i> = (
 );
 
 type SplitWithIndentIter<t,sp,uv,dv> = SplitWithIndentIter { data: Vector<t>, split: sp, up: Vector<uv>, down: Vector<dv> };
-type SplitWithIndentIter<t,sp,uv,dv> => Iterator<Vector<t>>;
+type SplitWithIndentIter<t,sp,uv,dv> implements Iterator<Vector<t>>;
 
 let .next(vp: SplitWithIndentIter<t,sp,uv,dv>[]): Maybe<Vector<t>> = (
    let v = open(vp);

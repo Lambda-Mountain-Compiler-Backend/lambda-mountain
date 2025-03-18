@@ -1,8 +1,8 @@
 
 type Vector<t> = Vector { data: t[], length: U64, capacity: U64 };
 
-type Vector<t> => Collection<t>;
-type Vector<t> => Iterable<t>;
+type Vector<t> implements Collection<t>;
+type Vector<t> implements Iterable<t>;
 
 let mk-vector(type: Type<t>, capacity: U64): Vector<t> = (
    let data-sz = sizeof(t) * capacity;
@@ -192,6 +192,8 @@ let .collect(x: Iterator<t>, tot: Type<Vector<t>>): Vector<t> = (
    to = x.collect(to);
    to
 );
+
+# TODO: once we have move values, add .into() variant that does not clone the data first
 
 let .into(in: Vector<U8>, res: Type<CString>): CString = (
    let out = mk-vector(type(U8), in.length+1);

@@ -1,6 +1,6 @@
 
-type CString => Iterable<U8>;
-type CString => Collection<U8>;
+type CString implements Iterable<U8>;
+type CString implements Collection<U8>;
 
 # TODO: instead do U8 iterator for S
 
@@ -30,7 +30,7 @@ let clone-rope-impl(s: S, out: Vector<U8>): Vector<U8> = (
 );
 
 type CStringIter = CStringIter { ptr: CString };
-type CStringIter => Iterator<U8>;
+type CStringIter implements Iterator<U8>;
 
 let .next(self: CStringIter[]): U8 = (
    let val = open(self).ptr[0];
@@ -50,7 +50,7 @@ let .iter(self: CString): CStringIter = (
       v.push(self[i]);
       i = i + 1;
    };
-   self = v.move-to(type(CString));
+   self = v.into(type(CString));
    CStringIter { self }
 );
 
@@ -60,10 +60,6 @@ let .unsafe-iter(self: CString): CStringIter = (
 
 let .substring(self: CString, begin: U64): CString = (
     ((((self as U8[]) as U64) + begin) as U8[]) as CString
-);
-
-let $"[]"(self: CString, idx: U64): U8 = (
-    (self as U8[])[idx]
 );
 
 let cmp(l: CString, r: CString): Ord = (

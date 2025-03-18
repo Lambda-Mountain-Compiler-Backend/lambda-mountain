@@ -2,7 +2,7 @@
 type HashtableEq<k,v> = HashtableEq { occupied: U64, capacity: U64, contents: Tuple<k,v>[] }
                       | HashtableEqEOF;
 
-type HashtableEq<k,v> => Iterable<Tuple<k,v>>;
+type HashtableEq<k,v> implements Iterable<Tuple<k,v>>;
 
 let .clone(self: HashtableEq<k,v>): HashtableEq<k,v> = (
    match self {
@@ -25,7 +25,7 @@ let .clone(self: HashtableEq<k,v>): HashtableEq<k,v> = (
 );
 
 type HashtableEqIter<k,v> = HashtableEqIter { table: HashtableEq<k,v>, idx: U64 };
-type HashtableEqIter<k,v> => Iterator<Tuple<k,v>>;
+type HashtableEqIter<k,v> implements Iterator<Tuple<k,v>>;
 
 # for safety, we clone the table
 # All modifications done to the vector after creating the iterator will not be seen

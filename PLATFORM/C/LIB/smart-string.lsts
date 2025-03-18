@@ -1,6 +1,6 @@
 
-type SmartString => Collection<U8>;
-type SmartString => Iterable<U8>;
+type SmartString implements Collection<U8>;
+type SmartString implements Iterable<U8>;
 
 let .iter(self: SmartString): CollectionIteratorBase<SmartString> = (
    CollectionIteratorBase { self, 0_u64 }
@@ -64,11 +64,11 @@ let print(io: IO::File, x: SmartString): Nil = (
 );
 
 let .pad-left-str(self: String, value: U8, minlen: U64): String = (
-   self.pad-left(value, minlen).move-to(type(String))
+   self.pad-left(value, minlen).into(type(String))
 );
 
 let .pad-right-str(self: String, value: U8, minlen: U64): String = (
-   self.pad-right(value, minlen).move-to(type(String))
+   self.pad-right(value, minlen).into(type(String))
 );
 
 let .count-left-spaces(self: String): U64 = (
