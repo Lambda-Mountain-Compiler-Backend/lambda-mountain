@@ -1,6 +1,6 @@
 
 fragment type I8; size I8 1; atom suffix I8 _i8;
 
-print := λ(: x I8). (: (
-   (print (as x I64))
+print := λ(: io IO::File)(: x I8). (: (
+   (fprintf( io '%d_s x )) ()
 ) Nil);

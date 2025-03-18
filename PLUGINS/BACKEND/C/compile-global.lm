@@ -10,7 +10,7 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
    (match term (
       ()
       ( (Abs( lhs rhs tlt )) (
-         (if (.is-t( tlt 'C_s )) (
+         (if (.is-t( tlt 'C-FFI_s )) (
             (std-c-compile-global( ctx k term ))
          ) (
             (if (||( (.is-open kt) (||( (.is-t( tlt 'Blob_s )) (||( (.is-t( tlt 'FFI_s )) (.is-t( tlt 'Prop_s )) )) )) )) () (
@@ -30,7 +30,7 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
 
                (let loc (.location(term)))
 
-               (set text (SCons( (close text) (close(SAtom '\oline\s_s)) )))
+               (set text (SCons( (close text) (close(SAtom '\n\oline\s_s)) )))
                (set text (SCons( (close text) (close(SAtom (to-string (.line loc)) )) )))
                (set text (SCons( (close text) (close(SAtom '\s"_s)) )))
                (set text (SCons( (close text) (close(SAtom (.filename loc))) )))
@@ -51,7 +51,7 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
 
                (set text SNil)
 
-               (set text (SCons( (close text) (close(SAtom '\oline\s_s)) )))
+               (set text (SCons( (close text) (close(SAtom '\n\oline\s_s)) )))
                (set text (SCons( (close text) (close(SAtom (to-string (.line loc)) )) )))
                (set text (SCons( (close text) (close(SAtom '\s"_s)) )))
                (set text (SCons( (close text) (close(SAtom (.filename loc))) )))
@@ -82,7 +82,7 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
          ))
       )
       ( t (
-         (if (.is-t( (typeof t) 'C_s )) (
+         (if (.is-t( (typeof t) 'C-FFI_s )) (
             (std-c-compile-global( ctx k term ))
          ) (
             (let clean-tt (.without-tag kt))

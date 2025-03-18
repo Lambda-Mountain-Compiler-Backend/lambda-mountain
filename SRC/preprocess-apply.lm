@@ -48,8 +48,8 @@ preprocess-apply-one := λ(: program AST). (: (
             (close(preprocess-apply( nt )))
          )))
       ))
-      ( (App( (App( (Lit( ':_s ctk )) (App( t (AType tt) )) )) nt )) (
-         (set r (App(
+      ( (App( is-cons-1 (App( (Lit( ':_s ctk )) (App( t (AType tt) )) )) nt )) (
+         (set r (App( is-cons-1
             (close(App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply t)) (close(AType tt)) ))) )))
             (close(preprocess-apply( nt )))
          )))

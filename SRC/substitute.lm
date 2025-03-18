@@ -1,20 +1,24 @@
 
 substitute-lhs := λ(: tctx Maybe<TContext>)(: t AST). (: (
+   (substitute-lhs( tctx t 0_u64 ))
+) AST);
+
+substitute-lhs := λ(: tctx Maybe<TContext>)(: t AST)(: idx U64). (: (
    (match t (
       ()
       ( (App( ps (App( (Lit( ':_s ctk )) (App( (Var( v vtk )) (AType vt) )) )) )) (
          (set t (App(
-            (close(substitute-lhs( tctx ps )))
+            (close(substitute-lhs( tctx ps (+( idx 1_u64 )) )))
             (close(App( (close(Lit( ':_s (unique ctk) ))) (close(App(
                (close(Var( v (unique vtk) )))
-               (close(AType( (substitute( tctx vt )) )))
+               (close(AType( (substitute( tctx (.accept-interface( vt idx )) )) )))
             ))) )))
          )))
       ))
       ( (App( (Lit( ':_s ctk )) (App( (Var( v vtk )) (AType vt) )) )) (
          (set t (App( (close(Lit( ':_s (unique ctk) ))) (close(App(
             (close(Var( v (unique vtk) )))
-            (close(AType( (substitute( tctx vt )) )))
+            (close(AType( (substitute( tctx (.accept-interface( vt idx )) )) )))
          ))) )))
       ))
       ( (App( ps (Var( v vtk )) )) (

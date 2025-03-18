@@ -1109,16 +1109,16 @@ let std-c-parse-unary-expression(tokens: List<Token>): Tuple<Maybe<CTerm>,List<T
          else inner;
       };
    } else if std-c-can-take(tokens, "alignof") || std-c-can-take(tokens, "_Alignof") {
-      let op = head(tokens).skey; tokens = tail(tokens);
+      tokens = tail(tokens);
       if std-c-can-take(tokens, "(") {
          tokens = std-c-take-expect(tokens, "(");
          (let tt, tokens) = std-c-parse-type-name(tokens);
          tokens = std-c-take-expect(tokens, ")");
-         if tt.is-some then Tuple{ Some{CUnaryPrefix{op, close(tt.get-or-panic)}}, tokens }
+         if tt.is-some then Tuple{ Some{CUnaryPrefix{"alignof", close(tt.get-or-panic)}}, tokens }
          else Tuple{ tt, tokens };
       } else {
          let inner = std-c-parse-unary-expression(tokens);
-         if inner.first.is-some then Tuple{ Some{CUnaryPrefix{op, close(inner.first.get-or-panic)}}, inner.second }
+         if inner.first.is-some then Tuple{ Some{CUnaryPrefix{"alignof", close(inner.first.get-or-panic)}}, inner.second }
          else inner;
       };
    } else std-c-parse-postfix-expression(tokens)
@@ -1148,7 +1148,7 @@ let std-c-parse-postfix-expression(tokens: List<Token>): Tuple<Maybe<CTerm>,List
          (let inner, tokens) = std-c-parse-expression(tokens);
          tokens = std-c-take-expect(tokens, "]");
          if inner.is-some {
-            expression = Tuple{ Some{CBinaryOp{op, close(expression.first.get-or-panic), close(inner.get-or-panic)}}, tokens };
+            expression = Tuple{ Some{CBinaryOp{"[]", close(expression.first.get-or-panic), close(inner.get-or-panic)}}, tokens };
          };
       } else {
          let op = head(tokens).skey; tokens = std-c-take-expect(tokens, "(");

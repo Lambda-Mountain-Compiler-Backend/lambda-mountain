@@ -1,4 +1,6 @@
 
+type Type implements DefaultPrintable;
+
 let print(io: IO::File, tt: Type): Nil = (
    match tt {
       TAny{} => print(io, "?");
@@ -10,7 +12,7 @@ let print(io: IO::File, tt: Type): Nil = (
             print(io, lt); print(io, " + "); print(io, rt);
          )
       );
-      TGround{tag=tag, parameters:[]} => print(io, tag);
+      TGround{tag=tag, parameters:[]} => if tag[0] >= 97 && tag[0] <= 122 then print(io, "\"\{tag}\"") else print(io, tag);
       TGround{tag=tag, ps=parameters} => (
          print(io, tag); print(io, "<"); print(io, ps); print(io, ">");
       );

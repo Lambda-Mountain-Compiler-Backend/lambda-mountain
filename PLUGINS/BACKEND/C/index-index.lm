@@ -42,3 +42,5 @@ import PLUGINS/BACKEND/C/std-c-chain.lsts;
 import PLUGINS/BACKEND/C/std-c-compile-call.lsts;
 import PLUGINS/BACKEND/C/std-c-compile-constructor.lsts;
 import PLUGINS/BACKEND/C/std-c-compile-args.lsts;
+import PLUGINS/BACKEND/C/std-c-is-ctype.lsts;
+import PLUGINS/BACKEND/C/std-c-fragment-context.lsts;

@@ -3,12 +3,8 @@ fragment type I64; size I64 8; atom suffix I64 _i64;
 
 minimum-I64 := -2147483648_i64;
 
-print := λ(: x I64). (: (
-   (if (<( x 0_i64 )) (
-      (print '-_s)
-      (set x (-( 0_i64 x )))
-   ) ())
-   (print (as x U64))
+print := λ(: io IO::File)(: x I64). (: (
+   (fprintf( io '%ld_s x )) ()
 ) Nil);
 
 to-string := λ(: i I64). (: (

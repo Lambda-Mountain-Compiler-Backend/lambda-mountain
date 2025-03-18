@@ -21,3 +21,5 @@ declare-unop( not, raw-type(U32), raw-type(U64), ( l"(!"; x; l")"; ) );
 declare-unop( into-branch-conditional, raw-type(U32), raw-type(BranchConditional), x );
 
 let cmp(l: U32, r: U32): Ord = if l==r then Equal else if l<r then LessThan else GreaterThan;
+
+type U32 implements DefaultPrintable;

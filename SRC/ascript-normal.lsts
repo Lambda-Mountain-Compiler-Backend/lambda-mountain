@@ -1,13 +1,12 @@
 
 let ascript-normal(t: AST, tt: Type): Nil = (
    if non-zero(tt) {
-      let prev-tt = normalize(typeof(t));
+      let prev-tt = typeof(t);
       if non-zero(prev-tt) {
          if not(tt.is-arrow) {
-            let norm-tt = normalize(tt);
-            if not(can-unify(prev-tt,norm-tt)) || not(can-unify(norm-tt,prev-tt)) {
-               print("\{prev-tt} != \{norm-tt}\nType Ascription Inequality");
-               exit(1);
+            let norm-tt = denormalize(normalize(tt));
+            if not(can-unify(norm-tt,prev-tt)) {
+               exit-error("Type Ascription Inequality\n\{normalize(typeof(t))} does not imply \{normalize(tt)}", t);
             }
          }
       } else {

@@ -1,0 +1,5 @@
+
+import LIB/minimal.lsts;
+
+let x = 5;
+x = (1, 2);

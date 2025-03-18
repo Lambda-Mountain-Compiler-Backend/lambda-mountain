@@ -1,0 +1,22 @@
+
+let validate-interfaces(): Nil = (
+   for Tuple{ base-type=first, reified-interface-type=second, blame=third } in interface-implementors {
+      (let self-type, let interface-type) = interface-self-index.lookup(reified-interface-type.ground-tag-and-arity, (TAny, TAny));
+      let tctx = unify(self-type, base-type);
+      for Tuple{ symbol-name=first, args-type=second, return-type=third } in
+          interface-shape-index.lookup(interface-type.ground-tag-and-arity, [] :: List<(CString,Type,Type)>) {
+         args-type = substitute(tctx, args-type).reify-type-variables;
+         return-type = substitute(tctx, return-type).reify-type-variables;
+         let function-type = typeof-var-raw( blame, None :: Maybe<TContext>, symbol-name );
+         let apply-result = apply-blame(symbol-name, function-type, args-type, false, blame);
+         if not(can-unify(return-type, apply-result.return-type)) {
+            fail("Function Application Yielded Unexpected Return Value\n"
+                 "\{symbol-name}\n"
+                 "With Arguments \{args-type}\n"
+                 "At \{blame.location}\n"
+                 "Expected: \{return-type}\n"
+                 "Received: \{apply-result.return-type}\n");
+         };
+      };
+   };
+);

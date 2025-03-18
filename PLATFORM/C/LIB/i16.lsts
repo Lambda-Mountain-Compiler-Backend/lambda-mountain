@@ -19,3 +19,5 @@ declare-binop( $"*", raw-type(I16), raw-type(I16), raw-type(I16), ( l"("; x; l"*
 declare-unop( not, raw-type(I16), raw-type(U64), ( l"(!"; x; l")"; ) );
 
 declare-unop( into-branch-conditional, raw-type(I16), raw-type(BranchConditional), x );
+
+type I16 implements DefaultPrintable;

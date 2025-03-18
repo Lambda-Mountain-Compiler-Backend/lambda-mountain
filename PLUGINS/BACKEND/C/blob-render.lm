@@ -28,13 +28,14 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
       ( (App(
         (App( (Lit( ':_s _ )) (App( (Lit( 'for-arg_s _ )) (AType _) )) )) 
         (App(
-           (App( (Abs( (Var( lhs _ )) ASTNil _ ))
+           (App( (Abs( (@( lhs-t (Var( lhs _ )) )) ASTNil _ ))
                  (App( (Var( 'for-arg-i_s _ )) (Var( vsk _ )) )) ))
            iter
         ))
       )) (
          (let vs (.lookup-soft( ctx vsk TAny ASTEOF )))
          (for-each (vi in (.unsafe-iter (.vararg vs))) (
+            (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t vi )))
             (let inner-ctx (.bind( ctx lhs (.type vs) vi )))
             (let fs (blob-render-simple( inner-ctx context-key iter offset )))
             (let s (.1 fs))
@@ -44,7 +45,7 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
       ( (App(
         (App( (Lit( ':_s _ )) (App( (Lit( 'for-atom_s _ )) (AType _) )) )) 
         (App(
-           (App( (Abs( (Var( lhs _ )) ASTNil _ )) rng ))
+           (App( (Abs( (@( lhs-t (Var( lhs _ )) )) ASTNil _ )) rng ))
            iter
         ))
       )) (
@@ -55,6 +56,7 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
             ( (SCons( a rst )) (
                (let f (mk-expression a))
                (let inner-ctx (.bind( ctx lhs (t1 'L_s) f )))
+               (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t f )))
                (let cs (blob-render-simple( inner-ctx context-key iter offset )))
                (let s (.1 cs))
                (set r (+( r s )))
@@ -154,7 +156,7 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
             ))
          ))
       ))
-      ( (App( (Abs( (Var( lhs _ )) ASTNil tlt )) rhs )) (
+      ( (App( (Abs( (@( lhs-t (Var( lhs _ )) )) ASTNil tlt )) rhs )) (
          (let f (mk-fragment()))
          (let cs (blob-render-simple( ctx context-key rhs offset )))
          (let s (.1 cs))
@@ -163,6 +165,7 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
          (set ctx (.bind(
             ctx lhs (typeof rhs) f
          ))) # TODO, render the binding as non-simple blob?
+         (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t f )))
       ))
       ( (App( f a )) (
          (if (.is-arrow(typeof f)) (
@@ -177,6 +180,15 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
                      (set r (.get( e context-key )))
                   ))
                ))
+               ( _ (
+                  (let e1 (blob-render-simple( ctx context-key f offset )))
+                  (set ctx (.2 e1))
+                  (let e2 (blob-render-simple( ctx context-key a offset )))
+                  (set ctx (.2 e2))
+                  (let s1 (.1 e1))
+                  (let s2 (.1 e2))
+                  (set r (+( s1 s2 )))
+               ))
             ))
          ) (
             (let e1 (blob-render-simple( ctx context-key f offset )))
@@ -187,6 +199,12 @@ blob-render-simple := λ(: ctx FContext)(: context-key String)(: term AST)(: off
             (let s2 (.1 e2))
             (set r (+( s1 s2 )))
          ))
+      ))
+      ( (AType tt) (
+         (set r (std-c-mangle-type tt))
+      ))
+      ( orphan (
+         (print 'Orphan\sTerm\sIn\sblob-render\s_s)(std-c-print orphan)(print '\n_s)(exit 1_u64)
       ))
    ))
    (Tuple( ctx r ))

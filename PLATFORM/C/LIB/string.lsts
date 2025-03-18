@@ -8,7 +8,7 @@ type CString => Collection<U8>;
 let clone-rope(s: S): CString = (
    let out = mk-vector(type(U8), 64);
    out = clone-rope-impl(s, out);
-   out.move-to(type(CString))
+   out.into(type(CString))
 );
 
 let clone-rope-impl(s: S, out: Vector<U8>): Vector<U8> = (
@@ -89,4 +89,10 @@ let .is-digit(base: CString): U64 = (
       };
       r
    } else false
+);
+
+let $"[]"(base: CString, idx: U64): U8 = (
+   if idx < base.length
+   then (base as U8[])[idx]
+   else fail("Index Out Of Bounds in String[]");
 );

@@ -1,6 +1,6 @@
 
 let std-c-mangle-declaration(tt: Type): Tuple<S,S> = (
-   std-c-mangle-declaration-internal(normalize(tt))
+   std-c-mangle-declaration-internal(normalize(tt).rewrite-opaque-type-alias)
 );
 
 let std-c-mangle-declaration-internal(tt: Type): Tuple<S,S> = (

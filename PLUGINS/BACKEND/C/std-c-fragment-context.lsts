@@ -1,0 +1,2 @@
+
+let std-c-fragment-context = mk-hashtable-is(type(AST), type(Fragment));

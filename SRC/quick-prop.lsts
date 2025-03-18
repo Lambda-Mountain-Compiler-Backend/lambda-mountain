@@ -55,21 +55,22 @@ let add-weaken-quick-prop(pre: Type, pat: Type, post: Type): Nil = (
 );
 
 let weaken-quick-prop(base: Type): Type = (
-   weaken-quick-prop(base, base)
+   let r = weaken-quick-prop(base, base, base);
+   r
 );
 
-let weaken-quick-prop(base: Type, pre: Type): Type = (
+let weaken-quick-prop(original-base: Type, base: Type, pre: Type): Type = (
    match pre {
       TGround {} => (
          for Tuple { lt=first, rt=second } in weaken-quick-prop-index.lookup( pre.ground-tag-and-arity, ([] :: List<(Type,Type)>) ).iter() {
-            if can-unify(lt, base) then (
+            if can-unify(lt, original-base) then (
                base = remove-info(base, rt);
             );
          };
       );
       TAnd { lt=left, rt=right } => (
-         base = weaken-quick-prop(base, lt);
-         base = weaken-quick-prop(base, rt);
+         base = weaken-quick-prop(original-base, base, lt);
+         base = weaken-quick-prop(original-base, base, rt);
       );
       _ => ();
    };

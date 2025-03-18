@@ -1,0 +1,20 @@
+
+let interface-index = {} :: HashtableEq<(CString,U64),U64>;
+
+# TODO: remove this lookup
+# ((CString,U64),U64) needed to be reified, but the compiler should infer that
+interface-index.lookup((c"",0_u64),0_u64);
+
+let interface-shape-index = {} :: HashtableEq<(CString,U64),List<(CString,Type,Type)>>;
+
+# TODO: remove this lookup
+# ((CString,Type),Type) needed to be reified, but the compiler should infer that
+interface-shape-index.lookup((c"",0_u64),[] :: List<(CString,Type,Type)>);
+
+let interface-self-index = {} :: HashtableEq<(CString,U64),(Type,Type)>;
+
+# TODO: remove this lookup
+# (Type,Type) needed to be reified, but the compiler should infer that
+interface-self-index.lookup((c"",0_u64),(TAny, TAny));
+
+let interface-implementors = [] :: List<(Type,Type,AST)>;

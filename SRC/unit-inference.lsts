@@ -2,6 +2,7 @@
 # dependencies
 import SRC/unit-types.lsts;
 import SRC/unit-ast.lsts;
+import SRC/unit-error.lsts;
 
 # type definitions
 import SRC/inference-definitions.lsts;
@@ -27,10 +28,14 @@ import SRC/with-size.lsts;
 import SRC/with-tag.lm;
 import SRC/with-only-class.lsts;
 import SRC/with-phi.lsts;
+import SRC/accept-interface.lsts;
 import SRC/alias.lsts;
 
 # APIs
 import SRC/ascript-normal.lsts;
 import SRC/type-index.lsts;
+import SRC/interface-index.lsts;
 import SRC/index-concrete-type-instances.lm;
 import SRC/typecheck.lsts;
+import SRC/var-to-def-index.lsts;
+import SRC/reify-type-variables.lsts;

@@ -1,0 +1,2 @@
+
+let var-to-def-index = mk-hashtable-is(type(AST), type(AST));

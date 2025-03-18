@@ -2,7 +2,7 @@
 compile-destructure-args := λ(: tt Type)(: ctx FContext)(: lhs AST)(: offset I64)(: is-fragment U64). (: (
    (match lhs (
       ()
-      ( (App( rst (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) )) (
+      ( (App( rst (App( (Lit( ':_s _ )) (App( (@( lhs-v (Var( k _ )) )) (AType kt) )) )) )) (
          (if (.is-t( tt 'Cons_s )) (
             (let rst-tt (.r2 tt))
             (set ctx (compile-destructure-args( rst-tt ctx rst offset is-fragment )))
@@ -11,20 +11,24 @@ compile-destructure-args := λ(: tt Type)(: ctx FContext)(: lhs AST)(: offset I6
             ) (
                (set kt (&&( (normalize kt) (t1 'LocalVariable_s) )))
             ))
+            (let fragment (fragment::local-variable( 0_i64 kt )))
             (set ctx (.bind(
-               ctx k kt (fragment::local-variable( 0_i64 kt ))
+               ctx k kt fragment
             )))
+            (set std-c-fragment-context (.bind( std-c-fragment-context lhs-v fragment )))
          ) ())
       ))
-      ( (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) (
+      ( (App( (Lit( ':_s _ )) (App( (@( lhs-v (Var( k _ )) )) (AType kt) )) )) (
          (if is-fragment (
             (set kt (denormalize kt))
          ) (
             (set kt (&&( (normalize kt) (t1 'LocalVariable_s) )))
          ))
+         (let fragment (fragment::local-variable( 0_i64 kt )))
          (set ctx (.bind(
-            ctx k kt (fragment::local-variable( 0_i64 kt ))
+            ctx k kt fragment
          )))
+         (set std-c-fragment-context (.bind( std-c-fragment-context lhs-v fragment )))
       ))
       ( _ () )
    ))

@@ -1,14 +1,25 @@
 
 let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
    let f = match t {
+      Var{ key=key } => (
+         let def = var-to-def-index.lookup(t, ASTEOF);
+         let e = std-c-fragment-context.lookup(def, mk-fragment());
+         if not(non-zero(e)) {
+            exit-error( untern("Unable to Find Variable Fragment in Context \{key}\n"), t );
+         }; e
+      );
+      AType{ tt=tt } => (
+         mk-fragment().set(c"expression",std-c-mangle-type(tt));
+      );
       App{ left:Abs{lhs=lhs:Var{name=key}, rhs:ASTNil{}}, rhs=right } => (
          let lt = typeof(lhs);
-         let v = mk-fragment().set(c"expression",SAtom{uuid()});
+         let v = mk-fragment().set(c"expression",if std-c-is-ctype(lt) then SAtom{name} else SAtom{uuid()});
          let f = mk-fragment();
-         f.context = close(ctx.bind( name, lt, f ));
+         std-c-fragment-context = std-c-fragment-context.bind( lhs, v );
+         ctx = ctx.bind( name, lt, v );
          (let pre, let post) = std-c-mangle-declaration(lt);
          f = f.set(c"frame", f.get(c"frame") + pre + SAtom{c" "}
-                 + (if lt.is-t(c"C") then SAtom{name} else v.get(c"expression"))
+                 + v.get(c"expression")
                  + SAtom{c" "} + post + SAtom{c";"});
          match rhs {
             App{ left:Lit{key:c":"}, right:App{ left:Var{key:c"__uninitialized"}, right:AType{tt=tt} } } => ();
@@ -16,11 +27,17 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
                let rf = std-c-compile-expr(ctx, rhs, false);
                f = f.set(c"frame", f.get(c"frame") + rf.get(c"frame"));
                f = f.set(c"expression", SAtom(c"(")
-                 + (if lt.is-t(c"C") then SAtom{name} else v.get(c"expression"))
+                 + v.get(c"expression")
                  + SAtom{c"="} + rf.get(c"expression") + SAtom{c")"});
             );
          };
          f
+      );
+      App{ left:Var{key:c"as"}, right:App{ inner=left, right:AType{tt=tt} } } => (
+         let f = std-c-compile-expr(ctx, inner, false);
+         f.set(c"expression", SAtom{c"(("} + std-c-mangle-type(tt) + SAtom{c")"} +
+            f.get(c"expression") + SAtom{c")"}
+         );
       );
       App{ left:Lit{key:c":"}, right:App{ left:Lit{val=key}, right:AType{tt=tt} } } => (
          if tt.is-t(c"C") && tt.r1.is-t(c"uint8_t") then mk-expression(val)
@@ -38,6 +55,7 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
          is-stmt = false; f;
       );
       App{ left:Var{key:c"c::compound"}, terms=right } => (
+         let original-ctx = ctx;
          let e = mk-fragment();
          let terms-list = [] :: List<AST>;
          while non-zero(terms) {match terms {
@@ -47,13 +65,14 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
             );
             _ => terms = ASTEOF;
          }};
-         for ct in terms-list.reverse().iter() {
+         for ct in terms-list.iter() {
             let f = std-c-compile-expr(ctx, ct, true);
             ctx = open(f.context);
             e = std-c-chain( e, f, true );
          };
          e = e.set(c"expression", SAtom{c"{"} + e.get(c"frame") + e.get(c"expression") + SAtom{c"}"} );
          e = e.set(c"frame", SNil );
+         ctx = original-ctx;
          e
       );
       App{ is-cons=is-cons, left=left, right=right } => (
@@ -82,6 +101,7 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
       );
    };
    if is-stmt && non-zero(f.get(c"expression")) then f = f.set(c"expression", f.get(c"expression") + SAtom{c";"});
+   f.context = close(ctx);
    f.type = typeof(t); f
 );
 

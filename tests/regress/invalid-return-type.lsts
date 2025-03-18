@@ -1,0 +1,4 @@
+
+import LIB/minimal.lsts;
+
+let f(): U64 = (1, 2);

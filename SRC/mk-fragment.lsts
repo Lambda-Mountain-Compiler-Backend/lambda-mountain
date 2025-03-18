@@ -5,3 +5,7 @@ let mk-fragment(): Fragment = (
       TAny, close(mk-fctx()), ([] :: List<Fragment[]>)
    }
 );
+
+let non-zero(f: Fragment): U64 = (
+   non-zero(open(f.keyvals))
+);

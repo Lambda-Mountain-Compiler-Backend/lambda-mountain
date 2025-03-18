@@ -7,44 +7,42 @@ stdin := λ: Blob(). (: (:expression stdin_l) IO::File);
 stdout := λ: Blob(). (: (:expression stdout_l) IO::File);
 stderr := λ: Blob(). (: (:expression stderr_l) IO::File);
 
-strcmp := λ: FFI(: l U8[])(: r U8[]). (: () I32);
-memcmp := λ: FFI(: l ?[])(: r ?[])(: len U64). (: () U32);
-printf := λ: FFI(: format String)(: arg Any). (: () U32);
-fprintf := λ: FFI(: io IO::File)(: format String)(: arg Any). (: () U32);
-putchar := λ: FFI(: x U32). (: () U32);
-exit := λ: FFI(: x U32). (: () Nil);
-malloc := λ: FFI(: sz U64). (: () ?[]);
-realloc := λ: FFI(: ptr ?[])(: sz U64). (: () ?[]);
-memset :=  λ: FFI(: ptr ?[])(: x U32)(: sz U64). (: () ?[]);
-fopen := λ: FFI(: fp U8[])(: mode U8[]). (: () File[]);
-fread := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f File[]). (: () U64);
-fwrite := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f File[]). (: () U64);
-fclose := λ: FFI(: f File[]). (: () U32);
-execvp := λ: FFI(: file U8[])(: argv U8[][]). (: () U32);
-mktemp := λ: FFI(: template U8[]). (: () U8[]);
-system := λ: FFI(: command U8[]). (: () U32);
+strcmp := λ: FFI(: l U8[])(: r U8[]). (: __uninitialized I32);
+memcmp := λ: FFI(: l ?[])(: r ?[])(: len U64). (: __uninitialized U32);
+printf := λ: FFI(: format String)(: arg Any). (: __uninitialized U32);
+fprintf := λ: FFI(: io IO::File)(: format String)(: arg Any). (: __uninitialized U32);
+putchar := λ: FFI(: x U32). (: __uninitialized U32);
+exit := λ: FFI(: x U32). (: __uninitialized Nil);
+malloc := λ: FFI(: sz U64). (: __uninitialized ?[]);
+realloc := λ: FFI(: ptr ?[])(: sz U64). (: __uninitialized ?[]);
+memset :=  λ: FFI(: ptr ?[])(: x U32)(: sz U64). (: __uninitialized ?[]);
+fopen := λ: FFI(: fp U8[])(: mode U8[]). (: __uninitialized File[]);
+fread := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f File[]). (: __uninitialized U64);
+fwrite := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f File[]). (: __uninitialized U64);
+fclose := λ: FFI(: f File[]). (: __uninitialized U32);
+execvp := λ: FFI(: file U8[])(: argv U8[][]). (: __uninitialized U32);
+mktemp := λ: FFI(: template U8[]). (: __uninitialized U8[]);
+system := λ: FFI(: command U8[]). (: __uninitialized U32);
 
-fopen := λ: FFI(: fp String)(: mode String). (: () IO::File+Phi<FileState::Open>);
-fclose := λ: FFI(: fio IO::File+Phi<FileState::Open,FileState::Closed>). (: () U32);
-fwrite := λ: FFI(: c U8[])(: c-size U64)(: c-len U64)(: f IO::File). (: () U32);
-
-phi := λ: Blob(: left FileState::Open)(: right FileState::Open). (: () FileState::Open);
-phi := λ: Blob(: left FileState::Closed)(: right FileState::Closed). (: () FileState::Closed);
+fopen := λ: FFI(: fp String)(: mode String). (: __uninitialized IO::File+Phi<FileState::Open>);
+fclose := λ: FFI(: fio IO::File+Phi<FileState::Open,FileState::Closed>). (: __uninitialized U32);
+fwrite := λ: FFI(: c U8[])(: c-size U64)(: c-len U64)(: f IO::File). (: __uninitialized U32);
 
 exit := λ(: x U64).(: (exit(as x U32)) Nil);
 
 fail := λ(: msg String)(: loc String). (: (
    (print msg)(print '\sat\s_s)(print loc)
-   (exit 1_u32)
+   (as (exit 1_u32) Never)
 ) Never);
 
 fail := λ(: msg SmartString). (: (
-   (print msg)(exit 1_u32)
-) Never);
+   (print msg)
+   (as (exit 1_u32) Never)
+ ) Never);
 
 fail := λ(: msg String). (: (
    (print msg)
-   (exit 1_u32)
+   (as (exit 1_u32) Never)
 ) Never);
 
 read-file := λ(: fp String). (: (

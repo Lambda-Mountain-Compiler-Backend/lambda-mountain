@@ -1,13 +1,15 @@
 
-typeof-lhs := λ(: lhs AST). (: (
+typeof-lhs := λ(: lhs AST). (: (typeof-lhs( lhs 0_u64 )) Type);
+
+typeof-lhs := λ(: lhs AST)(: idx U64). (: (
    (let r TAny)
    (match lhs (
       ()
       ( (App( (Lit( ':_s _ )) (App( _ (AType tt) )) )) (
-         (set r (.rewrite-type-alias tt))
+         (set r (.accept-interface( (.rewrite-type-alias tt) idx )))
       ))
       ( (App( ps (App( (Lit( ':_s _ )) (App( _ (AType tt) )) )) )) (
-         (set r (t3( 'Cons_s (typeof-lhs ps) (.rewrite-type-alias tt) )))
+         (set r (t3( 'Cons_s (typeof-lhs( ps (+( idx 1_u64 )) )) (.accept-interface( (.rewrite-type-alias tt) idx )) )))
       ))
       ( ASTNil (
          (set r (t1 'Nil_s))

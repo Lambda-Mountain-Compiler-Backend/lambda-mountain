@@ -5,9 +5,9 @@ type A = A { x: U64 };
 
 let a = A { 1 };
 
-let prop quick-prop(a: A): B = ();
+let prop quick-prop(a: A): B;
 
-let prop .infer-c(a: A): C = ();
+let prop .infer-c(a: A): C;
 
 let fa(a: A): Nil = ();
 let fb(a: x+B): Nil = ();

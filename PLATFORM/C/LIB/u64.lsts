@@ -26,8 +26,9 @@ declare-unop( into-branch-conditional, raw-type(U64), raw-type(BranchConditional
 let cmp(l: U64, r: U64): Ord = if l==r then Equal else if l<r then LessThan else GreaterThan;
 
 let to-string(i: U64): CString = (
-   let out = mk-vector(type(U8), 8);
+   let out = mk-vector(type(U8), 19);
 
+   if i==0 then out = out.push(48_u8);
    while i > 0 {
       let ci = ((i % 10) + 48) as U8;
       i = i / 10;
@@ -35,9 +36,11 @@ let to-string(i: U64): CString = (
    };
 
    out.reverse-self();
-   out.move-to(type(CString))
+   out.into(type(CString));
 );
 
 let to-smart-string(i: U64): SmartString = (
    intern(to-string(i))
 );
+
+type U64 implements DefaultPrintable;

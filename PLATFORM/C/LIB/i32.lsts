@@ -21,3 +21,5 @@ declare-binop( $"||", raw-type(I32), raw-type(I32), raw-type(U64), ( l"("; x; l"
 declare-unop( not, raw-type(I32), raw-type(U64), ( l"(!"; x; l")"; ) );
 
 declare-unop( into-branch-conditional, raw-type(I32), raw-type(BranchConditional), x );
+
+type I32 implements DefaultPrintable;

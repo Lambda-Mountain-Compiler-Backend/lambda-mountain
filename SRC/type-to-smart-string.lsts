@@ -4,7 +4,7 @@ let to-smart-string(tt: Type): SmartString = (
       TAny{} => "?";
       TVar{name=name} => intern(name);
       TGround{tag=tag,parameters=parameters} => (
-         let r = intern(tag);
+         let r = if tag[0] >= 97 && tag[0] <= 122 then intern("\"\{tag}\"") else intern(tag);
          if parameters.length > 0 {
             let pc = 0_u64;
             r = r + "<";

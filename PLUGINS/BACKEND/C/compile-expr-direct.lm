@@ -16,7 +16,14 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
       ( ASTEOF () )
       ( (Var( id _ )) (
          # TODO, this is being called instead of function
-         (set e (.lookup( ctx id (typeof term) term )))
+         (let def (.lookup( var-to-def-index term ASTEOF )))
+         (if (not(non-zero def)) (
+            (exit-error( (+( 'Unable\sTo\sFind\sVariable\sIn\sContext\s_s id )) term ))
+         ) ())
+         (set e (.lookup( std-c-fragment-context def e )))
+         (if (not(non-zero e)) (
+            (exit-error( (+( 'Unable\sTo\sFind\sVariable\sFragment\sIn\sContext\s_s id )) term ))
+         ) ())
          (set.context( e (close ctx) ))
       ))
       ( (Lit( val _ )) (
@@ -213,6 +220,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
       ( (App( (Abs( (@( lhs-t (Var( lhs _ )) )) ASTNil tlt )) rhs )) (
          (let rtype (typeof lhs-t))
          (let fr (fragment::local-variable( 0_i64 rtype )))
+         (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t fr )))
          (set ctx (.bind( ctx lhs rtype fr )))
          (let prepost (mangle-c-declaration rtype))
          (if (is-const-array rtype) (

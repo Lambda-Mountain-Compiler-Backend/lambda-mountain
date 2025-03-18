@@ -37,8 +37,8 @@ let .push(v: Vector<t>, i: t): Vector<t> = (
    if v.length >= v.capacity {
       let new-cap = if v.capacity == 0 {
          4_u64
-      } else { # mul 1.5
-         (v.length >> 1_u64) + v.length
+      } else {
+         (v.length >> 1_u64) + v.length # this is mul 1.5, not 3
       };
       v = v.realloc(new-cap);
    };
@@ -193,22 +193,14 @@ let .collect(x: Iterator<t>, tot: Type<Vector<t>>): Vector<t> = (
    to
 );
 
-interface FromVector<t> {
-   let .move-to(self: Vector<t>, out: Type<FromVector<t>>): FromVector<t>;
-};
-
-type CString => FromVector<U8>;
-
-# MAKES INPUT VECTOR INVALID
-let .move-to(self: Vector<U8>, res: Type<CString>): CString = (
-   self = self.push(0_u8);
-   self = self.shrink();
-   (self.data as U8[]) as CString
+let .into(in: Vector<U8>, res: Type<CString>): CString = (
+   let out = mk-vector(type(U8), in.length+1);
+   let i = 0_u64;
+   while i < in.length { out = out.push(in[i]); i = i + 1; };
+   out = out.push(0_u8);
+   ((out.data as U8[]) as CString)
 );
 
-type SmartString => FromVector<U8>;
-
-# MAKES INPUT VECTOR INVALID
-let .move-to(self: Vector<U8>, res: Type<SmartString>): SmartString = (
-   intern(self.move-to(type(CString)))
+let .into(self: Vector<U8>, res: Type<SmartString>): SmartString = (
+   intern(self.into(type(CString)))
 );

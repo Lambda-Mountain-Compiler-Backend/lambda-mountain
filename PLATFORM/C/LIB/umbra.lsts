@@ -71,7 +71,7 @@ let $"set[]"(s: Umbra[], i: U64, v: U8): Nil = (
          };
          ptr[i] = v;
       );
-   };
+   }; ()
 );
 
 # the returned array is NOT a C string!
@@ -217,8 +217,30 @@ let new-umbra(length: U64): Umbra = (
 );
 
 # clones input to umbra string
-let to-umbra(s: t): Umbra = (
+let .into(s: t, t: Type<Umbra>): Umbra = (
     to-umbra(s, s.length())
+);
+
+let .into(self: Umbra, t: Type<Vector<U8>>): Vector<U8> = (
+   let out = mk-vector(type(U8), (&self).length + 1);
+   let ptr = addr(&self);
+   let i = 0_u64;
+   while i < (&self).length() {
+      out = out.push(ptr[i]);
+      i = i + 1_u64;
+   };
+   out;
+);
+
+let .into(self: Umbra, t: Type<CString>): CString = (
+   let v = self.into(type(Vector<U8>));
+   v = v.push(0_u8);
+   ((v.data as U8[]) as CString);
+);
+
+let .into(self: Umbra, t: Type<SmartString>): SmartString = (
+   let v = self.into(type(CString));
+   intern(v);
 );
 
 # clones input to umbra string BUT only includes the first [len] characters

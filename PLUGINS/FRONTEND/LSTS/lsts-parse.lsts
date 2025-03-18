@@ -21,13 +21,13 @@ let lsts-unwrap-identifier(ident: Token): Token = (
 let lsts-parse-expect(expect: CString, tokens: List<Token>): Nil = (
    if lsts-parse-head(tokens) != expect {
       fail("Parse Error: Expected \{expect} at \{tokens.formatted-location}\n");
-   }
+   }; ();
 );
 
 let lsts-parse-expect(expect: CString, b: U64, tokens: List<Token>): Nil = (
    if not(b) {
       fail("Parse Error: Expected \{expect} at \{tokens.formatted-location}\n")
-   }
+   }; ();
 );
 
 let lsts-has-assign(tokens: List<Token>): U64 = (
@@ -50,7 +50,7 @@ let lsts-has-assign(tokens: List<Token>): U64 = (
 );
 
 let lsts-substitute-type-aliases(s: CString): CString = (
-   if s.has-prefix(c"$") then untern(intern(s)[2_i64:-1_i64]) else
+   if s.has-suffix(c"_ss") then untern(intern(s)[:-3_i64]) else
    if s == c"String" then c"SmartString" else
    if s == c"CString" then c"String" else
    s.remove-suffix(c"_u64")
@@ -142,7 +142,7 @@ let lsts-parse-type(tokens: List<Token>): Tuple<Type,List<Token>> = (
       tokens = tail(tokens);
       TAny {}
    } else if lsts-is-ident-head(lsts-parse-head(tokens)) && not(lsts-parse-head(tokens).has-suffix(c"_u64"))
-          && not(lsts-parse-head(tokens).has-prefix(c"$")) {
+          && not(lsts-parse-head(tokens).has-suffix(c"_ss")) {
       let varname = lsts-parse-head(tokens); tokens = tail(tokens);
       TVar { varname }
    } else {
@@ -340,7 +340,7 @@ let lsts-make-maybe-var(tokens: List<Token>): Tuple<AST,List<Token>> = (
 );
 
 let lsts-is-lit(s: CString): U64 = (
-   let r = 0;
+   let r = 0_u64;
    for Tuple { sfxs=first } in parse-suffixes.unsafe-iter() {
       r = r || s.has-suffix(sfxs);
    }; r;
@@ -497,9 +497,16 @@ let lsts-parse-list(tokens: List<Token>): Tuple<AST,List<Token>> = (
 let lsts-parse-interface(tokens: List<Token>): List<Token> = (
    lsts-parse-expect(c"interface", tokens); tokens = tail(tokens);
 
-   let interface-type-t = lsts-parse-type(tokens);
-   tokens = interface-type-t.second;
-   let interface-type = interface-type-t.first;
+   let self-type = tv(c"self");
+   (let interface-type, tokens) = lsts-parse-type(tokens);
+
+   if lsts-parse-head(tokens)==c"implements" {
+      lsts-parse-expect(c"implements", tokens); tokens = tail(tokens);
+      self-type = interface-type;
+      (interface-type, tokens) = lsts-parse-type(tokens);
+   };
+   interface-index = interface-index.bind(interface-type.ground-tag-and-arity, true);
+   interface-self-index = interface-self-index.bind(interface-type.ground-tag-and-arity, (self-type, interface-type));
 
    lsts-parse-expect(c"{", tokens); tokens = tail(tokens);
 
@@ -515,8 +522,13 @@ let lsts-parse-interface(tokens: List<Token>): List<Token> = (
 
       let sig = lsts-parse-function-signature(tokens, loc);
       tokens = sig.second;
+      let args-type = sig.first.args-type;
       let args-list = sig.first.args-list;
       let return-type = sig.first.return-type;
+
+      let shapes = interface-shape-index.lookup(interface-type.ground-tag-and-arity,[] :: List<(CString,Type,Type)>);
+      shapes = cons( (name, args-type, return-type), shapes );
+      interface-shape-index = interface-shape-index.bind(interface-type.ground-tag-and-arity, shapes);
 
       lsts-parse-expect(c";", tokens); tokens = tail(tokens);
    };
@@ -533,7 +545,7 @@ let lsts-parse-interface(tokens: List<Token>): List<Token> = (
 );
 
 let lsts-parse-typedef(tokens: List<Token>): List<Token> = (
-   lsts-parse-expect(c"type", tokens); tokens = tail(tokens);
+   lsts-parse-expect(c"type", tokens); let blame = Var{head(tokens).key, head(tokens)}; tokens = tail(tokens);
    let mode = c"=";
    if lsts-parse-head(tokens)==c"opaque" {
       lsts-parse-expect(c"opaque", tokens); tokens = tail(tokens);
@@ -552,7 +564,15 @@ let lsts-parse-typedef(tokens: List<Token>): List<Token> = (
          tokens = rt-rest.second;
          lsts-parse-expect(c";", tokens); tokens = tail(tokens);
          add-quick-prop(base-rest.first, base-rest.first, rt-rest.first);
-         add-weaken-quick-prop(base-rest.first, rt-rest.first, rt-rest.first);
+         add-weaken-quick-prop(base-rest.first, base-rest.first, rt-rest.first);
+      );
+      [Token{key:c"implements"}.. rest] => (
+         tokens = rest;
+         (let rt, tokens) = lsts-parse-type(tokens);
+         lsts-parse-expect(c";", tokens); tokens = tail(tokens);
+         add-quick-prop(base-rest.first, base-rest.first, rt);
+         add-weaken-quick-prop(base-rest.first, base-rest.first, rt);
+         interface-implementors = cons((base-rest.first, rt, blame), interface-implementors);
       );
       _ => (
          if mode==c"=" {
@@ -622,11 +642,11 @@ let lsts-parse-typedef-case(tokens: List<Token>): Tuple<AST,List<Token>> = (
    Tuple{ case, tokens }
 );
 
-type LstsFnSignature = LstsFnSignature { args-list: AST, return-type: Type };
+type LstsFnSignature = LstsFnSignature { args-list: AST, args-type: Type, return-type: Type };
 
 # parses:    (a: I32, b: I32): U64
 let lsts-parse-function-signature(tokens: List<Token>, loc: SourceLocation): Tuple<LstsFnSignature, List<Token>> = (
-   let out = LstsFnSignature { ASTNil, TAny };
+   let out = LstsFnSignature { ASTNil, TAny, TAny };
 
    lsts-parse-expect(c"(", tokens); tokens = tail(tokens);
    while non-zero(tokens) && lsts-parse-head(tokens)!=c")" {
@@ -642,8 +662,10 @@ let lsts-parse-function-signature(tokens: List<Token>, loc: SourceLocation): Tup
       };
       if is( out.args-list, ASTNil{} ) {
          out.args-list = arg-binding;
+         out.args-type = type-rest.first;
       } else {
          out.args-list = App{ close(out.args-list), close(arg-binding) };
+         out.args-type = t3(c"Cons", out.args-type, type-rest.first);
       };
    };
    lsts-parse-expect(c")", tokens); tokens = tail(tokens);
@@ -684,10 +706,11 @@ let lsts-parse-let(tokens: List<Token>): List<Token> = (
       args-list = sig.first.args-list;
       return-type = sig.first.return-type;
    };
-   lsts-parse-expect(c"=", tokens); tokens = tail(tokens);
-   let rhs-rest = lsts-parse-small-expression(tokens);
-   let return-term = rhs-rest.first;
-   tokens = rhs-rest.second;
+   let return-term = Var{ c"__uninitialized", with-location(mk-token("__uninitialized"),loc) };
+   if lsts-parse-head(tokens) == c"=" {
+      lsts-parse-expect(c"=", tokens); tokens = tail(tokens);
+      (return-term, tokens) = lsts-parse-small-expression(tokens);
+   };
    if non-zero(args-list) {
       return-term = App {
          close(Lit{ c":", with-location(mk-token(":"),loc) }),

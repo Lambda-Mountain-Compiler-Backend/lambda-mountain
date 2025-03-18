@@ -13,10 +13,12 @@ let deep-hash(l: Tuple<x,y>): U64 = (
 let print(io: IO::File, l: Tuple<x,y>): Nil = (
    print(io, "("); print(io, l.first); print(io, ","); print(io, l.second); print(io, ")");
 );
+type Tuple<x,y> implements DefaultPrintable;
 
 let print(io: IO::File, l: Tuple<x,y,z>): Nil = (
    print(io, "("); print(io, l.first); print(io, ","); print(io, l.second); print(io, ","); print(io, l.third); print(io, ")");
 );
+type Tuple<x,y,z> implements DefaultPrintable;
 
 let $"=="(l: Tuple<x,y>, r: Tuple<x,y>): U64 = (
    l.first == r.first && l.second == r.second

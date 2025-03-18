@@ -5,6 +5,7 @@ let .without-tag(tt: Type): Type = (
       TAnd { left=left, right=right } => left.without-tag && right.without-tag;
       TGround { tag:c"Constructor" } => TAny;
       TGround { tag:c"CaseNumber" } => TAny;
+      TGround { tag:c"C-FFI", parameters:[] } => TAny;
       TGround { tag:c"Raw" } => TAny;
       TGround { tag:c"LMStruct" } => TAny;
       TGround { tag:c"Constant" } => TAny;

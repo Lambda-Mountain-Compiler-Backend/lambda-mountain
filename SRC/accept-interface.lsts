@@ -1,0 +1,14 @@
+
+let .accept-interface(tt: Type, pos: U64): Type = (
+   if tt.should-accept-interface
+   then tt && tv( c"accept_interface_" + to-string(pos) )
+   else tt
+);
+
+let .should-accept-interface(tt: Type): U64 = (
+   match tt {
+      TAnd{ lt=left, rt=right } => lt.should-accept-interface && rt.should-accept-interface;
+      TGround{tag=tag} => interface-index.has(tt.ground-tag-and-arity);
+      _ => false;
+   }
+);

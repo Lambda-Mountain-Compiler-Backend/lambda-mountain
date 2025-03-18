@@ -6,7 +6,7 @@ head-string := λ(: x String). (: (
 ) U8);
 
 tail-string := λ(: x String). (: (
-   (+( (as x U8[]) 1_u64 ))
+   (as (+( (as x U8[]) 1_u64 )) String)
 ) String);
 
 deep-hash := λ(: key String). (: (

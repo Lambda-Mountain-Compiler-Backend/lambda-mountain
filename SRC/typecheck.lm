@@ -32,5 +32,6 @@ typecheck := λ. (: (
          (specialize( function-name ft unify-ctx special-type ))
       ))
    )))
+   (validate-interfaces())
    (assert-well-typed ast-parsed-program)
 ) Nil);

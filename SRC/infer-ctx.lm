@@ -2,14 +2,14 @@
 infer-ctx := λ(: tctx Maybe<TContext>)(: lhs AST). (: (
    (match lhs (
       ()
-      ( (App( (Lit( ':_s _ )) (App( (Var( v vtk )) (AType tt) )) )) (
+      ( (App( (Lit( ':_s _ )) (App( (@( v-t (Var( v vtk )) )) (AType tt) )) )) (
          (set tt (&&( (normalize tt) (t1 'LocalVariable_s) )))
-         (set tctx (.bind( tctx v tt (Var( v vtk )) )))
+         (set tctx (.bind( tctx v tt v-t )))
          (set tctx (infer-tctx( tctx tt )))
       ))
-      ( (App( ps (App( (Lit( ':_s _ )) (App( (Var( v vtk )) (AType tt) )) )) )) (
+      ( (App( ps (App( (Lit( ':_s _ )) (App( (@( v-t (Var( v vtk )) )) (AType tt) )) )) )) (
          (set tt (&&( (normalize tt) (t1 'LocalVariable_s) )))
-         (set tctx (.bind( tctx v tt (Var( v vtk )) )))
+         (set tctx (.bind( tctx v tt v-t )))
          (set tctx (infer-ctx( tctx ps )))
          (set tctx (infer-tctx( tctx tt )))
       ))

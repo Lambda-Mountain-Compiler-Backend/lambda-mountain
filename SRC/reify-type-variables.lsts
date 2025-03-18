@@ -1,0 +1,17 @@
+
+# replace x with ReifiedTypeVariable_x
+let .reify-type-variables(tt: Type): Type = (
+   match tt {
+      TAny{} => TAny;
+      TAnd{left=left, right=right} => left.reify-type-variables && right.reify-type-variables;
+      TGround{tag=tag, parameters=parameters} => TGround{tag, close(parameters.reify-type-variables)};
+      TVar{name=name} => t1(c"ReifiedTypeVariable_" + name);
+   }
+);
+
+let .reify-type-variables(tt: List<Type>): List<Type> = (
+   match tt {
+      [hd.. tl] => cons( hd.reify-type-variables, tl.reify-type-variables );
+      _ => tt;
+   };
+);

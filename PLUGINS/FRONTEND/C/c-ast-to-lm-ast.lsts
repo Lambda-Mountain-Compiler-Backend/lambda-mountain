@@ -4,7 +4,7 @@ let std-c-declare(t: CTerm): Nil = (
       CFunctionDefinition{spec=specifiers,decl=declarator,dl=declaration-list,stmt=statement} => std-c-declare-function(spec, decl, dl, stmt);
       CBinaryOp{op:c"Declaration",spec=arg1,arg2:CMaybe{value:Some{content:CList{inits=value}}}} => (
          (let return-type, let misc-types) = std-c-type-of-specifiers(spec);
-         return-type = return-type && t1(c"C");
+         return-type = return-type && t1(c"C-FFI");
          for init in inits.iter() { match init {
             CBinaryOp{op:c"=", arg1:CIdentifier{name=value}, value=arg2} => (
                ast-parsed-program = ast-parsed-program + Glb{
@@ -39,7 +39,7 @@ let std-c-declare-function(specifiers: CTerm, declarator: CTerm, declaration-lis
    (let name, let pointer) = std-c-name-of-declarator(declarator);
    let params = std-c-lhs-of-parameter-list(declaration-list);
    let body = std-c-expr-of-statement(statement);
-   ast-parsed-program = ast-parsed-program + Glb{
+   let symbol = Glb{
       mk-token(name), close(Abs{
          close(params),
          close(App{ false,
@@ -49,9 +49,10 @@ let std-c-declare-function(specifiers: CTerm, declarator: CTerm, declaration-lis
                close(AType{ return-type })
             })
          }),
-         misc-types && t1(c"C")
+         misc-types && t1(c"C-FFI")
       })
    };
+   ast-parsed-program = ast-parsed-program + symbol;
 );
 
 let std-c-type-of-specifiers(specifiers: CTerm): Tuple<Type,Type> = (
@@ -89,11 +90,40 @@ let std-c-expr-of-statement(t: CTerm): AST = (
          let inner = std-c-expr-of-statement(arg);
          App{ false, close(Var{c"c::return", mk-token(c"c::return")}), close(inner) }
       );
+      CUnaryPrefix{op:"sizeof", arg=arg} => (
+         match std-c-expr-of-statement(arg) {
+            AType{tt=tt} => (
+               App{ false, close(Var{c"prefix:sizeof", mk-token(c"prefix:sizeof")}), close(AType{t2(c"Type", tt)}) }
+            );
+            inner => (
+               App{ false, close(Var{c"prefix:sizeof", mk-token(c"prefix:sizeof")}), close(inner) }
+            );
+         }
+      );
+      CUnaryPrefix{op:"alignof", arg=arg} => (
+         match std-c-expr-of-statement(arg) {
+            AType{tt=tt} => (
+               App{ false, close(Var{c"prefix:alignof", mk-token(c"prefix:alignof")}), close(AType{t2(c"Type", tt)}) }
+            );
+            inner => (
+               App{ false, close(Var{c"prefix:alignof", mk-token(c"prefix:alignof")}), close(inner) }
+            );
+         }
+      );
+      CBinaryOp{op=op:"cast", arg1=arg1, arg2=arg2} => (
+         App{
+            close(Var{c"as", mk-token(c"as")}),
+            close(App{
+               close(std-c-expr-of-statement(arg2)),
+               close(std-c-expr-of-statement(arg1))
+            })
+         }
+      );
       CIdentifier{value=value} => (
          Var{ untern(value), mk-token(value) }
       );
       CInteger{value=value} => (
-         App{ false,
+         App{
             close(Lit{c":", mk-token(c":")}),
             close(App{
                close(Lit{ untern(value), mk-token(value) }),
@@ -103,6 +133,7 @@ let std-c-expr-of-statement(t: CTerm): AST = (
       );
       CBinaryOp{op:c"Declaration", spec=arg1, arg2:CMaybe{value:Some{content:CList{decls=value}}} } => (
          (let return-type, let misc-types) = std-c-type-of-specifiers(spec);
+         return-type = return-type && t1(c"C-FFI");
          let expr = ASTEOF;
          for decl in decls.iter() {match decl {
             CIdentifier{name=value} => (
@@ -194,13 +225,13 @@ let std-c-expr-of-statement(t: CTerm): AST = (
       );
       CUnaryPrefix{op=op, arg=arg } => (
          App{
-            close(Var{ untern(op), mk-token(op) }),
+            close(Var{ c"prefix:" + untern(op), mk-token("prefix:" + op) }),
             close(std-c-expr-of-statement(arg))
          };
       );
       CUnaryPostfix{op=op, arg=arg } => (
          App{
-            close(Var{ untern(op), mk-token(op) }),
+            close(Var{ c"postfix:" + untern(op), mk-token("postfix:" + op) }),
             close(std-c-expr-of-statement(arg))
          };
       );

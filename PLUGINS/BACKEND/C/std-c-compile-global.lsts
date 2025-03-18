@@ -31,7 +31,7 @@ let std-c-compile-global(ctx: FContext, k: CString, term: AST): Nil = (
          let loc = term.location;
          if not(config-strip-debug) {
             let text = SNil;
-            text = text + SAtom{c"#line "};
+            text = text + SAtom{c"\n#line "};
             text = text + SAtom{to-string(loc.line)};
             text = text + SAtom{c" "};
             text = text + SAtom{loc.filename};
@@ -47,7 +47,7 @@ let std-c-compile-global(ctx: FContext, k: CString, term: AST): Nil = (
 
          let text = SNil;
          if not(config-strip-debug) {
-            text = text + SAtom{c"#line "};
+            text = text + SAtom{c"\n#line "};
             text = text + SAtom{to-string(loc.line)};
             text = text + SAtom{c" "};
             text = text + SAtom{loc.filename};

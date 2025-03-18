@@ -7,7 +7,7 @@ compile-finish-c := λ. (: (
    (let output SNil)
    (set output (SCons( (close output) (close(compile-c-text-header())) )))
    (set output (SCons( (close output) (close assemble-header-section) )))
-   (set output (SCons( (close output) (close assemble-text-section) )))
+   (set output (+( output assemble-text-section )))
    (if (not compile-global-c-has-main) (
       (set output (+( output (SAtom 'int\smain\[\]{\n_s) )))
       (set output (+( output assemble-string-initializer-section )))

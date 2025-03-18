@@ -1,7 +1,7 @@
 
 import LIB/default.lsts;
 
-type $"A" => $"B";
+type "A" => "B";
 
 type A = A{};
 

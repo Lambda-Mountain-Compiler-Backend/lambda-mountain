@@ -1,12 +1,9 @@
 CC = cc
 
 dev: install-production
-	lm tests/regress/type-syntax.lsts
-	#lm --stripdebug tests/c/operators.c
-	#cp tests/c/operators.c original.c
-	#cat original.c | python3 -c 'import sys; print("".join(sys.stdin.read().split()))' > diff1.c
-	#cat tmp.c | python3 -c 'import sys; print("".join(sys.stdin.read().split()))' > diff2.c
-	#diff diff1.c diff2.c
+	lm tests/regress/type-alias.lsts
+	gcc tmp.c
+	./a.out
 
 build: compile-production
 	time ./production --c -o deploy1.c SRC/index-index.lm
@@ -18,6 +15,7 @@ build: compile-production
 	cargo test regression_tests
 
 deploy: build smoke-test
+deploy-lite: build smoke-test-lite
 
 gprof:
 	$(CC) -O3 -pg -o bootstrap.exe BOOTSTRAP/cli.c
@@ -72,6 +70,7 @@ smoke-test-musl:
 	rm tmp
 
 smoke-test: smoke-test-clang smoke-test-gcc smoke-test-musl
+smoke-test-lite: smoke-test-clang smoke-test-gcc
 
 install:
 	$(CC) -O3 -o lm BOOTSTRAP/cli.c
