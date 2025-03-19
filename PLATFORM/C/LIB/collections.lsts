@@ -4,6 +4,14 @@ interface Collection<t> {
    let $"[]"(x: self, idx: U64): t;
 };
 
+let .last(self: Collection<x>): x = (
+   let ln = self.length();
+   if ln == 0 {
+      fail("cannot get .last() from empty element");
+   };
+   self[(ln-1)]
+);
+
 interface Iterator<t> {
    let .next(x: self[]): Maybe<t>;
 };
@@ -17,31 +25,23 @@ interface IteratorRemaining {
    let .remaining(x: self + Iterator<t>): U64;
 };
 
-let remaining-or-zero(from: t+Iterator<x>): U64 = (
+let remaining-or-zero(from: Iterator<x>): U64 = (
    0
 );
 
-let remaining-or-zero(from: t+Iterator<x>+IteratorRemaining): U64 = (
+let remaining-or-zero(from: Iterator<x>+IteratorRemaining): U64 = (
    from.remaining()
 );
 
-let .last(self: t+Collection<x>): x = (
-   let ln = self.length();
-   if ln == 0 {
-      fail("cannot get .last() from empty element");
-   };
-   self[(ln-1)]
-);
-
-let length-or-zero(from: t+Iterable<x>): U64 = (
+let length-or-zero(from: Iterable<x>): U64 = (
    0_u64
 );
 
-let length-or-zero(from: t+Collection<x>): U64 = (
+let length-or-zero(from: Collection<x>): U64 = (
    from.length()
 );
 
-let remaining-eq(a: at+Iterator<ax>, b: bt+Iterator<bx>): U64 = (
+let remaining-eq(a: Iterator<ax>, b: Iterator<bx>): U64 = (
    let ok = true;
    while ok {
       let av = (&a).next();

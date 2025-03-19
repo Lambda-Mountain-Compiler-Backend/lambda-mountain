@@ -1,5 +1,6 @@
 
 type Vector<t> = Vector { data: t[], length: U64, capacity: U64 };
+type Vector<t> implements Collection<t>;
 
 type Vector<t> implements Collection<t>;
 type Vector<t> implements Iterable<t>;
@@ -205,4 +206,8 @@ let .into(in: Vector<U8>, res: Type<CString>): CString = (
 
 let .into(self: Vector<U8>, res: Type<SmartString>): SmartString = (
    intern(self.into(type(CString)))
+);
+
+let .into(l: Iterable<t>, out: Type<Vector<t>>): Vector<t> = (
+   l.iterator().collect(type(Vector<t>))
 );

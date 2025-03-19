@@ -1,0 +1,16 @@
+
+import LIB/default.lsts;
+
+type A = A { length: U8 };
+
+interface self implements HasLength {
+   let .length(self: self): U64;
+}
+
+type A implements HasLength;
+
+interface self implements HasLength<x> {
+   let .length(self: self): x;
+}
+
+type A implements HasLength<U8>;

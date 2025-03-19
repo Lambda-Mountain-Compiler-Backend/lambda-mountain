@@ -1,6 +1,6 @@
 :syntax case match
 
-:syntax keyword lstsKeyword let interface for while if else match import type fragment macro λ as zero in
+:syntax keyword lstsKeyword let interface implements self for while if then else match import type fragment macro λ as zero in
 :syntax keyword lstsType Bool U8 U16 U32 U64 I8 I16 I32 I64 F32 F64 Nil
 :syntax keyword lstsTODO TODO contained
 :syntax match   lstsOperator /==\|!=\|<=\|>=\|<\|>\|=\|=>\|\:\:\|\.\|+\|-\|\*\|\/\|&\||\|\'&/ 
