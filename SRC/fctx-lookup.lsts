@@ -14,36 +14,27 @@ let .lookup(ctx: FContext, k: CString, kt: Type, sloc: AST, hard: U64): Fragment
    let found = TAny;
    let r = mk-fragment();
    k = find-alias(k, kt);
-   if kt.is-arrow { kt = normalize(kt); };
+   kt = denormalize-strong(kt);
    while non-zero(ctx) { match ctx {
       FCtxBind { remainder=remainder, ctx-k=k, ctx-kt=kt, ctx-kv=kv } => (
          if k==ctx-k {
-            if kt==ctx-kt || can-unify(kt, ctx-kt) {
-               r = ctx-kv;
-               found = t1(c"GlobalVariable");
-               ctx = FCtxEOF;
-            } else {
-               if ctx-kt.is-arrow {
-                  let domaint = ctx-kt.domain;
-                  let domaind = denormalize(ctx-kt.domain);
-                  let ranget = ctx-kt.range;
-                  if can-unify( domaint, kt ) {
-                     if non-zero(found) {
-                        if can-unify(found,domaind) {
-                           r = ctx-kv;
-                           found = domaind;
-                        }
-                     } else {
+            if ctx-kt.is-arrow {
+               if kt==TAny || can-unify( ctx-kt.domain, kt ) || can-unify(ctx-kt.domain, kt.domain) {
+                  if non-zero(found) {
+                     if can-unify(found, ctx-kt.domain) {
                         r = ctx-kv;
-                        found = domaind;
+                        found = ctx-kt.domain;
                      }
-                  };
-                  ctx = remainder;
-               } else {
-                  r = ctx-kv;
-                  found = t1(c"LocalVariable");
-                  ctx = FCtxEOF;
-               }
+                  } else {
+                     r = ctx-kv;
+                     found = ctx-kt.domain;
+                  }
+               };
+               ctx = remainder;
+            } else {
+               r = ctx-kv;
+               found = t1(c"LocalVariable");
+               ctx = FCtxEOF;
             }
          } else { ctx = remainder; }
       );

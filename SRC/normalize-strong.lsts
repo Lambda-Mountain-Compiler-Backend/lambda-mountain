@@ -1,0 +1,13 @@
+
+let normalize-strong(tt: type): Type = (
+   normalize(normalize-strong-inner(tt))
+);
+
+let normalize-strong-inner(tt: Type): Type = (
+   match tt {
+      TAnd{left=left, right=right} => normalize-strong-inner(left) && normalize-strong-inner(right);
+      TGround{tag:c"Arrow", parameters:[rng..dom..]} => t3(c"Arrow",normalize-strong(dom),normalize-strong(rng));
+      TGround{tag:c"Cons", parameters:[p2..p1..]} => t3(c"Cons",normalize-strong(p1),normalize-strong(p2));
+      _ => tt;
+   }
+);

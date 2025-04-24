@@ -24,6 +24,7 @@ import SRC/remove-info.lsts;
 import SRC/normalize.lsts;
 import SRC/denormalize.lsts;
 import SRC/denormalize-strong.lsts; # TODO, make this the normal denormalize
+import SRC/normalize-strong.lsts; # TODO, make this the normal normalize
 import SRC/type-alias-index.lsts;
 import SRC/class-info-index.lsts;
 import SRC/with-size.lsts;
