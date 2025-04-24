@@ -31,13 +31,21 @@ macro ( ('macro::lhs-as-rhs ('macro::lhs-field( base field )) ) )
 macro ( ('while cond body) )
       ( (primitive::while( (as body Nil) (into-branch-conditional cond) )) );
 
+#macro ( ('for-each (item 'in iter) loop) ) (
+#   (let (uuid iter-term) iter)
+#   (let (uuid continue-iter) true)
+#   (while (uuid continue-iter) (match (.next(&(uuid iter-term))) (
+#      ()
+#      ( (Some( item )) (loop ()) )
+#      ( None (set (uuid continue-iter) false) )
+#   )))
+#);
+
 macro ( ('for-each (item 'in iter) loop) ) (
    (let (uuid iter-term) iter)
-   (let (uuid continue-iter) true)
-   (while (uuid continue-iter) (match (.next(&(uuid iter-term))) (
+   (while (.has-head(uuid iter-term)) (match (uuid iter-term) (
       ()
-      ( (Some( item )) (loop ()) )
-      ( None (set (uuid continue-iter) false) )
+      ( (LCons( item (uuid tl) )) ( loop (set (uuid iter-term) (uuid tl)) ))
    )))
 );
 
