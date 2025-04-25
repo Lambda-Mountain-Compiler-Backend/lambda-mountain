@@ -3,10 +3,6 @@ let plugins-frontends-index = {} :: HashtableEq<CString,Arrow<CString,Nil>>;
 
 let plugin-null-frontend(fp: CString): Nil = (
    print("Unable to find a suitable frontend: \{fp}\n");
-   print("Registered frontends:\n");
-   for frontend in plugins-frontends-index.iter() {
-      print("- \{frontend.first}");
-   };
    exit(1);
 );
 

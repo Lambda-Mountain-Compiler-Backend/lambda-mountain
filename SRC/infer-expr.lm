@@ -223,7 +223,7 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
                   (ascript-normal( l (.function-type apply-result) ))
                   (set rt (.return-type apply-result))
                   (if (non-zero (.phi-types apply-result)) (
-                     (for-each ((Tuple( phi-id phi-new-type )) in (.iter (.phi-types apply-result))) (
+                     (for-each ((Tuple( phi-id phi-new-type )) in (.phi-types apply-result)) (
                         (set tctx (phi-transition( tctx phi-id phi-new-type )))
                      ))
                   ) ())
@@ -249,7 +249,7 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
                   ) ())
                   (set rt (.return-type apply-result))
                   (if (non-zero (.phi-types apply-result)) (
-                     (for-each ((Tuple( phi-id phi-new-type )) in (.iter (.phi-types apply-result))) (
+                     (for-each ((Tuple( phi-id phi-new-type )) in (.phi-types apply-result)) (
                         (set tctx (phi-transition( tctx phi-id phi-new-type )))
                      ))
                   ) ())

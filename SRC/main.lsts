@@ -19,12 +19,7 @@ let main(argc: C_int, argv: CString[]): Nil = (
       };
       argi = argi + 1;
    };
-
-   for fp in input.reverse().unsafe-iter() {
-      frontend(fp);
-   };
-   frontend-flush();
-
+   for fp in input.reverse { frontend(fp); }; frontend-flush();
    match config-mode {
       ModeTypecheck{} => (preprocess(); typecheck(););
       ModeCompile{} => (preprocess(); typecheck(); plugin-current-backend(););

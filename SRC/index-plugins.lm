@@ -30,7 +30,7 @@ frontend := λ(: fp String). (: (
          (if (file-exists fp) (
             (set found-file 1_u64)
          ) (
-            (for-each (base-path in (.unsafe-iter config-path)) (
+            (for-each (base-path in config-path) (
                (if (not found-file) (
                   (if (file-exists(+( base-path fp ))) (
                      (set found-file 1_u64)

@@ -8,7 +8,7 @@ let to-smart-string(tt: Type): SmartString = (
          if parameters.length > 0 {
             let pc = 0_u64;
             r = r + "<";
-            for p in parameters.reverse().iter() {
+            for p in parameters.reverse {
                if pc > 0 { r = r + ","; };
                r = r + to-smart-string(p);
                pc = pc + 1;
@@ -29,7 +29,7 @@ let .pretty(tt: Type): SmartString = (
          if parameters.length > 0 {
             let pc = 0_u64;
             r = r + "<";
-            for p in parameters.reverse().iter() {
+            for p in parameters.reverse {
                if pc > 0 { r = r + ","; };
                r = r + to-smart-string(p);
                pc = pc + 1;

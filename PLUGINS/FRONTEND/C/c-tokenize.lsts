@@ -71,7 +71,7 @@ let c-tokenize-string(file-path: String, text: String): List<CString> = (
    }; };
 
    let internal-tokens = [] :: List<CString>;
-   for t in tokens.unsafe-iter() {
+   for t in tokens {
       internal-tokens = cons( untern(t), internal-tokens );
    };
 

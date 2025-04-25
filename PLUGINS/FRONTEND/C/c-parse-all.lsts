@@ -34,7 +34,7 @@ let c-parse-all(fps: List<CString>): Nil = (
    cmd = cmd + " -U__USE_MISC";
    cmd = cmd + " -D__STRICT_ANSI__";
    cmd = cmd + " -D__LM__";
-   for fp in fps.unsafe-iter() {
+   for fp in fps {
       cmd = cmd + " -include \"" + intern(fp) + "\"";
    };
 

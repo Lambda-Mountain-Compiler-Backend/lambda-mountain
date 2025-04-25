@@ -16,7 +16,7 @@ add-concrete-type-instance := λ(: tt Type). (: (
                (cons( tt (.lookup( concrete-type-instances-index k (: LEOF List<Type>) )) ))
             )))
          ))
-         (for-each (ct in (.iter ts)) (add-concrete-type-instance ct))
+         (for-each (ct in ts) (add-concrete-type-instance ct))
       ))
    )) ())
 ) Nil);
@@ -28,7 +28,7 @@ does-concrete-type-instance-exist := λ(: tt Type). (: (
       ( (TGround( tag LEOF )) () )
       ( (TGround( tag ts )) (
          (let k (Tuple( tag (.length ts) )))
-         (for-each (vt in (.iter (.lookup( concrete-type-instances-index k (: LEOF List<Type>) )))) (
+         (for-each (vt in (.lookup( concrete-type-instances-index k (: LEOF List<Type>) ))) (
             (if (==( vt tt )) (set r 1_u64) ())
          ))
       ))

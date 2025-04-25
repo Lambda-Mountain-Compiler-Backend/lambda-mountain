@@ -3,7 +3,7 @@ typeof-var-raw := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
    (let found (find-alias-type vname))
    (let continue 1_u64)
    (for-each ( (Tuple( k vt _ )) in 
-               (.unsafe-iter (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))) ) (
+               (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) )) ) (
       (if (&&( continue (==( k vname )) )) (
          (if (non-zero found) (
             (if (.is-arrow vt) (
@@ -19,7 +19,7 @@ typeof-var-raw := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
          ) ())
       ) ())
    )) 
-   (for-each ((Tuple( kt t )) in (.unsafe-iter (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) )))) (
+   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
       (if (non-zero found) (
          (if (.is-arrow found) (
             (set found (&&( found kt )))
@@ -35,7 +35,7 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
    (let found ASTEOF)
    (let continue 1_u64)
    (for-each ( (Tuple( k vt def )) in
-               (.iter (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))) ) (
+               (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) )) ) (
       (if (&&( continue (==( k vname )) )) (
          (if (non-zero found) () (
             (set found def)
@@ -45,7 +45,7 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
          ) ())
       ) ())
    ))
-   (for-each ((Tuple( kt t )) in (.iter (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) )))) (
+   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
       (if (non-zero found) () (
          (set found t)
       ))
@@ -60,7 +60,7 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String)(: tt Type). 
    (let found ASTEOF)
    (let continue 1_u64)
    (for-each ( (Tuple( k vt def )) in
-               (.iter (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))) ) (
+               (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) )) ) (
       (if (&&( continue (==( k vname )) )) (
          (if (non-zero found) (
             (if (==( f-type vt )) (set found def) ())
@@ -72,7 +72,7 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String)(: tt Type). 
          ) ())
       ) ())
    ))
-   (for-each ((Tuple( kt t )) in (.iter (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) )))) (
+   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
       (if (non-zero found) (
          (if (==( f-type kt )) (set found t) ())
       ) (

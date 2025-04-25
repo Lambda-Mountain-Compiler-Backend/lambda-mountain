@@ -1,10 +1,10 @@
 
 let validate-interfaces(): Nil = (
-   for Tuple{ base-type=first, reified-interface-type=second, blame=third } in interface-implementors.iter() {
+   for Tuple{ base-type=first, reified-interface-type=second, blame=third } in interface-implementors {
       (let self-type, let interface-type) = interface-self-index.lookup(reified-interface-type.ground-tag-and-arity, (TAny, TAny));
       let tctx = union( unify(self-type, base-type), unify(interface-type, reified-interface-type) );
       for Tuple{ symbol-name=first, args-type=second, return-type=third } in
-          interface-shape-index.lookup(interface-type.ground-tag-and-arity, [] :: List<(CString,Type,Type)>).iter() {
+          interface-shape-index.lookup(interface-type.ground-tag-and-arity, [] :: List<(CString,Type,Type)>) {
          args-type = denormalize(substitute(tctx, args-type).reify-type-variables);
          return-type = substitute(tctx, return-type).reify-type-variables;
          let function-type = typeof-var-raw( blame, None :: Maybe<TContext>, symbol-name );

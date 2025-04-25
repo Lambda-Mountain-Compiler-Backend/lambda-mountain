@@ -46,7 +46,7 @@ substitute := λ(: tctx Maybe<TContext>)(: t AST). (: (
          ))) )))
          (let found 0_u64)
          (for-each ( (Tuple( tk tv ta )) in
-             (.iter (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) )))
+             (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))
          ) (
             (if (&&( (not found) (==( tk v )) )) (
                (set t (App( (close(Lit( ':_s (unique ctk) ))) (close(App(
@@ -64,7 +64,7 @@ substitute := λ(: tctx Maybe<TContext>)(: t AST). (: (
          ))) )))
          (let found 0_u64)
          (for-each ( (Tuple( tk tv ta )) in
-             (.iter (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) )))
+             (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))
          ) (
             (if (&&( (not found) (==( tk v )) )) (
                (set t (App( (close(Lit( ':_s (unique ctk) ))) (close(App(

@@ -7,14 +7,14 @@ let add-alias(from: CString, to: CString, tt: Type): Nil = (
 
 let find-alias(from: CString, pars: Type): CString = (
    let to = from;
-   for Tuple{alt-from=first, alt-to=second, third:TGround{tag:c"Arrow",parameters:[_..alt-domain..]}} in alias-index.unsafe-iter() {
+   for Tuple{alt-from=first, alt-to=second, third:TGround{tag:c"Arrow",parameters:[_..alt-domain..]}} in alias-index {
       if from==alt-from && can-unify(alt-domain,pars) { to = alt-to };
    }; to
 );
 
 let find-alias-type(from: CString): Type = (
    let to = TAny;
-   for Tuple{alt-from=first, alt-to=second, alt-tt=third} in alias-index.unsafe-iter() {
+   for Tuple{alt-from=first, alt-to=second, alt-tt=third} in alias-index {
       if from==alt-from { to = to && alt-tt };
    }; to
 );

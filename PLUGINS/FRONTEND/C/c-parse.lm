@@ -180,7 +180,7 @@ c-print-token-sequence := λ(: from List<String>)(: to List<String>). (: (
 c-mangle-typename := λ(: tokens List<String>). (: (
    (let rs (: LEOF List<String>))
    (let fancy 0_u64)
-   (for-each (t in (.unsafe-iter (cons( 'C_s tokens )))) (
+   (for-each (t in (cons( 'C_s tokens ))) (
       (set fancy (||( fancy (.contains( t '__s )) )))
       (set rs (cons(
          (.replace( t '__s '___s ))

@@ -10,9 +10,7 @@ let deep-hash(tt: Type): U64 = (
 
 let deep-hash(ts: List<Type>): U64 = (
    let return = 0_u64;
-   for t1 in ts.unsafe-iter() {
-      return = return + deep-hash(t1);
-   };
+   for t1 in ts { return = return + deep-hash(t1); };
    return;
 );
 

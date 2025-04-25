@@ -1,12 +1,10 @@
 
 let reduce-plural(dpts: List<Type>): List<Type> = (
    let pts = [] :: List<Tuple<Type,Type>>;
-   for pt in dpts.iter() {
-      pts = cons(Tuple{denormalize-arrow(pt),pt},pts);
-   };
+   for pt in dpts { pts = cons(Tuple{denormalize-arrow(pt),pt},pts); };
    let return = [] :: List<Type>;
-   for Tuple{try-denormal=first, try=second} in pts.unsafe-iter() {
-      for Tuple{tst-denormal=first, tst=second} in pts.unsafe-iter() {
+   for Tuple{try-denormal=first, try=second} in pts {
+      for Tuple{tst-denormal=first, tst=second} in pts {
          if not(is(try-denormal,tst-denormal)) && can-unify(try-denormal.domain, tst-denormal.domain) {
             try = TAny{};
          }

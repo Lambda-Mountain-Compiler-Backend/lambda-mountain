@@ -36,16 +36,16 @@ let apply(function-name: CString, function-type: Type, parameters: Type, do-spec
    if rs.length > 1 {
       r = t1(c"Error: Function Application Yielded An Irreducible Plurality Of Matches");
       function-type = head(rs);
-      for candidate in tail(rs).iter() {
+      for candidate in tail(rs) {
          function-type = function-type && candidate;
       };
    } else {
-      for sft in rs.iter() { # iterate in case this is a hook
+      for sft in rs { # iterate in case this is a hook
          let frt = sft.range;
          let fpt = sft.domain;
          let ctx = unify(fpt, parameters);
          let phi-ctx = ctx;
-         for phi-row in phi-ctx.get-or([] :: TContext).iter() {
+         for phi-row in phi-ctx.get-or([] :: TContext) {
             match phi-row {
                Tuple{ first:c"Phi::Transition", typ=second, third:Var{pid=key} } => (
                   phi-types = cons( Tuple{ pid, typ }, phi-types );

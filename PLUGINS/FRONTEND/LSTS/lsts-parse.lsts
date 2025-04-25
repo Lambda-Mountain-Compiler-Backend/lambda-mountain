@@ -253,7 +253,7 @@ let lsts-parse-lhs-list(tokens: List<Token>): Tuple<AST,List<Token>> = (
          }
       };
       base = head(bases); bases = tail(bases);
-      for b in bases.iter() {
+      for b in bases {
          base = App {
             close(Var{ c"macro::lhs-head", with-location(mk-token("macro::lhs-head"),loc) }),
             close(App{ close(b), close(base) })
@@ -341,7 +341,7 @@ let lsts-make-maybe-var(tokens: List<Token>): Tuple<AST,List<Token>> = (
 
 let lsts-is-lit(s: CString): U64 = (
    let r = 0_u64;
-   for Tuple { sfxs=first } in parse-suffixes.unsafe-iter() {
+   for Tuple { sfxs=first } in parse-suffixes {
       r = r || s.has-suffix(sfxs);
    }; r;
 );
@@ -482,7 +482,7 @@ let lsts-parse-list(tokens: List<Token>): Tuple<AST,List<Token>> = (
                lsts-parse-expect(c",", tokens); tokens = tail(tokens);
             }
          };
-         for add-item in add-items.unsafe-iter() {
+         for add-item in add-items {
             term = App {
                close(Var{ c"list::cons", with-location(mk-token("list::cons"),loc) }),
                close(App{ close(add-item), close(term) })
@@ -1001,7 +1001,7 @@ let lsts-parse-assign(tokens: List<Token>): Tuple<AST,List<Token>> = (
          };
 
          let i = 0_u64;
-         for lhs in lefts.iter() {
+         for lhs in lefts {
             let fieldstr = c"." + to-string(i+1);
             let rexpr = close(App {
                close(Var{ fieldstr, with-location(mk-token(fieldstr),loc) }),

@@ -2,7 +2,7 @@
 let phi-transition(ctx: Maybe<TContext>, phi-id: CString, phi-new-type: Type): Maybe<TContext> = (
    let iter-ctx = ctx;
    let found = false;
-   for Tuple{ key=first, typ=second, term=third } in iter-ctx.get-or([] :: TContext).iter() {
+   for Tuple{ key=first, typ=second, term=third } in iter-ctx.get-or([] :: TContext) {
       if not(found) && typ.contains-phi(phi-id) {
          ctx = ctx.bind( key, typ.replace-phi(phi-id, phi-new-type), term );
          found = true;

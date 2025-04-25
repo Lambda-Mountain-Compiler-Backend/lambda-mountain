@@ -20,7 +20,7 @@ compile-c-typedef-ordinal := λ(: base-type Type). (: (
          ()
          ( (TGround( tag ts )) (
             (let k (Tuple( tag (.length ts) )))
-            (for-each (vt in (.unsafe-iter (.lookup( concrete-type-instances-index k (: LEOF List<Type>) )))) (
+            (for-each (vt in (.lookup( concrete-type-instances-index k (: LEOF List<Type>) ))) (
                (compile-c-typedef-concrete-ordinal( vt ))
             ))
          ))
@@ -37,12 +37,12 @@ try-continue-compile-c-typedefs := λ. (: (
       (set continue-compile-c-typedefs-count (+( continue-compile-c-typedefs-count 1_u64 )))
       (if (>( continue-compile-c-typedefs-count 100_u64 )) (
          (print 'Unable\sTo\sResolve\sCircular\sType\sDependency\sDuring\sCompilation\n_s)
-         (for-each ((Tuple( (Tuple( _ base-type )) td )) in (.unsafe-iter continue)) (
+         (for-each ((Tuple( (Tuple( _ base-type )) td )) in continue) (
             (print 'Typedef:\s_s)(print base-type)(print '\n_s)
          ))
          (exit 1_u64)
       ) ())
-      (for-each ( (Tuple( (Tuple( tctx base-type )) body )) in (.unsafe-iter continue ) ) (
+      (for-each ( (Tuple( (Tuple( tctx base-type )) body )) in continue ) (
          (if (.is-open base-type) () (
             (compile-c-typedef-concrete( tctx base-type body ))
          ))
@@ -153,7 +153,7 @@ compile-c-typedef := λ(: base-type Type)(: body AST). (: (
          ()
          ( (TGround( tag ts )) (
             (let k (Tuple( tag (.length ts) )))
-            (for-each (vt in (.unsafe-iter (.lookup( concrete-type-instances-index k (: LEOF List<Type>) )))) (
+            (for-each (vt in (.lookup( concrete-type-instances-index k (: LEOF List<Type>) ))) (
                (let tctx (unify( base-type vt )))
                (compile-c-typedef-concrete( tctx vt body ))
             ))
@@ -190,7 +190,7 @@ compile-c-mark-field-as-seen := λ(: tt Type). (: (
       (match tt (
          ()
          ( (TGround( 'Array_s tt-ps )) (
-            (for-each (child in (.unsafe-iter tt-ps)) (
+            (for-each (child in tt-ps) (
                (compile-c-mark-field-as-seen child)
             ))
          ))
@@ -210,7 +210,7 @@ compile-c-mark-field-as-seen := λ(: tt Type). (: (
             (match tt (
                ()
                ( (TGround( _ tt-ps )) (
-                  (for-each (child in (.unsafe-iter tt-ps)) (
+                  (for-each (child in tt-ps) (
                      (compile-c-mark-field-as-seen child)
                   ))
                ))

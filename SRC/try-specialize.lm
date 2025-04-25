@@ -1,7 +1,7 @@
 
 
 try-specialize := λ(: function-name String)(: ft Type)(: unify-ctx Maybe<TContext>)(: result-type Type). (: (
-   (for-each ((Tuple( kt t )) in (.unsafe-iter (.lookup( global-type-context function-name (: LEOF List<Tuple<Type,AST>>) )))) (
+   (for-each ((Tuple( kt t )) in (.lookup( global-type-context function-name (: LEOF List<Tuple<Type,AST>>) ))) (
       (let special-type result-type)
       (if (.is-t( kt 'Blob_s )) () (
          (set special-type (normalize special-type))

@@ -8,7 +8,7 @@ let .is-open(tt: Type): U64 = (
       TGround { tag:c"Array", parameters:[_.. base-type..] } => base-type.is-open;
       TGround { parameters=parameters } => (
          let is-open = false;
-         for p in parameters.iter() { is-open = is-open || p.is-open; };
+         for p in parameters { is-open = is-open || p.is-open; };
          is-open;
       );
    }

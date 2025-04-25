@@ -21,7 +21,7 @@ let print(io: IO::File, tt: Type): Nil = (
 
 let print(io: IO::File, ps: List<Type>): Nil = (
    let count = 0_u64;
-   for p1 in ps.reverse().iter() {
+   for p1 in ps.reverse {
       if count > 0 then print(io, ",");
       print(io, p1);
       count = count + 1;

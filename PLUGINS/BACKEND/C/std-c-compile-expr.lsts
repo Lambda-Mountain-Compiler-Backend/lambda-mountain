@@ -65,7 +65,7 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
             );
             _ => terms = ASTEOF;
          }};
-         for ct in terms-list.iter() {
+         for ct in terms-list {
             let f = std-c-compile-expr(ctx, ct, true);
             ctx = open(f.context);
             e = std-c-chain( e, f, true );

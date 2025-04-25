@@ -79,7 +79,7 @@ preprocess-apply-one := λ(: program AST). (: (
          (set r (App( (close(Var( 'sizeof_s (unique stk) ))) (close(AType(parse-type mtype))) )))
       ))
       ( (Lit( l ltk )) (
-         (for-each ((Tuple( sfxs sfxtt )) in (.unsafe-iter parse-suffixes )) (
+         (for-each ((Tuple( sfxs sfxtt )) in parse-suffixes) (
             (if (.has-suffix( l sfxs )) (
                (let lpfx (.remove-suffix( l sfxs )))
                (set r (App(
@@ -90,7 +90,7 @@ preprocess-apply-one := λ(: program AST). (: (
          ))
       ))
       ( (Var( l ltk )) (
-         (for-each ((Tuple( sfxs sfxtt )) in (.unsafe-iter parse-suffixes)) (
+         (for-each ((Tuple( sfxs sfxtt )) in parse-suffixes) (
             (if (.has-suffix( l sfxs )) (
                (let lpfx (.remove-suffix( l sfxs )))
                (set r (App(

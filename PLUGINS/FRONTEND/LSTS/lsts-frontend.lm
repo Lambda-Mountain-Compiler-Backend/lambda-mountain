@@ -3,4 +3,4 @@ lsts-frontend := λ(: fp String). (: (
    (lsts-parse(lsts-tokenize fp))
 ) Nil);
 
-(register-frontend( 'lsts_s lsts-frontend ));
+(register-frontend( '.lsts_s lsts-frontend ));

@@ -5,7 +5,7 @@ let std-c-declare(t: CTerm): Nil = (
       CBinaryOp{op:c"Declaration",spec=arg1,arg2:CMaybe{value:Some{content:CList{inits=value}}}} => (
          (let return-type, let misc-types) = std-c-type-of-specifiers(spec);
          return-type = return-type && t1(c"C-FFI");
-         for init in inits.iter() { match init {
+         for init in inits { match init {
             CBinaryOp{op:c"=", arg1:CIdentifier{name=value}, value=arg2} => (
                ast-parsed-program = ast-parsed-program + Glb{
                   mk-token(name), close(App{ false,
@@ -81,7 +81,7 @@ let std-c-expr-of-statement(t: CTerm): AST = (
    match t {
       CCompound{terms=terms} => (
          let inner = ASTNil;
-         for it in terms.iter() {
+         for it in terms {
             inner = App{ true, close(inner), close(std-c-expr-of-statement(it)) };
          };
          App{ false, close(Var{c"c::compound", mk-token(c"c::compound")}), close(inner) }
@@ -135,7 +135,7 @@ let std-c-expr-of-statement(t: CTerm): AST = (
          (let return-type, let misc-types) = std-c-type-of-specifiers(spec);
          return-type = return-type && t1(c"C-FFI");
          let expr = ASTEOF;
-         for decl in decls.iter() {match decl {
+         for decl in decls {match decl {
             CIdentifier{name=value} => (
                let d = App{
                   close(App{

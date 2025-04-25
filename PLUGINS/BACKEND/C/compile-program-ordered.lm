@@ -8,7 +8,7 @@ compile-program-ordered := λ(: global-ctx FContext)(: program AST). (: (
          (set program rst)
       ))
    )))
-   (for-each (g in (.unsafe-iter ordered)) (match g (
+   (for-each (g in ordered) (match g (
       ()
       ( (Glb( k_t rhs )) (
          (if (.is-open(typeof g)) () (

@@ -104,7 +104,7 @@ let std-c-tokenize-string(file-path: String, text: String): List<Token> = (
    }; };
 
    let internal-tokens = [] :: List<Token>;
-   for t in tokens.unsafe-iter() {
+   for t in tokens {
       internal-tokens = cons( mk-token(t), internal-tokens );
    };
 
