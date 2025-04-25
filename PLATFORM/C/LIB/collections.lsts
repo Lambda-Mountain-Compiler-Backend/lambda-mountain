@@ -21,6 +21,10 @@ interface Iterable<t> {
    let .unsafe-iter(x: self): Iterator<t>;
 };
 
+type Iterator<t> implements Iterable<t>;
+let .iter(x: t+Iterator<x>): t = ( x );
+let .unsafe-iter(x: t+Iterator<x>): t = ( x );
+
 interface IteratorRemaining {
    let .remaining(x: self + Iterator<t>): U64;
 };
@@ -171,8 +175,8 @@ let .zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): ZipIterator<ait,bit> = (
 );
 
 type TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>> = TryZipIterator { aii: ai, bii: bi };
-type TryZipIterator<Iterator<at>, Iterator<bt>> implements Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
-type TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining> implements IteratorRemaining;
+type TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>> implements Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
+type TryZipIterator<ai+Iterator<at>+IteratorRemaining, bi+Iterator<bt>+IteratorRemaining> implements IteratorRemaining;
 
 let .remaining(self: TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining>): U64 = (
    max(self.aii.remaining(), self.bii.remaining())
