@@ -12,14 +12,11 @@ let std-c-tokenize-string(file-path: String, text: String): List<Token> = (
       "\t".. rest => text = rest;
       "\n".. rest => text = rest;
 
-      (comment=r/^\/\/[^\n]*/).. rest => (
+      (comment=r/^\/\/.*?(?:\r\n|\n|$)/).. rest => (
          text = rest;
       );
 
-      # TODO, allow * character in block comments
-      # posix extended regular expressions don't do well here
-      # this isn't very important though because cpp should remove comments
-      (comment=r/\/[*]([^*])*[*]\//).. rest => (
+      (comment=r/^\/\*(?:.|\s)*?\*\//).. rest => (
          text = rest;
       );
 
@@ -72,23 +69,23 @@ let std-c-tokenize-string(file-path: String, text: String): List<Token> = (
       ".".. rest => (tokens = cons(text[:".".length], tokens); text = rest;);
       "-".. rest => (tokens = cons(text[:"-".length], tokens); text = rest;);
 
-      (cl=r/^[0][x][0-9a-fA-F]+([.][0-9a-fA-F]+)?([eE][0-9a-fA-F]+)?([pP][0-9]+)(fF)?/).. rest => (
+      (cl=r/^[0][x][0-9a-fA-F]+(\.[0-9a-fA-F]+)?([eE][0-9a-fA-F]+)?([pP][0-9]+)(fF)?/).. rest => (
          tokens = cons(text[:cl.length], tokens); text = rest;
       );
-      (cl=r/^[0][x][0-9a-fA-F]+([uU]|[lL]|wb|WB)*/).. rest => (
+      (cl=r/^[0][x][0-9a-fA-F]+?([uU]|[lL]|wb|WB)*/).. rest => (
          tokens = cons(text[:cl.length], tokens); text = rest;
       );
-      (cl=r/^[0][bB][01]+([uU]|[lL]|wb|WB)*/).. rest => (
+      (cl=r/^[0][bB][01]+?([uU]|[lL]|wb|WB)*/).. rest => (
          tokens = cons(text[:cl.length], tokens); text = rest;
       );
-      (cl=r/^[0-9]+([uU]|[lL]|wb|WB)*([.][0-9]+)?([eE][0-9]+)?[fF]?/).. rest => (
+      (cl=r/^[0-9]+?([uU]|[lL]|wb|WB)*?(\.[0-9]+?)?([eE][0-9]+?)?[fF]?/).. rest => (
          tokens = cons(text[:cl.length], tokens); text = rest;
       );
-      (cl=r/^(u8|u|U|L)?[']([^']|([\\][']))+[']/).. rest => (
+      (cl=r/^(u8|u|U|L)?[']([^']|([\\][']))+?[']/).. rest => (
          tokens = cons(text[:cl.length], tokens); text = rest;
       );
 
-      (lit=r/^[RLuU8]*["]([^"\\]|([\\].))*["]/).. rest => (
+      (lit=r/^[RLuU8]*?["]([^"\\]|([\\].))*?["]/).. rest => (
          tokens = cons(text[:lit.length], tokens); text = rest;
       );
 
