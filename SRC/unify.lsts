@@ -24,17 +24,12 @@ let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
          ctx = union(unify-inner(lt, rt1), unify-inner(lt, rt2));
       );
 
+      # Ignore C Access Modifiers For Now
+      Tuple{ first:TGround{tag:c"C", parameters:[TGround{tag:c"const"}..]} } => yes;
+
       # Literal Constants
       Tuple{ first:TGround{tag:c"CONST"}, second:TGround{c=tag} } => (
          if c.is-digit || c==c"CONST" { ctx = yes; }
-      );
-
-      # Phi Types
-      Tuple{
-         first:TGround{tag:c"Phi", parameters:[to_phi.. TGround{from_phi=tag}..]},
-         second:TGround{tag:c"Phi", parameters:[TGround{state_phi=tag}.. TGround{id_phi=tag}..]}
-      } => (
-         if from_phi == state_phi { ctx = ctx.bind(c"Phi::Transition", to_phi, Var{id_phi, mk-token(id_phi)}); }
       );
 
       # Varargs
@@ -76,7 +71,16 @@ let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
       Tuple{
           first:TGround{tag:c"Arrow", parameters:[lrng.. ldom..]},
           second:TGround{tag:c"Arrow", parameters:[rrng.. rdom..]}
-      } => (ctx = unify-inner(rdom, ldom) && unify-inner(ldom, rdom));
+      } => (
+          let tctx = unify-inner(rdom, ldom);
+          if tctx.is-some {
+            if rdom.is-open {
+               ctx = tctx && unify-inner(lrng, substitute(tctx,rrng));
+            } else {
+               ctx = tctx && unify-inner(lrng, rrng)
+            }
+         }
+      );
 
       Tuple{
           first:TGround{ltn=tag, lps=parameters},

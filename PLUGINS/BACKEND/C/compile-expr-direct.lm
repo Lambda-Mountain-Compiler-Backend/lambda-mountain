@@ -6,123 +6,8 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
    (set.context( e (close ctx) ))
    (match term (
       ()
-      ( (AType _) (
-         (set e (.set( e 'expression_s (SAtom '0_s) )))
-      ))
-      ( ASTNil (
-         (set.type( e (denormalize(t1 'Nil_s)) ))
-         (set e (.set( e 'expression_s (SAtom '\[{}\]_s) )))
-      ))
-      ( ASTEOF () )
-      ( (Var( id _ )) (
-         # TODO, this is being called instead of function
-         (let def (.lookup( var-to-def-index term ASTEOF )))
-         (if (not(non-zero def)) (
-            (exit-error( (+( 'Unable\sTo\sFind\sVariable\sIn\sContext\s_s id )) term ))
-         ) ())
-         (set e (.lookup( std-c-fragment-context def e )))
-         (if (not(non-zero e)) (
-            (exit-error( (+( 'Unable\sTo\sFind\sVariable\sFragment\sIn\sContext\s_s id )) term ))
-         ) ())
-         (set.context( e (close ctx) ))
-      ))
-      ( (Lit( val _ )) (
-         (let ltype (typeof term))
-         (if (||( (||( (.is-t( ltype 'String_s )) (.is-t( ltype 'SmartString_s )) )) (.is-t( ltype 'Regex_s )) )) (
-            (if (.is-t( ltype 'String_s )) (
-               (set e (compile-declare-cstring( val )))
-            ) ())
-            (if (.is-t( ltype 'SmartString_s )) (
-               (let guid (.lookup( compile-smart-string-index val '_s )))
-               (if (non-zero guid) (
-                  (set e (.set( e 'expression_s (SAtom guid) )))
-               ) (
-                  (set guid (uuid()))
-                  (set e (.set( e 'expression_s (SAtom guid) )))
-                  (set compile-smart-string-index (.bind( compile-smart-string-index val guid )))
-                  (let lit (Lit( val (mk-token val) )))
-                  (ascript-normal( lit (t1 'String_s) ))
-                  (let intern-ss (compile-stack-calls( ctx 'intern_s TAny (typeof term) lit stack-offset Used )))
-                  (set assemble-header-section (+(
-                     assemble-header-section
-                     (+(
-                        (+( (mangle-c-type ltype) (SAtom '\s_s) ))
-                        (+( (SAtom guid) (SAtom '\:\n_s) ))
-                     ))
-                  )))
-                  (set assemble-string-initializer-section (+(
-                     assemble-string-initializer-section
-                     (+(
-                        (+( (SAtom guid) (SAtom '=_s) ))
-                        (+( (.get( intern-ss 'expression_s )) (SAtom '\:\n_s) ))
-                     ))
-                  )))
-               ))
-            ) ())
-            (if (.is-t( ltype 'Regex_s )) (
-               (let rgx-id (uuid()))
-               (set assemble-header-section (+(
-                  assemble-header-section
-                  (+( (+( (SAtom 'regex_t\s_s) (SAtom rgx-id) )) (SAtom '\:\n_s) ))
-               )))
-               (set assemble-global-initializer-section (+(
-                  assemble-global-initializer-section
-                  (+( (+( (+( (SAtom '{int\sreturn_code\s=\sregcomp\[&_s) (SAtom rgx-id) ))
-                      (+( (SAtom ',\s"_s) (escape-c-string val) )) ))
-                          (SAtom '",\sREG_EXTENDED\]\:if\[return_code\]{fprintf\[stderr,"Could\snot\scompile\sregex."\]\:exit\[1\]\:}}\:\n_s) ))
-               )))
-               (set e (mk-expression rgx-id))
-            ) ())
-         ) (
-            (let isa-fragment False_u8)
-            (if (==( isa-fragment True_u8 )) (
-               (set e (mk-expression val))
-            ) (
-               (if (.is-lm-struct(.with-only-class(typeof term))) (
-                  (let tag-index (index-of-tag val))
-                  (set e (.set( e 'expression_s (
-                     (+(
-                        (+(
-                           (SAtom '\[{_s)
-                           (mangle-c-type ltype)
-                        ))
-                        (+(
-                           (SAtom '\srvalue={_s)
-                           (+(
-                              (SAtom(to-string tag-index))
-                              (SAtom '}\:rvalue\:}\]_s)
-                           ))
-                        ))
-                     ))
-                  ))))
-               ) (
-                  (match val (
-                     ()
-                     ( 'True_s (set e (mk-expression '\[1\]_s)) )
-                     ( 'False_s (set e (mk-expression '\[0\]_s)) )
-                     ( '\\t_s (set e (mk-expression '\[9\]_s)) )
-                     ( '\\n_s (set e (mk-expression '\[10\]_s)) )
-                     ( '\\s_s (set e (mk-expression '\[32\]_s)) )
-                     ( '\\o_s (set e (mk-expression '\[35\]_s)) )
-                     ( '\\`_s (set e (mk-expression '\[39\]_s)) )
-                     ( '\\[_s (set e (mk-expression '\[40\]_s)) )
-                     ( '\\]_s (set e (mk-expression '\[41\]_s)) )
-                     ( '\\:_s (set e (mk-expression '\[59\]_s)) )
-                     ( _ (
-                        (if (.is-t( ltype 'L_s )) (
-                           (set e (.set( e 'expression_s (SAtom val) )))
-                        ) (
-                           (set e (.set( e 'expression_s (
-                              (+( (+( (SAtom '\[_s) (SAtom val) )) (SAtom '\]_s) ))
-                           ))))
-                        ))
-                     ))
-                  ))
-               ))
-            ))
-         ))
-         (set.context( e (close ctx) ))
-         (set.type( e (denormalize ltype) ))
+      ( (App( (Lit( ':_s _ )) (App( (Lit( _ _ )) (AType tt) )) )) (
+         (set e (std-c-compile-expr( ctx term false )))
       ))
       ( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) (
          (set e (compile-expr( ctx t stack-offset used )))
@@ -140,14 +25,14 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
                   (set e (compile-expr( ctx t stack-offset Used )))
                ) )
                ( (TGround( 'Array_s (LCons( TAny (LCons( inner-tt LEOF )) )) )) (
-                  (set e (compile-stack-calls( ctx 'open_s TAny (t1 'Nil_s) t stack-offset Used )))
+                  (set e (std-c-compile-call( ctx 'open_s (find-global-callable( 'open_s (typeof t) )) t )))
                ))
                ( (TGround( 'Array_s (LCons( array-length (LCons( inner-tt LEOF )) )) )) (
                   (set e (compile-expr( ctx t stack-offset Used )))
                ))
             ))
          ) (
-            (set e (compile-stack-calls( ctx 'open_s TAny (t1 'Nil_s) t stack-offset Used )))
+            (set e (std-c-compile-call( ctx 'open_s (find-global-callable( 'open_s (typeof t) )) t )))
          ))
       ))
       ( (App( (Var( 'sizeof_s _ )) (AType tt) )) (
@@ -218,7 +103,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (set.type( e (typeof term) ))
       ))
       ( (App( (Abs( (@( lhs-t (Var( lhs _ )) )) ASTNil tlt )) rhs )) (
-         (let rtype (typeof lhs-t))
+         (let rtype (.without-modifiers(typeof lhs-t)))
          (let fr (fragment::local-variable( 0_i64 rtype )))
          (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t fr )))
          (set ctx (.bind( ctx lhs rtype fr )))
@@ -332,6 +217,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             )))
          ))
       ))
+      ( _ (set e (std-c-compile-expr( ctx term false ))) )
    ))
    e
 ) Fragment);

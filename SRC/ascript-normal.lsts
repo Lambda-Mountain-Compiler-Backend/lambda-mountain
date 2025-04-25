@@ -4,7 +4,7 @@ let ascript-normal(t: AST, tt: Type): Nil = (
       let prev-tt = typeof(t);
       if non-zero(prev-tt) {
          if not(tt.is-arrow) {
-            let norm-tt = denormalize(normalize(tt));
+            let norm-tt = normalize(tt);
             if not(can-unify(norm-tt,prev-tt)) {
                exit-error("Type Ascription Inequality\n\{normalize(typeof(t))} does not imply \{normalize(tt)}", t);
             }

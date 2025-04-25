@@ -1,9 +1,9 @@
 
 
-# order is important here because
-# LessThan.0 = 0
-# Equal.0 = 1
-# GreaterThan.0 = 2
+## order is important here because
+## [type(LessThan)].0 = 0
+## [type(Equal)].0 = 1
+## [type(GreaterThan)].0 = 2
 type Ord = GreaterThan | Equal | LessThan;
 
 let $"=="(l: Ord, r: Ord): U64 = $".0"(l) == $".0"(r);

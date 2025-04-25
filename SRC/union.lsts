@@ -1,6 +1,6 @@
 
 let union(l: Maybe<AContext>, r: Maybe<AContext>): Maybe<AContext> = (
    if l.is-some && r.is-some then (
-      Some { l.get-or([] :: AContext) + r.get-or([] :: AContext) }
+      Some { l.get-or-panic + r.get-or-panic }
    ) else (None :: Maybe<AContext>)
 );

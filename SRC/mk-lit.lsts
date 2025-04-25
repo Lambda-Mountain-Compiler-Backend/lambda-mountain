@@ -1,0 +1,8 @@
+
+let mk-lit(val: CString): AST = (
+   Lit{ val, mk-token(val) }
+);
+
+let mk-lit(val: SmartString): AST = (
+   Lit{ untern(val), mk-token(val) }
+);

@@ -1,37 +1,37 @@
 
-# string type optimized for use in databases and small strings
-#
-# this is a implementation of the UmbraDB string type (also known as german string)
-#
-# when to use:
-# -you know that your strings tend to be short (<= 12 bytes)
-# - you need to use [.has-prefix] or [==] on a lot of strings:
-#   if you have a hash table of strings, remember that it only uses
-#   the comparision operators if there are hash collissions
-#
-# how it works:
-# - the length of the string is stored on the stack (4B)
-# - if the string fits into 12 bytes, it is stored as [UmbraShort] string,
-#   which stores the 12 bytes of the string on the stack
-# - if the string does not fit into 12 bytes, it is stored as [UmbraLong] string,
-#   which stores the first 4 bytes of the string on the stack,
-#   and the whole string (including the first 4 bytes!) on the heap
-#
-# problems with the implementation:
-# - the compiler stores the type of the variant in the struct,
-#   even though it can be gotten from the length.
-#   that does not have a big performance impact in most applications
-# - for [UmbraLong]: the [.nth] implementation loads from the prefix if the index is less than 4,
-#   which is good in many scenarios, but the compiler does not know that it is
-#   just as safe to load from the memory directly (because of the if expression),
-#   which hurts vectorization a lot.
-#   If you know that that might happen, you might be able to use the [addr] function
-#
-# TODOs:
-# - maybe there should be an alternative string implementation optimizes for even shorter strings (8 bytes),
-#   which does not store the prefix
-# - maybe null-terminate the string if, any only if, it is stored as [UmbraLong]
-# - maybe padd the short array with zeros
+## string type optimized for use in databases and small strings
+##
+## this is a implementation of the UmbraDB string type (also known as german string)
+##
+## when to use:
+## -you know that your strings tend to be short (<= 12 bytes)
+## - you need to use [.has-prefix] or [$"=="] on a lot of strings:
+##   if you have a hash table of strings, remember that it only uses
+##   the comparision operators if there are hash collissions
+##
+## how it works:
+## - the length of the string is stored on the stack (4B)
+## - if the string fits into 12 bytes, it is stored as [type(UmbraShort)] string,
+##   which stores the 12 bytes of the string on the stack
+## - if the string does not fit into 12 bytes, it is stored as [type(UmbraLong)] string,
+##   which stores the first 4 bytes of the string on the stack,
+##   and the whole string (including the first 4 bytes!) on the heap
+##
+## problems with the implementation:
+## - the compiler stores the type of the variant in the struct,
+##   even though it can be gotten from the length.
+##   that does not have a big performance impact in most applications
+## - for [type(UmbraLong)]: the [.nth] implementation loads from the prefix if the index is less than 4,
+##   which is good in many scenarios, but the compiler does not know that it is
+##   just as safe to load from the memory directly (because of the if expression),
+##   which hurts vectorization a lot.
+##   If you know that that might happen, you might be able to use the [addr] function
+##
+## TODO:
+## - there should be an alternative string implementation optimizes for even shorter strings (8 bytes),
+##   which does not store the prefix
+## - maybe null-terminate the string if, any only if, it is stored as [type(UmbraLong)]
+## - maybe padd the short array with zeros
 
 type UmbraShortLong = UmbraShort { arr: U8[12] } | UmbraLong { prefix: U8[4], ptr: U8[] };
 
@@ -44,8 +44,8 @@ let .length(s: Umbra[]): U64 = (
     s.len as U64
 );
 
-# using this in a vectorizable loop can break vectorization 
-# if you know that your loop is vectorizable, consider using [addr]
+## using this in a vectorizable loop can break vectorization 
+## if you know that your loop is vectorizable, consider using [addr]
 let $"[]"(s: Umbra[], i: U64): U8 = (
     match raw s.backing {
         UmbraShort { raw arr=arr } => arr[i];
@@ -59,7 +59,7 @@ let $"[]"(s: Umbra[], i: U64): U8 = (
     }
 );
 
-# DOES NOT CLONE THE STRING
+## DOES NOT CLONE THE STRING
 let $"set[]"(s: Umbra[], i: U64, v: U8): Nil = (
    match raw s.backing {
       UmbraShort { raw arr=arr } => ( 
@@ -74,11 +74,11 @@ let $"set[]"(s: Umbra[], i: U64, v: U8): Nil = (
    }; ()
 );
 
-# the returned array is NOT a C string!
-# the returned array is only valid for [.length] bytes
-# the returned array is READ ONLY
-# for [UmbraLong], returns the pointer to the heap data 
-# for [UmbraShort], returns the pointer to the on-stack data
+## the returned array is NOT a C string!
+## the returned array is only valid for [.length] bytes
+## the returned array is READ ONLY
+## for [type(UmbraLong)], returns the pointer to the heap data 
+## for [type(UmbraShort)], returns the pointer to the on-stack data
 let addr(s: Umbra[]): U8[] = (
     match raw s.backing {
         UmbraShort { raw arr=arr } => (
@@ -90,8 +90,8 @@ let addr(s: Umbra[]): U8[] = (
     }
 );
 
-# like [clone-len], except that if the input string is a UmbraLong, 
-# it does NOT copy the heap allocation
+## like [clone-len], except that if the input string is a UmbraLong, 
+## it does NOT copy the heap allocation
 let view-len(u: Umbra[], len: U64): Umbra = (
     if (len <= 12_u64) && (u.len > 12_u32) {
         # shrinks to UmbraShort
@@ -124,7 +124,7 @@ let short-prefix-matches(a: Umbra[], b: Umbra[]): U64 = (
     (a[3_u64] == b[3_u64])
 );
 
-# performance note: this is extremly fast if the pfx string is known to be <= 4 bytes at compile time
+## performance note: this is extremly fast if the pfx string is known to be <= 4 bytes at compile time
 let .has-prefix(base: Umbra[], pfx: Umbra[]): U64 = (
     if pfx.length() > base.length() {
         0_u64
@@ -216,15 +216,9 @@ let new-umbra(length: U64): Umbra = (
     }
 );
 
-# clones input to umbra string
-let .into(s: st+Collection<t>, t: Type<Umbra>): Umbra = (
-    let out = new-umbra(s.length);
-    let i = 0_u64;
-    while i < s.length {
-        &out[i] = s[i];
-        i = i + 1_u64;
-    };
-    out
+## clones input to umbra string
+let .into(s: t, t: Type<Umbra>): Umbra = (
+    to-umbra(s, s.length())
 );
 
 let .into(self: Umbra, t: Type<Vector<U8>>): Vector<U8> = (
@@ -247,6 +241,17 @@ let .into(self: Umbra, t: Type<CString>): CString = (
 let .into(self: Umbra, t: Type<SmartString>): SmartString = (
    let v = self.into(type(CString));
    intern(v);
+);
+
+## clones input to umbra string BUT only includes the first [len] characters
+let to-umbra(s: t, len: U64): Umbra = (
+    let out = new-umbra(len);
+    let i = 0_u64;
+    while i < len {
+        &out[i] = s[i];
+        i = i + 1_u64;
+    };
+    out
 );
 
 let concat-to-umbra(l: tl, r: tr): Umbra = (

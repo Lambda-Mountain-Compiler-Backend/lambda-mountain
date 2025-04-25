@@ -36,11 +36,8 @@ parse-toplevel := λ(: tokens List<Token>). (: (
             (match (parse-many-expressions remainder) (
                ()
                ( (PME( m r1 )) (
-                  (set program (Seq(
-                     (close program)
-                     (close (Meta( (close m) )))
-                  )))
-                  (set tokens r1)
+                 (set tokens r1)
+                  # ignored. just use lsts
                ))
             ))
          ))

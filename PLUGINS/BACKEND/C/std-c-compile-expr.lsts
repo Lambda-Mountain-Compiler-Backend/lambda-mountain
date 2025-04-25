@@ -5,11 +5,15 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
          let def = var-to-def-index.lookup(t, ASTEOF);
          let e = std-c-fragment-context.lookup(def, mk-fragment());
          if not(non-zero(e)) {
-            exit-error( untern("Unable to Find Variable Fragment in Context \{key}\n"), t );
+            exit-error( untern("Unable to Find Variable Fragment in Context: \{key}"), t );
          }; e
       );
       AType{ tt=tt } => (
-         mk-fragment().set(c"expression",std-c-mangle-type(tt));
+         if tt.is-t(c"Type") {
+            mk-fragment().set(c"expression",SAtom{c"0"});
+         } else {
+            mk-fragment().set(c"expression",std-c-mangle-type(tt));
+         }
       );
       App{ left:Abs{lhs=lhs:Var{name=key}, rhs:ASTNil{}}, rhs=right } => (
          let lt = typeof(lhs);
@@ -17,10 +21,14 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
          let f = mk-fragment();
          std-c-fragment-context = std-c-fragment-context.bind( lhs, v );
          ctx = ctx.bind( name, lt, v );
-         (let pre, let post) = std-c-mangle-declaration(lt);
-         f = f.set(c"frame", f.get(c"frame") + pre + SAtom{c" "}
-                 + v.get(c"expression")
-                 + SAtom{c" "} + post + SAtom{c";"});
+         if lt.is-t(c"C") && lt.slot(c"C").r1.is-t(c":Label") {
+            f = f.set(c"expression", v.get(c"expression") + SAtom{c":"});
+         } else {
+            (let pre, let post) = std-c-mangle-declaration(lt);
+            f = f.set(c"frame", f.get(c"frame") + pre + SAtom{c" "}
+                    + v.get(c"expression")
+                    + SAtom{c" "} + post + SAtom{c";"});
+         };
          match rhs {
             App{ left:Lit{key:c":"}, right:App{ left:Var{key:c"__uninitialized"}, right:AType{tt=tt} } } => ();
             _ => (
@@ -39,7 +47,8 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
             f.get(c"expression") + SAtom{c")"}
          );
       );
-      App{ left:Lit{key:c":"}, right:App{ left:Lit{val=key}, right:AType{tt=tt} } } => (
+      Lit{val=key} => (
+         let tt = typeof(t);
          if tt.is-t(c"C") && tt.r1.is-t(c"uint8_t") then mk-expression(val)
          else if tt.is-t(c"C") && tt.r1.is-t(c"uint16_t") then mk-expression(val)
          else if tt.is-t(c"C") && tt.r1.is-t(c"uint32_t") then mk-expression(val)
@@ -48,7 +57,49 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
          else if tt.is-t(c"C") && tt.r1.is-t(c"int16_t") then mk-expression(val)
          else if tt.is-t(c"C") && tt.r1.is-t(c"int32_t") then mk-expression(val)
          else if tt.is-t(c"C") && tt.r1.is-t(c"int64_t") then mk-expression(val)
-         else (fail("Unknown C Literal Type: \{tt}"); mk-fragment());
+         else if tt.is-t(c"C") && tt.r1.is-t(c":Label") then mk-expression(val)
+         else if tt.is-t(c"L") then mk-expression(val)
+         else if tt.is-t(c"String") then mk-expression(val.escape-as-cstring)
+         else if tt.is-t(c"SmartString") { 
+            let guid = compile-smart-string-index.lookup(val,c"");
+            if non-zero(guid) then mk-expression(guid) else {
+               guid = uuid();
+               compile-smart-string-index = compile-smart-string-index.bind(val,guid);
+               let lit = mk-lit(val); ascript-normal(lit, t1(c"String"));
+               let intern-ss = std-c-compile-call(ctx, c"intern", find-global-callable(c"intern", t1(c"String")), lit);
+               assemble-header-section = assemble-header-section +
+               mangle-c-type(typeof(t)) + SAtom{c" "} + SAtom{guid} + SAtom{c";\n"};
+               assemble-string-initializer-section = assemble-string-initializer-section +
+               SAtom{guid} + SAtom{c"="} + intern-ss.get(c"expression") + SAtom{c";\n"};
+               mk-expression(SAtom{guid});
+            }
+         } else if tt.is-t(c"Regex") {
+            let rgx-id = uuid();
+            assemble-header-section = assemble-header-section +
+            SAtom{c"regex_t "} + SAtom{rgx-id} + SAtom{c";\n"};            
+            assemble-global-initializer-section = assemble-global-initializer-section +
+            SAtom{c"{int return_code = regcomp(&"} + SAtom{rgx-id} + SAtom{c", "} +
+            val.escape-as-cstring + SAtom{c", REG_EXTENDED); if(return_code){ fprintf(stderr,\"Could not compile regex.\"); exit(1);}};\n"};
+            mk-expression(rgx-id);
+         } else if tt.with-only-class.is-lm-struct {
+            let tag-index = index-of-tag(val);
+            mk-expression(
+               SAtom{c"({"} + mangle-c-type(typeof(t)) + SAtom{c" rvalue={"} +
+               SAtom{to-string(tag-index)} + SAtom{c"};rvalue;})"}
+            )
+         } else { match val {
+            c"True" => mk-expression(c"(1)");
+            c"False" => mk-expression(c"(0)");
+            c"\\t" => mk-expression(c"(9)");
+            c"\\n" => mk-expression(c"(10)");
+            c"\\s" => mk-expression(c"(32)");
+            c"\\o" => mk-expression(c"(35)");
+            c"\\`" => mk-expression(c"(39)");
+            c"\\[" => mk-expression(c"(40)");
+            c"\\]" => mk-expression(c"(41)");
+            c"\\:" => mk-expression(c"(59)");
+            _ => mk-fragment().set(c"expression",SAtom{c"("} + SAtom{val} + SAtom{c")"});
+         } }
       );
       App{ left:Lit{key:c":"}, right:App{ inner-term=left, right:AType{tt=tt} } } => (
          let f = std-c-compile-expr(ctx, inner-term, is-stmt);
@@ -95,13 +146,18 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
              f3
           }
       );
+      ASTNil{} => (
+         mk-fragment().set(c"expression",SAtom{c"({})"});
+      );
+      ASTEOF{} => mk-fragment();
       _ => (
-         print("TODO: std-c-compile-expr\n");
-         std-c-print(t); exit(1); mk-fragment();
+         fail("TODO: std-c-compile-expr \{t}\n");
+         mk-fragment();
       );
    };
    if is-stmt && non-zero(f.get(c"expression")) then f = f.set(c"expression", f.get(c"expression") + SAtom{c";"});
    f.context = close(ctx);
    f.type = typeof(t); f
 );
+
 

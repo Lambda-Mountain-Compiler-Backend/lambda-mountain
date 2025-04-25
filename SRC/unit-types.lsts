@@ -5,7 +5,7 @@ import SRC/types-definitions.lsts;
 # Convenience
 import SRC/type-print.lsts;
 import SRC/deep-hash.lsts;
-import SRC/type-to-smart-string.lsts;
+import SRC/type-into-string.lsts;
 
 # Constructors / Destructors
 import SRC/t.lsts;
@@ -21,10 +21,12 @@ import SRC/cons-tail-or-self.lsts;
 # Boolean Queries
 import SRC/type-cmp.lsts;
 import SRC/is-t.lsts;
+import SRC/is-var.lsts;
 import SRC/is-open.lsts;
 import SRC/is-arrow.lsts;
 import SRC/has-class.lsts;
 
 # set operations
 import SRC/without-tag.lsts;
+import SRC/without-modifiers.lsts;
 import SRC/without-size-unless-class.lsts;

@@ -30,6 +30,118 @@ let lsts-parse-expect(expect: CString, b: U64, tokens: List<Token>): Nil = (
    }; ();
 );
 
+let lsts-parse-doc-wordf(tokens: List<Token>, begin: CString, end: CString): Tuple<CString, List<Token>> = (
+   lsts-parse-expect(begin, tokens); tokens = tail(tokens);
+   let text = mk-vector(type(U8), 16);
+   while lsts-parse-head(tokens) != end {
+      if lsts-parse-head(tokens) == c"\n" {
+         lsts-parse-expect(end, 0, tokens);
+      };
+      if text.length > 0 {
+         text = text.push(32_u8);
+      };
+      let h = lsts-parse-head(tokens);
+      while non-zero(h) {
+         text = text.push(head-string(h));
+         h = tail-string(h);
+      };
+      tokens = tail(tokens);
+   };
+   Tuple { text.into(type(CString)), tokens }
+);
+
+let lsts-parse-doc-expr(tokens: List<Token>): Tuple<AST, List<(CString, AST)>, List<Token>> = (
+   let tags = [] :: List<(CString, AST)>;
+   let val = match lsts-parse-head(tokens) {
+      c"__" => (
+         (let s, tokens) = lsts-parse-doc-wordf(tokens, c"__", c"__");
+         mk-app( mk-var("meta::style::underline"), mk-lit(s) )
+      );
+
+      c"**" => (
+         (let s, tokens) = lsts-parse-doc-wordf(tokens, c"**", c"**");
+         mk-app( mk-var("meta::style::bold"), mk-lit(s) )
+      );
+
+      c"[" => (
+         tokens = tail(tokens);
+         let v = if lsts-parse-head(tokens) == c"[" {
+            tokens = tail(tokens);
+            let key = lsts-parse-head(tokens); tokens = tail(tokens);
+            let val = ASTNil;
+            if lsts-parse-head(tokens) == c":" {
+               tokens = tail(tokens);
+               (val, tokens) = lsts-parse-expression(tokens);
+            };
+            lsts-parse-expect(c"]", tokens); tokens = tail(tokens);
+            tags = cons( (key,val), tags );
+            ASTNil;
+         } else {
+            (let v, tokens) = lsts-parse-expression(tokens);
+            v
+         };
+         lsts-parse-expect(c"]", tokens); tokens = tail(tokens);
+         v
+      );
+
+      word => (
+         tokens = tail(tokens);
+         mk-lit(word);
+      );
+   };
+   Tuple { val, tags.reverse, tokens }
+);
+
+let lsts-parse-doc(tokens: List<Token>): Tuple<AST, List<Token>> = (
+   let ast = ASTEOF;
+   let para = ASTEOF;
+
+   let tags = [] :: List<(CString, AST)>;
+
+   while lsts-parse-head(tokens) == c"##" {
+      tokens = tail(tokens);
+
+      let line = ASTEOF;
+      # special token inserted by the lexer only in doc strings
+      while lsts-parse-head(tokens) != c"\n" {
+         (let ax, let new-tags, tokens) = lsts-parse-doc-expr(tokens);
+         tags = tags + new-tags;
+         if non-zero(ax) {
+            if non-zero(line) {
+               line = Seq { close(line), close(ax) };
+            } else {
+               line = ax;
+            };
+         };
+      };
+      tokens = tail(tokens);
+
+      if non-zero(line) {
+         if non-zero(para) {
+            para = Seq { close(para), close(line) };
+         } else {
+            para = line;
+         };
+      } else {
+         # empty line => new paragraph
+         if non-zero(para) {
+            if non-zero(ast) {
+               ast = Seq { close(ast), close(para) };
+            } else {
+               ast = para;
+            };
+            para = ASTEOF;
+         };
+      };
+   };
+
+   for Tuple{key=first, val=second} in tags {
+      ast = mk-app( mk-var("Meta::with-tag"), mk-cons( mk-lit(key), val ) );
+   };
+
+   Tuple { ast, tokens }
+);
+
 let lsts-has-assign(tokens: List<Token>): U64 = (
    let depth = 0_i64;
    let has-assign = 0;
@@ -65,6 +177,7 @@ let lsts-substitute-type-aliases(s: CString): CString = (
 
 let lsts-parse(tokens: List<Token>): Nil = (
    while non-zero(tokens) {
+      (let docx, tokens) = lsts-parse-doc(tokens);
       let prev-tokens = tokens;
       match tokens {
          [ Token{key:c"let"}.. _] => tokens = lsts-parse-let(tokens);
@@ -121,7 +234,10 @@ let lsts-parse(tokens: List<Token>): Nil = (
          );
       };
       if is(prev-tokens, tokens) { fail("Unrecognized Token During Parsing: \{lsts-parse-head(tokens)}\n") };
-   }
+      if non-zero(docx) { 
+         ast-parsed-program = Seq { close(ast-parsed-program), close(Meta { close(docx) }) };
+      };
+   };
 );
 
 let lsts-parse-type(tokens: List<Token>): Tuple<Type,List<Token>> = (
@@ -760,13 +876,28 @@ let lsts-parse-small-expression(tokens: List<Token>): Tuple<AST,List<Token>> = (
          let lhs-rest = lsts-parse-lhs(tokens); tokens = lhs-rest.second;
          lsts-parse-expect(c"=", tokens); tokens = tail(tokens);
          let expr-rest = lsts-parse-small-expression(tokens); tokens = expr-rest.second;
-         lsts-parse-expect(c"then", tokens); tokens = tail(tokens);
-         let matched-rest = lsts-parse-small-expression(tokens); tokens = matched-rest.second;
+         let matched-rest = if lsts-parse-head(tokens)==c"{" {
+            lsts-parse-expect(c"{", tokens); tokens = tail(tokens);
+            let matched-rest = lsts-parse-expression(tokens); tokens = matched-rest.second;
+            lsts-parse-expect(c"}", tokens); tokens = tail(tokens);
+            Tuple{ matched-rest.first, tokens }
+         } else {
+            lsts-parse-expect(c"then", tokens); tokens = tail(tokens);
+            if lsts-parse-head(tokens)==c"{" {
+               lsts-parse-expect(c"{", tokens); tokens = tail(tokens);
+               let matched-rest = lsts-parse-expression(tokens); tokens = matched-rest.second;
+               lsts-parse-expect(c"}", tokens); tokens = tail(tokens);
+               Tuple{ matched-rest.first, tokens }
+            } else {
+               let matched-rest = lsts-parse-small-expression(tokens); tokens = matched-rest.second;
+               matched-rest;
+            }
+         };
          let default-rest = if lsts-parse-head(tokens)==c"else" {
             lsts-parse-expect(c"else", tokens); tokens = tail(tokens);
             let default-rest = lsts-parse-small-expression(tokens); tokens = default-rest.second;
             default-rest.first;
-         } else ASTEOF;
+         } else ASTNil;
          let cases = App{ close(ASTNil), close(App{ close(lhs-rest.first), close(matched-rest.first) }) };
          if non-zero(default-rest) {
             cases = App{ close(cases), close(App{
@@ -792,10 +923,13 @@ let lsts-parse-small-expression(tokens: List<Token>): Tuple<AST,List<Token>> = (
          };
          let t = if lsts-parse-head(tokens) == c"{" {
             lsts-parse-expect(c"{", tokens); tokens = tail(tokens);
-            let t-rest = lsts-parse-expression(tokens);
-            tokens = t-rest.second;
+            let true-expr = if lsts-parse-head(tokens) == c"}" then ASTNil else {
+               let t-rest = lsts-parse-expression(tokens);
+               tokens = t-rest.second;
+               t-rest.first;
+            };
             lsts-parse-expect(c"}", tokens); tokens = tail(tokens);
-            t-rest.first;
+            true-expr;
          } else {
             let t-rest = lsts-parse-assign(tokens);
             tokens = t-rest.second;
@@ -806,10 +940,13 @@ let lsts-parse-small-expression(tokens: List<Token>): Tuple<AST,List<Token>> = (
             lsts-parse-expect(c"else", tokens); tokens = tail(tokens);
             f = if lsts-parse-head(tokens) == c"{" {
                lsts-parse-expect(c"{", tokens); tokens = tail(tokens);
-               let f-rest = lsts-parse-expression(tokens);
-               tokens = f-rest.second;
+               let false-expr = if lsts-parse-head(tokens) == c"}" then ASTNil else {
+                  let f-rest = lsts-parse-expression(tokens);
+                  tokens = f-rest.second;
+                  f-rest.first;
+               };
                lsts-parse-expect(c"}", tokens); tokens = tail(tokens);
-               f-rest.first;
+               false-expr;
             } else {
                let f-rest = lsts-parse-small-expression(tokens);
                tokens = f-rest.second;
@@ -1294,6 +1431,10 @@ let lsts-parse-atom-without-tail(tokens: List<Token>): Tuple<AST,List<Token>> = 
       let term-rest = lsts-make-maybe-var(tokens);
       tokens = term-rest.second;
       term = term-rest.first;
+   } else if lsts-parse-head(tokens)==c"." && lsts-is-ident-head(lsts-parse-head(tail(tokens))) {
+      let t = head(tokens).key + head(tail(tokens)).key;
+      tokens = tail(tokens); tokens = tail(tokens);
+      Tuple{ Var{ t, mk-token(t) }, tokens }
    } else if lsts-is-lit(lsts-parse-head(tokens)) {
       let term-rest = lsts-parse-lit(tokens);
       tokens = term-rest.second;

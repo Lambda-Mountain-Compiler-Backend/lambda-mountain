@@ -14,6 +14,7 @@ infer-ctx := λ(: tctx Maybe<TContext>)(: lhs AST). (: (
          (set tctx (infer-tctx( tctx tt )))
       ))
       ( ASTNil () )
+      ( _ ( (print 'Infer\sCtx\sUnexpected\s_s) (print lhs) (print '\n_s) (exit 1_u64) ))
    ))
    tctx
 ) Maybe<TContext>);

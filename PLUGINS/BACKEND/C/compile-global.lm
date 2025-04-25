@@ -5,6 +5,8 @@ compile-global := λ(: ctx FContext)(: k String)(: term AST). (: (
 
 compile-global-c-has-main := 0_u64;
 
+compile-global-c-main-term := ASTEOF;
+
 compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
    (let kt (typeof term))
    (match term (
@@ -17,13 +19,8 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
                (let args-type (.domain kt))
                (set ctx (compile-destructure-args( args-type ctx lhs 0_i64 (.is-t( tlt 'Blob_s )) )))
                (let e (mk-fragment()))
-               (let function-name 'main_s)
-               (if (==( k 'main_s )) (
-                  (set e (compile-expr( ctx rhs 0_i64 Unused )))
-               ) (
-                  (set e (compile-expr( ctx rhs 0_i64 Return )))
-                  (set function-name (mangle-identifier( k kt )))
-               ))
+               (let function-name (mangle-identifier( k kt )))
+               (set e (compile-expr( ctx rhs 0_i64 Return )))
                (let program (.get( e 'expression_s )))
                (let frame (.get( e 'frame_s )))
                (let text SNil)
@@ -38,7 +35,7 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
 
                (if (==( k 'main_s )) (
                   (set compile-global-c-has-main 1_u64)
-                  (set text (SCons( (close text) (close(SAtom 'int_s)) )))
+                  (set compile-global-c-main-term term)
                ) (
                   (set text (SCons( (close text) (close(mangle-c-type(typeof rhs))) )))
                ))
@@ -47,7 +44,9 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
                (set text (SCons( (close text) (close(SAtom '\[_s)) )))
                (set text (SCons( (close text) (close(compile-c-function-args(ctx lhs))) )))
                (set text (SCons( (close text) (close(SAtom '\]\:\n_s)) )))
-               (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+               (if (==( k 'main_s )) () (
+                  (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+               ))
 
                (set text SNil)
 
@@ -57,27 +56,18 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
                (set text (SCons( (close text) (close(SAtom (.filename loc))) )))
                (set text (SCons( (close text) (close(SAtom '"\n_s)) )))
 
-               (if (==( k 'main_s )) (
-                  (set text (SCons( (close text) (close(SAtom 'int_s)) )))
-               ) (
-                  (set text (SCons( (close text) (close(mangle-c-type(typeof rhs))) )))
-               ))
+               (set text (SCons( (close text) (close(mangle-c-type(typeof rhs))) )))
                (set text (SCons( (close text) (close(SAtom '\s_s)) )))
                (set text (SCons( (close text) (close(SAtom function-name)) )))
                (set text (SCons( (close text) (close(SAtom '\[_s)) )))
                (set text (SCons( (close text) (close(compile-c-function-args(ctx lhs))) )))
                (set text (SCons( (close text) (close(SAtom '\]{_s)) )))
-               (if (==( k 'main_s )) (
-                  (set text (SCons( (close text) (close assemble-string-initializer-section) )))
-                  (set text (SCons( (close text) (close assemble-global-initializer-section) )))
-               ) ())
                (set text (SCons( (close text) (close frame) )))
                (set text (SCons( (close text) (close program) )))
-               (if (==( k 'main_s )) (
-                  (set text (SCons( (close text) (close(SAtom '\:return\s0\:\n_s)) )))
-               ) ())
                (set text (SCons( (close text) (close(SAtom '}\n_s)) )))
-               (set assemble-text-section (SCons( (close assemble-text-section) (close text) )))
+               (if (==( k 'main_s )) () (
+                  (set assemble-text-section (SCons( (close assemble-text-section) (close text) )))
+               ))
             )))
          ))
       )
@@ -123,3 +113,57 @@ compile-global-c := λ(: ctx FContext)(: k String)(: term AST). (: (
    ))
 ) Nil);
 
+compile-global-main := λ(: ctx FContext)(: k String)(: term AST). (: (
+   (match term (
+      ()
+      ( (Abs( lhs rhs tlt )) (
+         (let kt (typeof term))
+
+         (let args-type (.domain kt))
+         (set ctx (compile-destructure-args( args-type ctx lhs 0_i64 (.is-t( tlt 'Blob_s )) )))
+         (let e (mk-fragment()))
+         (let function-name 'main_s)
+         (set e (compile-expr( ctx rhs 0_i64 Unused )))
+         (let program (.get( e 'expression_s )))
+         (let frame (.get( e 'frame_s )))
+         (let text SNil)
+
+         (let loc (.location(term)))
+         (set text (SCons( (close text) (close(SAtom '\n\oline\s_s)) )))
+         (set text (SCons( (close text) (close(SAtom (to-string (.line loc)) )) )))
+         (set text (SCons( (close text) (close(SAtom '\s"_s)) )))
+         (set text (SCons( (close text) (close(SAtom (.filename loc))) )))
+         (set text (SCons( (close text) (close(SAtom '"\n_s)) )))
+
+         (set text (SCons( (close text) (close(SAtom 'int_s)) )))
+         (set text (SCons( (close text) (close(SAtom '\s_s)) )))
+         (set text (SCons( (close text) (close(SAtom function-name)) )))
+         (set text (SCons( (close text) (close(SAtom '\[_s)) )))
+         (set text (SCons( (close text) (close(compile-c-function-args(ctx lhs))) )))
+         (set text (SCons( (close text) (close(SAtom '\]\:\n_s)) )))
+         (set assemble-header-section (SCons( (close assemble-header-section) (close text) )))
+
+         (set text SNil)
+
+         (set text (SCons( (close text) (close(SAtom '\n\oline\s_s)) )))
+         (set text (SCons( (close text) (close(SAtom (to-string (.line loc)) )) )))
+         (set text (SCons( (close text) (close(SAtom '\s"_s)) )))
+         (set text (SCons( (close text) (close(SAtom (.filename loc))) )))
+         (set text (SCons( (close text) (close(SAtom '"\n_s)) )))
+
+         (set text (SCons( (close text) (close(SAtom 'int_s)) )))
+         (set text (SCons( (close text) (close(SAtom '\s_s)) )))
+         (set text (SCons( (close text) (close(SAtom function-name)) )))
+         (set text (SCons( (close text) (close(SAtom '\[_s)) )))
+         (set text (SCons( (close text) (close(compile-c-function-args(ctx lhs))) )))
+         (set text (SCons( (close text) (close(SAtom '\]{_s)) )))
+         (set text (SCons( (close text) (close assemble-string-initializer-section) )))
+         (set text (SCons( (close text) (close assemble-global-initializer-section) )))
+         (set text (SCons( (close text) (close frame) )))
+         (set text (SCons( (close text) (close program) )))
+         (set text (SCons( (close text) (close(SAtom '\:return\s0\:\n_s)) )))
+         (set text (SCons( (close text) (close(SAtom '}\n_s)) )))
+         (set assemble-text-section (SCons( (close assemble-text-section) (close text) )))
+      ))
+   ))
+) Nil);

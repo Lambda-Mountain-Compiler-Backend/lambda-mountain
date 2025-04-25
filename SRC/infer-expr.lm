@@ -91,14 +91,12 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
          (if (is( scoped Scoped )) (scope(
             (let tctx-inner (infer-expr( tctx cond Unscoped TAny Used )))
             (let tctx-weak-t (infer-expr( tctx-inner t Unscoped TAny Tail )))
-            (let tctx-t (phi-override( tctx tctx-weak-t )))
             (let tctx-f (infer-expr( tctx f Unscoped TAny Tail )))
-            (set tctx (phi-merge( tctx-t tctx-f )))
          )) (
             (set tctx (infer-expr( tctx cond Unscoped TAny Used )))
             (let tctx-t (infer-expr( tctx t Unscoped TAny Tail )))
             (let tctx-f (infer-expr( tctx f Unscoped TAny Tail )))
-            (set tctx (phi-merge( tctx-t tctx-f )))
+            (set tctx tctx-t)
          ))
          (ascript-normal( term (typeof t) ))
       ))
@@ -130,7 +128,6 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
       ( (App( (Var( 'scope_s _ )) r )) (
          (let weak-ctx (infer-expr( tctx r Scoped TAny Tail )))
          (ascript-normal( term (typeof r) ))
-         (set tctx (phi-override( tctx weak-ctx )))
       ))
       ( (App( (Var( 'open_s _ )) r )) (
          (set tctx (infer-expr( tctx r Unscoped TAny Used )))
@@ -222,11 +219,6 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
                   )))
                   (ascript-normal( l (.function-type apply-result) ))
                   (set rt (.return-type apply-result))
-                  (if (non-zero (.phi-types apply-result)) (
-                     (for-each ((Tuple( phi-id phi-new-type )) in (.phi-types apply-result)) (
-                        (set tctx (phi-transition( tctx phi-id phi-new-type )))
-                     ))
-                  ) ())
                ))
                ( _ (
                   (if (is( used Unused )) (set r-used Unused) ())
@@ -248,11 +240,6 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
                      )))
                   ) ())
                   (set rt (.return-type apply-result))
-                  (if (non-zero (.phi-types apply-result)) (
-                     (for-each ((Tuple( phi-id phi-new-type )) in (.phi-types apply-result)) (
-                        (set tctx (phi-transition( tctx phi-id phi-new-type )))
-                     ))
-                  ) ())
                ))
             ))
             (if (is( l-used Unused )) (
@@ -318,11 +305,7 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
             (let tt (typeof-tag l))
             (if (non-zero tt) (
                (if (non-zero hint) (
-                  (if (||( (.is-t( hint 'String_s )) (.is-t( hint 'SmartString_s )) )) (
-                     (set tt hint)
-                  ) (
-                     (set tt (unify-hint( hint tt )))
-                  ))
+                  (set tt hint)
                ) ())
                (ascript-normal( term tt ))
             ) ())

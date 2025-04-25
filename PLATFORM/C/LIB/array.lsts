@@ -26,3 +26,21 @@ declare-unop( $"&", raw-type(t), raw-type(t[]), (l"(&"; x; l")";) );
 
 declare-unop( raw, raw-type(t), raw-type(t), x );
 declare-unop( raw, raw-type(base-type[]), raw-type(base-type[]+Raw), x );
+
+let safe-alloc(len: U64, ty: Type<t>): t[] = (
+   let nb = len * sizeof(t);
+   let ptr = malloc(nb);
+   if ptr as U64 == 0_u64 {
+      fail("malloc(\{nb}) fail");
+   };
+   ptr as t[]
+);
+
+let safe-realloc(ptr: t[], len: U64, ty: Type<t>): t[] = (
+   let nb = len * sizeof(t);
+   let new_ptr = realloc(ptr as ?[], nb);
+   if new_ptr as U64 == 0_u64 {
+      fail("realloc(\{nb}) fail");
+   };
+   new_ptr as t[]
+);

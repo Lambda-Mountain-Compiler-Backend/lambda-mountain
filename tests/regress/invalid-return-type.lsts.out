@@ -1,3 +1,3 @@
-Error: Type Ascription Inequality
+Compilation Error: Type Ascription Inequality
 Tuple<U8,U8> does not imply U64
 In File tests/regress/invalid-return-type.lsts Line 4 Column 17

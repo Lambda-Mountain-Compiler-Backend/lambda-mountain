@@ -1,26 +1,5 @@
 
 let std-c-print(t: AST): Nil = (
-   match t {
-      ASTEOF{} => print("[EOF]");
-      ASTNil{} => print("()");
-      App{left:Lit{key:c":"},right:App{inner=left, right:AType{tt=tt}}} => (
-         std-c-print(inner); print(" :: "); print(tt);
-      );
-      App{is-cons:1_u8, left=left,right=right} => (
-         print("("); std-c-print(left); print(","); std-c-print(right); print(")");
-      );
-      App{left=left,right=right} => (
-         std-c-print(left); print("("); std-c-print(right); print(")");
-      );
-      Var{key=key} => print(key);
-      Lit{key=key} => (print("'"); print(key););
-      Abs{lhs=lhs,rhs=rhs} => (
-         print("(fn "); std-c-print(lhs); print(" = "); std-c-print(rhs); print(")");
-      );
-      Glb{key=key,val=val} => (
-         print("let \{key.key} = "); std-c-print(val); print(";");
-      );
-      AType{tt=tt} => print(tt);
-   };
+   print(t.into(type(String)))
 );
 

@@ -15,19 +15,20 @@ import SRC/tctx-union.lsts;
 import SRC/tctx-and.lsts;
 import SRC/tctx-bind.lsts;
 import SRC/reduce-plural.lsts;
-import SRC/unify-hint.lsts;
+import SRC/most-special.lsts;
 
 # corollaries
 import SRC/quick-prop.lsts;
 import SRC/remove-info.lsts;
 import SRC/normalize.lsts;
 import SRC/denormalize.lsts;
+import SRC/denormalize-strong.lsts; # TODO, make this the normal denormalize
+import SRC/normalize-strong.lsts; # TODO, make this the normal normalize
 import SRC/type-alias-index.lsts;
 import SRC/class-info-index.lsts;
 import SRC/with-size.lsts;
 import SRC/with-tag.lm;
 import SRC/with-only-class.lsts;
-import SRC/with-phi.lsts;
 import SRC/accept-interface.lsts;
 import SRC/alias.lsts;
 

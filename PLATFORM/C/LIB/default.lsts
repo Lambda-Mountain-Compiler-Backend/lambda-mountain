@@ -1,4 +1,5 @@
 
+import PLATFORM/C/LIB/c-shim.lm;
 import PLATFORM/C/LIB/common-macros.lm;
 import PLATFORM/C/LIB/platform-macros.lm;
 import PLATFORM/C/LIB/blob.lm;

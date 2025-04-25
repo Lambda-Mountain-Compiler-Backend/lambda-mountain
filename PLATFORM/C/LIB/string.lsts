@@ -5,6 +5,8 @@ type CString implements Collection<U8>;
 # TODO: instead do U8 iterator for S
 
 # TODO: deprecate this in favor of Vector
+
+##[[deprecated: "use vector instead"]]
 let clone-rope(s: S): CString = (
    let out = mk-vector(type(U8), 64);
    out = clone-rope-impl(s, out);
@@ -71,7 +73,7 @@ let cmp(l: CString, r: CString): Ord = (
 
 let print(io: IO::File, x: CString): Nil = (
    while head-string(x) != 0_u8 {
-      fwrite(x as U8[], 1_u64, 1_u64, stdout());
+      fwrite(x as U8[], 1_u64, 1_u64, $"io::file::stdout"());
       x = tail-string(x);
    };
 );
@@ -91,4 +93,24 @@ let $"[]"(base: CString, idx: U64): U8 = (
    if idx < base.length
    then (base as U8[])[idx]
    else fail("Index Out Of Bounds in String[]");
+);
+
+let .into(s: CString, tgt: Type<String>): String = intern(s);
+let .into(s: String, tgt: Type<CString>): CString = untern(s);
+
+let .split(s: String, sep: String): List<String> = (
+   let r = [] :: List<String>;
+   let start-index = 0_u64;
+   let current-index = 0_u64;
+   while current-index < s.length {
+      if s[current-index:s.length].has-prefix(sep) {
+         r = cons(s[start-index:current-index],r);
+         current-index = current-index + sep.length;
+         start-index = current-index;
+      } else {
+         current-index = current-index + 1;
+      };
+   };
+   if start-index < current-index { r = cons(s[start-index:current-index],r); };
+   r.reverse;
 );

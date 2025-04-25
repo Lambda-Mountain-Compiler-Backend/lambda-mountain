@@ -1,7 +1,0 @@
-
-c-tokenize := λ(: text String). (: (
-   (let r (: LEOF List<String>))
-   (set r (c-tokenize-string( '[cpp\soutput]_s text )))
-   r
-) List<String>);
-

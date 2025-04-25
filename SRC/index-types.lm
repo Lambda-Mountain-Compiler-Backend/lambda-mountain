@@ -6,8 +6,6 @@ import SRC/quick-prop.lsts;
 import SRC/substitute.lm;
 import SRC/cons-root.lsts;
 import SRC/infer-expr.lm;
-import SRC/phi-transition.lsts;
-import SRC/phi-merge.lsts;
 import SRC/is-special.lm;
 import SRC/global-is-seen.lm;
 import SRC/index-of-tag.lm;

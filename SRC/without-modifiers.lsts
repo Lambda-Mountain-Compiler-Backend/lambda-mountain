@@ -1,0 +1,8 @@
+
+let .without-modifiers(tt: Type): Type = (
+   match tt {
+      TAnd { left=left, right=right } => left.without-modifiers && right.without-modifiers;
+      TGround { tag:c"C", parameters:[TGround{tag:c"extern"}..] } => TAny;
+      _ => tt;
+   }
+);

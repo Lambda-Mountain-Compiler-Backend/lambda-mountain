@@ -25,11 +25,17 @@ preprocess-apply-literals-one := λ(: program AST). (: (
    (let r program)
    (match program (
       ()
-      ( (App( (App( (Lit( ':_s ctk )) mvar )) (Lit( mtype _ )) )) (
-         (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply-literals mvar)) (close(AType(parse-type mtype))) ))) )))
+      ( (App( is-cons-1 (App( is-cons-2 (Lit( ':_s ctk )) mvar )) (Lit( mtype mtk )) )) (
+         (if is-cons-1
+            (set r (App( is-cons-1 (close(App( is-cons-2 (close(Lit( ':_s ctk ))) (close(preprocess-apply-literals mvar)) ))) (close(Lit( mtype mtk ))) )))
+            (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply-literals mvar)) (close(AType(parse-type mtype))) ))) )))
+         )
       ))
-      ( (App( (App( (Lit( ':_s ctk )) mvar )) (Var( mtype _ )) )) (
-         (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply-literals mvar)) (close(AType(parse-type mtype))) ))) )))
+      ( (App( is-cons-1 (App( is-cons-2 (Lit( ':_s ctk )) mvar )) (Var( mtype mtk )) )) (
+         (if is-cons-1
+            (set r (App( is-cons-1 (close(App( is-cons-2 (close(Lit( ':_s ctk ))) (close(preprocess-apply-literals mvar)) ))) (close(Var( mtype mtk ))) )))
+            (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply-literals mvar)) (close(AType(parse-type mtype))) ))) )))
+         )
       ))
       ( (Lit( l ltk )) (
          (if (.has-suffix( l '_t_s )) (

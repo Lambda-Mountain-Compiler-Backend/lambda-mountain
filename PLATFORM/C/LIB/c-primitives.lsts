@@ -11,9 +11,48 @@ let :Blob $"c::compound"(ts: Cons<Any,last>): last = (
 let :Blob $"c::compound"(ts: last): last = (
 );
 
-let :Blob $"c::return"(ts: x): x = (
+let :Blob $"prefix:c::return"(ts: x): x = (
    l"return "; ts;
 );
+
+
+let :Blob $"c::if"(cond: c, tb: tbt, fb: fbt): Nil = (
+   l"if("; cond; l"){"; tb; l"}else{"; fb; l"}";
+);
+
+let :Blob $"c::for"(l1: l1t, l2: l2t, l3: l3t, stmt: stmtt): Nil = (
+   l"for("; l1; l";"; l2; l";"; l3; l"){"; stmt; l"}";
+);
+
+let :Blob $"c::while"(l1: l1t, stmt: stmtt): Nil = (
+   l"while("; l1; l"){"; stmt; l"}";
+);
+
+let :Blob $"c::do-while"(stmt: stmtt, l1: l1t): Nil = (
+   l"do{"; stmt; l"}while("; l1; l")";
+);
+
+let :Blob $"c::switch"(e: et, stmt: stmtt): Nil = (
+   l"switch("; e; l"){"; stmt; l"}";
+);
+
+let :Blob $"c::case"(e: et, stmt: stmtt): Nil = (
+   l"case "; e; l":"; stmt;
+);
+
+let :Blob $"c::label"(e: et): Nil = (
+   e; l":";
+);
+
+let :Blob $"prefix:c::default"(stmt: stmtt): Nil = (
+   l"default:"; stmt;
+);
+
+let :Blob $"c::;"(): Nil = ();
+let :Blob $"prefix:c::goto"(lbl: lblt): Nil = ( l"goto "; lbl; );
+let :Blob $"c::continue"(): Nil = l"continue";
+let :Blob $"c::break"(): Nil = l"break";
+let :Blob $"c::return"(): Nil = l"return";
 
 # for 64 bit machines: TODO replace with architecture specific types
 type alias C<"int"> = C<"int32_t">;

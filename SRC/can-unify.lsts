@@ -22,16 +22,13 @@ let can-unify(fpt: Type, pt: Type): U64 = (
          can-unify(lt,rt1) || can-unify(lt,rt2)
       );
 
+      # Ignore C Access Modifiers For Now
+      Tuple{ first:TGround{tag:c"C", parameters:[TGround{tag:c"const"}..]} } => true;
+
       # Literal Constants
       Tuple{ first:TGround{tag:c"CONST"}, second:TGround{c=tag} } => (
          c.is-digit || c==c"CONST"
       );
-
-      # Phi Types
-      Tuple{
-         first:TGround{tag:c"Phi", parameters:[TGround{to_phi=tag}.. TGround{from_phi=tag}..]},
-         second:TGround{tag:c"Phi", parameters:[TGround{state_phi=tag}.. TGround{id_phi=tag}..]}
-      } => from_phi == state_phi;
 
       # Varargs
       Tuple{
@@ -70,7 +67,16 @@ let can-unify(fpt: Type, pt: Type): U64 = (
       Tuple{
           first:TGround{tag:c"Arrow", parameters:[lrng.. ldom..]},
           second:TGround{tag:c"Arrow", parameters:[rrng.. rdom..]}
-      } => can-unify(rdom, ldom) && can-unify(ldom, rdom);
+      } => (
+         if can-unify(rdom, ldom) {
+            if rdom.is-open {
+               let tctx = unify(rdom, ldom);
+               can-unify(lrng, substitute(tctx,rrng));
+            } else {
+               can-unify(lrng, rrng)
+            }
+         } else false
+      );
 
       Tuple{
           first:TGround{ltn=tag, lps=parameters},

@@ -1,0 +1,18 @@
+
+let find-global-callable(fname: CString, arg-types: Type): AST = (
+   arg-types = denormalize-strong(arg-types);
+   let result = ASTEOF;
+   let result-type = TAny;
+   for Tuple{kt=first, t=second} in global-type-context.lookup(fname, [] :: List<Tuple<Type,AST>>) {
+      kt = denormalize-strong(kt);
+      if non-zero(apply-plural(kt, arg-types)) {
+         if non-zero(result) {
+            let chosen = most-special( kt, result-type );
+            if not(non-zero(chosen)) then fail("Unable to find unambiguous global callable: \{fname}\n\{result-type}\n\{kt}\n");
+            if is(chosen, kt) { result = t; result-type = kt; };
+         } else { result = t; result-type = kt; }
+      }
+   };
+   if not(non-zero(result-type)) then fail("Unable to find appropriate global callable: \{fname}\n");
+   result
+);

@@ -1,9 +1,5 @@
 
-import PLUGINS/FRONTEND/C/c-parse-all.lsts;
-import PLUGINS/FRONTEND/C/c-tokenize.lm;
-import PLUGINS/FRONTEND/C/c-parse.lm;
 import PLUGINS/FRONTEND/C/c-parse.lsts;
-import PLUGINS/FRONTEND/C/c-tokenize.lsts;
 import PLUGINS/FRONTEND/C/c-frontend.lsts;
 import PLUGINS/FRONTEND/C/c-smart-tokenize.lsts;
 import PLUGINS/FRONTEND/C/c-ast-to-lm-ast.lsts;

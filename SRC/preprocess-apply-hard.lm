@@ -39,7 +39,7 @@ preprocess-apply-hard := λ(: macro-name String)(: arity U64)(: program AST). (:
       ( _ (set macros MEOF) )
    )))
    (if (not matched) (
-      (exit-error( 'Invalid\sMacro\sApplication\n_s program ))
+      (exit-error( (+( 'Invalid\sMacro\sApplication\s_s macro-name )) program ))
    ) ())
    return
 ) AST);

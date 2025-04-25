@@ -1,9 +1,41 @@
 
+let std-c-force-imports = {} :: HashtableEq<CString,Bool>;
+
+let std-c-force-import-clib(lib: CString): Nil = (
+   std-c-force-imports = std-c-force-imports.bind(lib, true);
+);
+
+let std-c-finish-forced-imports(): S = (
+   (if std-c-force-imports.has(c"stdlib.h") then SAtom{c"#include <stdlib.h>\n"} else SNil{}) +
+   (if std-c-force-imports.has(c"stdio.h") then SAtom{c"#include <stdio.h>\n"} else SNil{}) +
+   (if std-c-force-imports.has(c"regex.h") then SAtom{c"#include <regex.h>\n"} else SNil{})
+);
+
 let std-c-compile-global(ctx: FContext, k: CString, term: AST): Nil = (
    if k == c"main" {
       compile-global-c-has-main = true;
    };
-   match term {
+   if k==c"div_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"ldiv_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"lldiv_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"__fpos_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"__fpos64_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"fpos_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"fpos64_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"__fsid_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"__mbstate_t" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"regmatch_t" then std-c-force-import-clib(c"regex.h")
+   else if k==c"regex_t" then std-c-force-import-clib(c"regex.h")
+   else if k==c"reg_errcode_t" then std-c-force-import-clib(c"regex.h")
+   else if k==c"stdin" then std-c-force-import-clib(c"stdio.h")
+   else if k==c"stdout" then std-c-force-import-clib(c"stdio.h")
+   else if k==c"stderr" then std-c-force-import-clib(c"stdio.h")
+   else if k==c"regoff_t" then std-c-force-import-clib(c"stdio.h")
+   else if k==c"register_t" then std-c-force-import-clib(c"stdio.h")
+   else if k==c"bsearch" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"qsort" then std-c-force-import-clib(c"stdlib.h")
+   else if k==c"__compar_fn_t" then std-c-force-import-clib(c"stdlib.h")
+   else match term {
       App{left:Lit{key:c":"}, right:App{left:Var{key:c"__uninitialized"}, right:AType{tt=tt}}} => (
          (let pre-decl, let post-decl) = std-c-mangle-declaration(tt);
          let text = SNil;
@@ -11,59 +43,79 @@ let std-c-compile-global(ctx: FContext, k: CString, term: AST): Nil = (
          text = text + SAtom{c" "};
          text = text + SAtom{k};
          text = text + post-decl;
-         text = text + SAtom{c";"};
+         text = text + SAtom{c";\n"};
          assemble-header-section = assemble-header-section + text;
       );
       App{left:Lit{key:c":"}, right:App{t=left, right:AType{tt=tt}}} => (
-         (let pre-decl, let post-decl) = std-c-mangle-declaration(tt);
-         let text = SNil;
-         text = text + pre-decl;
-         text = text + SAtom{c" "};
-         text = text + SAtom{k};
-         text = text + post-decl;
-         text = text + SAtom{c" = "};
-         let inner-expr = std-c-compile-expr( ctx, t, false );
-         text = text + inner-expr.get(c"expression");
-         text = text + SAtom{c";"};
-         assemble-header-section = assemble-header-section + text;
+         let gend = false;
+         if tt.is-t(c"C-Fragment") {
+            match t {
+               Lit{key=key} => (
+                  assemble-header-section = assemble-header-section + SAtom{key};
+                  gend = true;
+               );
+               _ => ();
+            }
+         };
+         if not(gend) {
+            (let pre-decl, let post-decl) = std-c-mangle-declaration(tt);
+            let text = SNil;
+            text = text + pre-decl;
+            text = text + SAtom{c" "};
+            text = text + SAtom{k};
+            text = text + post-decl;
+            text = text + SAtom{c" = "};
+            let inner-expr = std-c-compile-expr( ctx, t, false );
+            text = text + inner-expr.get(c"expression");
+            text = text + SAtom{c";\n"};
+            assemble-header-section = assemble-header-section + text;
+         }
       );
       Abs{lhs=lhs,rhs=rhs,tt=tt} => (
+         ctx = std-c-compile-destructure-args( ctx, lhs, tt.is-t(c"Blob") );
          let loc = term.location;
-         if not(config-strip-debug) {
+         let initialized = match rhs {
+            App{ left:Lit{key:c":"}, right:App{ left:Var{key:c"__uninitialized"}, right:AType{} } } => false;
+            _ => true;
+         };
+         if not(config-strip-debug) || not(initialized) {
             let text = SNil;
-            text = text + SAtom{c"\n#line "};
-            text = text + SAtom{to-string(loc.line)};
-            text = text + SAtom{c" "};
-            text = text + SAtom{loc.filename};
-            text = text + SAtom{c"\n"};
+            if not(config-strip-debug) && loc.filename != c"Unknown" {
+               text = text + SAtom{c"\n#line "};
+               text = text + SAtom{to-string(loc.line)};
+               text = text + SAtom{c" "};
+               text = text + SAtom{loc.filename};
+               text = text + SAtom{c"\n"};
+            };
             text = text + std-c-mangle-type(typeof(rhs));
             text = text + SAtom{c" "};
             text = text + SAtom{k};
             text = text + SAtom{c"("};
             text = text + std-c-compile-function-args(ctx, lhs);
-            text = text + SAtom{c");"};
+            text = text + SAtom{c");\n"};
             assemble-header-section = assemble-header-section + text;
          };
 
-         let text = SNil;
-         if not(config-strip-debug) {
-            text = text + SAtom{c"\n#line "};
-            text = text + SAtom{to-string(loc.line)};
+         if initialized {
+            let text = SNil;
+            if not(config-strip-debug) && loc.filename != c"Unknown" {
+               text = text + SAtom{c"\n#line "};
+               text = text + SAtom{to-string(loc.line)};
+               text = text + SAtom{c" "};
+               text = text + SAtom{loc.filename};
+               text = text + SAtom{c"\n"};
+            };
+            text = text + std-c-mangle-type(typeof(rhs));
             text = text + SAtom{c" "};
-            text = text + SAtom{loc.filename};
-            text = text + SAtom{c"\n"};
+            text = text + SAtom{k};
+            text = text + SAtom{c"("};
+            text = text + std-c-compile-function-args(ctx, lhs);
+            text = text + SAtom{c")"};
+
+            let inner-expr = std-c-compile-expr( ctx, rhs, false );
+            text = text + inner-expr.get(c"expression");
+            assemble-text-section = assemble-text-section + text + SAtom{c"\n"};
          };
-         text = text + std-c-mangle-type(typeof(rhs));
-         text = text + SAtom{c" "};
-         text = text + SAtom{k};
-         text = text + SAtom{c"("};
-         text = text + std-c-compile-function-args(ctx, lhs);
-         text = text + SAtom{c")"};
-         let inner-ctx = ctx;
-         #let inner-ctx = std-c-compile-destructure-args( ctx, lhs );
-         let inner-expr = std-c-compile-expr( ctx, rhs, false );
-         text = text + inner-expr.get(c"expression");
-         assemble-text-section = assemble-text-section + text;
       );
       t => (
          print("Unknown std-c-compile-global "); std-c-print(t); print("\n");

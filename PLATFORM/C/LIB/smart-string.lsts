@@ -58,7 +58,7 @@ let cmp(x: String, y: String): Ord = (
 let print(io: IO::File, x: SmartString): Nil = (
    let start = x.start;
    while start != x.end {
-      fwrite(start, 1_u64, 1_u64, stdout());
+      fwrite(start, 1_u64, 1_u64, $"io::file::stdout"());
       start = start + 1_u64;
    };
 );

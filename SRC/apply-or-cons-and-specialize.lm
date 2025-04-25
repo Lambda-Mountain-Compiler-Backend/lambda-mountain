@@ -1,6 +1,6 @@
 
 apply-or-cons-and-specialize := λ(: function-name String)(: ft Type)(: pt Type)(: blame AST). (: (
-   (let r (ApplyResult( TAny TAny (: LEOF List<Tuple<String,Type>>) )))
+   (let r (ApplyResult( TAny TAny )))
    (if (.is-arrow ft) (
       (set r (apply-blame( function-name ft pt 1_u64 blame )))
    ) (
@@ -8,7 +8,6 @@ apply-or-cons-and-specialize := λ(: function-name String)(: ft Type)(: pt Type)
          (set r (ApplyResult(
             ft
             (t3( 'Cons_s ft pt ))
-            (: LEOF List<Tuple<String,Type>>)
          )))
       ) ())
    ))
@@ -16,12 +15,11 @@ apply-or-cons-and-specialize := λ(: function-name String)(: ft Type)(: pt Type)
 ) ApplyResult);
 
 apply-cons :=  λ(: function-name String)(: ft Type)(: pt Type)(: blame AST). (: (
-   (let r (ApplyResult( TAny TAny (: LEOF List<Tuple<String,Type>>) )))
+   (let r (ApplyResult( TAny TAny )))
    (if (&&( (non-zero ft) (non-zero pt) )) (
       (set r (ApplyResult(
          ft
          (t3( 'Cons_s ft pt ))
-         (: LEOF List<Tuple<String,Type>>)
       )))
    ) ())
    r

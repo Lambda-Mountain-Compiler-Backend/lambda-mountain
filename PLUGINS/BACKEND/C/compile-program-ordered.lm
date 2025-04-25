@@ -26,5 +26,8 @@ compile-program-ordered := λ(: global-ctx FContext)(: program AST). (: (
          (set assemble-global-initializer-section (SCons( (close assemble-global-initializer-section) (close text) )))
       ))
    )))
+   (if (non-zero compile-global-c-main-term) (
+      (compile-global-main( global-ctx 'main_s compile-global-c-main-term ))
+   ) ())
 ) Nil);
 

@@ -48,17 +48,23 @@ preprocess-apply-one := λ(: program AST). (: (
             (close(preprocess-apply( nt )))
          )))
       ))
-      ( (App( is-cons-1 (App( (Lit( ':_s ctk )) (App( t (AType tt) )) )) nt )) (
+      ( (App( is-cons-1 (App( is-cons-2 (Lit( ':_s ctk )) (App( is-cons-3 t (AType tt) )) )) nt )) (
          (set r (App( is-cons-1
-            (close(App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply t)) (close(AType tt)) ))) )))
+            (close(App( is-cons-2 (close(Lit( ':_s (unique ctk) ))) (close(App( is-cons-3 (close(preprocess-apply t)) (close(AType tt)) ))) )))
             (close(preprocess-apply( nt )))
          )))
       ))
-      ( (App( (App( (Lit( ':_s ctk )) mvar )) (Lit( mtype _ )) )) (
-         (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
+      ( (App( is-cons-1 (App( is-cons-2 (Lit( ':_s ctk )) mvar )) (Lit( mtype mtk )) )) (
+         (if is-cons-1
+            (set r (App( is-cons-1 (close(App( is-cons-2 (close(Lit( ':_s ctk ))) (close(preprocess-apply mvar))  ))) (close(Lit( mtype mtk ))) )))
+            (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
+         )
       ))
-      ( (App( (App( (Lit( ':_s ctk )) mvar )) (Var( mtype _ )) )) (
-         (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
+      ( (App( is-cons-1 (App( is-cons-2 (Lit( ':_s ctk )) mvar )) (Var( mtype mtk )) )) (
+         (if is-cons-1
+            (set r (App( is-cons-1 (close(App( is-cons-2 (close(Lit( ':_s ctk ))) (close(preprocess-apply mvar))  ))) (close(Lit( mtype mtk ))) )))
+            (set r (App( (close(Lit( ':_s (unique ctk) ))) (close(App( (close(preprocess-apply mvar)) (close(AType(parse-type mtype))) ))) )))
+         )
       ))
       ( (App( (App( (Var( 'as_s atk )) (App( t (AType tt) )) )) nt )) (
          (set r (App(

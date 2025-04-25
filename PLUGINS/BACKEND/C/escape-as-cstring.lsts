@@ -1,0 +1,23 @@
+
+let .escape-as-cstring(in: CString): S = (
+   let out = SNil;
+   while non-zero(in) { match in {
+      c"\""..  rest => (out = out + SAtom{c"\\\\\""}; in = rest;);
+      c"\\:"..  rest => (out = out + SAtom{c";"}; in = rest;);
+      c"\\["..  rest => (out = out + SAtom{c"("}; in = rest;);
+      c"\\]"..  rest => (out = out + SAtom{c")"}; in = rest;);
+      c"\\\\".. rest => (out = out + SAtom{c"\\\\\\\\"}; in = rest;);
+      c"\\`"..  rest => (out = out + SAtom{c"'"}; in = rest;);
+      c"\\l"..  rest => (out = out + SAtom{c"λ"}; in = rest;);
+      c"\\n"..  rest => (out = out + SAtom{c"\\\\n"}; in = rest;);
+      c"\\o"..  rest => (out = out + SAtom{c"#"}; in = rest;);
+      c"\\s"..  rest => (out = out + SAtom{c" "}; in = rest;);
+      c"\\t"..  rest => (out = out + SAtom{c"\\\\t"}; in = rest;);
+      c"\\"..   rest => fail("Illegal Escape Character: \{head-string(rest)}");
+      rest => (
+         out = out + SAtom{clone-rope(head-string(rest))};
+         in = tail-string(rest);
+      );
+   }};
+   SAtom{c"\""} + out + SAtom{c"\""}
+);

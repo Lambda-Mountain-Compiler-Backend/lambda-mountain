@@ -28,11 +28,10 @@ let apply-blame(function-name: CString, function-type: Type, parameters: Type, d
 
 let apply(function-name: CString, function-type: Type, parameters: Type, do-specialize: U64): ApplyResult = (
    let r = TAny {};
-   let rs = apply-plural(function-name, function-type, parameters);
+   let rs = apply-plural(function-type, parameters);
    if not(function-type.is-t( c"Hook" )) {
       rs = reduce-plural(rs);
    };
-   let phi-types = [] :: List<Tuple<CString,Type>>;
    if rs.length > 1 {
       r = t1(c"Error: Function Application Yielded An Irreducible Plurality Of Matches");
       function-type = head(rs);
@@ -44,15 +43,6 @@ let apply(function-name: CString, function-type: Type, parameters: Type, do-spec
          let frt = sft.range;
          let fpt = sft.domain;
          let ctx = unify(fpt, parameters);
-         let phi-ctx = ctx;
-         for phi-row in phi-ctx.get-or([] :: TContext) {
-            match phi-row {
-               Tuple{ first:c"Phi::Transition", typ=second, third:Var{pid=key} } => (
-                  phi-types = cons( Tuple{ pid, typ }, phi-types );
-               );
-               _ => ();
-            }
-         };
          let closed-type = substitute( ctx, sft );
          function-type = closed-type;
          if not(r.is-t( c"Error: Did Not Close Before Specialization")) {
@@ -69,6 +59,6 @@ let apply(function-name: CString, function-type: Type, parameters: Type, do-spec
          r = r && cons-root(parameters);
       };
    };
-   ApplyResult { function-type, r, phi-types }
+   ApplyResult { function-type, r }
 );
 

@@ -147,3 +147,9 @@ let .bind-eq(contents: Tuple<k,v>[], capacity: U64, key: k, value: v): U64 = (
    replacing
 );
 
+let non-zero(self: HashtableEq<k,v>): U64 = (
+   match self {
+      HashtableEqEOF {} => ( 0 );
+      _ => ( 1 );
+   }
+);

@@ -8,3 +8,18 @@ let .is-arrow(tt: Type): U64 = (
    }
 );
 
+let .contains-arrow(tt: Type): U64 = (
+   match tt {
+      TAnd { left=left, right=right } => left.contains-arrow || right.contains-arrow;
+      TGround { tag:c"Arrow" } => true;
+      TGround { parameters=parameters } => parameters.contains-arrow;
+      _ => false;
+   }
+);
+
+let .contains-arrow(tt: List<Type>): U64 = (
+   match tt {
+      [hd.. tl] => hd.contains-arrow || tl.contains-arrow;
+      _ => false;
+   };
+);

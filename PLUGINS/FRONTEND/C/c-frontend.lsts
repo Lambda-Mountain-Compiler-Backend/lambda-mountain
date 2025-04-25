@@ -13,9 +13,11 @@ let c-frontend(fp: CString): Nil = (
       fail("cpp failed. command: \"" + cmd + "\"");
    };
 
-   let tokens = std-c-tokenize-string(fp, read-file(untern(tmp)));
+   let file-contents = read-file(untern(tmp));
+   let tokens = std-c-tokenize-string(fp, file-contents);
    std-c-parse(tokens);
 );
 
 
 register-frontend(c".c", c-frontend);
+register-frontend(c".h", c-frontend);

@@ -1,0 +1,13 @@
+
+let denormalize-strong(tt: type): Type = (
+   denormalize(denormalize-strong-inner(tt))
+);
+
+let denormalize-strong-inner(tt: Type): Type = (
+   match tt {
+      TAnd{left=left, right=right} => denormalize-strong-inner(left) && denormalize-strong-inner(right);
+      TGround{tag:c"Arrow", parameters:[rng..dom..]} => t3(c"Arrow",denormalize-strong(dom),denormalize-strong(rng));
+      TGround{tag:c"Cons", parameters:[p2..p1..]} => t3(c"Cons",denormalize-strong(p1),denormalize-strong(p2));
+      _ => tt;
+   }
+);

@@ -1,10 +1,10 @@
 
 let print(e: DefaultPrintable): Nil = (
-   print( stdout(), e );
+   print( $"io::file::stdout"(), e );
 );
 
 let eprint(e: DefaultPrintable): Nil = (
-   print( stderr(), e );
+   print( $"io::file::stderr"(), e );
 );
 
 let fprint(io: IO::File, e: DefaultPrintable): Nil = (
@@ -14,3 +14,16 @@ let fprint(io: IO::File, e: DefaultPrintable): Nil = (
 interface self implements DefaultPrintable {
    let print( f: IO::File, p: self ): Nil;
 }
+
+let print(f: IO::File, e: DefaultFormattable): Nil = (
+   print( f, e.into(type(String)) );
+);
+
+let to-smart-string(e: DefaultFormattable): String = e.into(type(String));
+
+interface self implements DefaultFormattable {
+   let .into( f: self, tgt: Type<String> ): String;
+}
+
+type DefaultFormattable => DefaultPrintable;
+

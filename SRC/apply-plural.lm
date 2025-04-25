@@ -1,12 +1,12 @@
 
-apply-plural := λ(: function-name String)(: ft Type)(: pt Type). (: (
+apply-plural := λ(: ft Type)(: pt Type). (: (
    (let r (: LEOF List<Type>))
    (match ft (
       ()
       ( (TAnd( t1 t2 )) (
          (set r (+(
-            (apply-plural( function-name t1 pt ))
-            (apply-plural( function-name t2 pt ))
+            (apply-plural( t1 pt ))
+            (apply-plural( t2 pt ))
          )))
       ))
       ( (TGround( 'Array_s (LCons( _ (LCons(

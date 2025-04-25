@@ -13,5 +13,5 @@ type ParsePartial (PME( AST , List<Token> )); # term, remainder
 
 type StackToSpecialize (StackToSpecialize( String , Type , Maybe<List<Tuple<String,Type,AST>>> , Type ));
 
-type ApplyResult (ApplyResult( function-type:Type , return-type:Type , phi-types:List<Tuple<String,Type>> ));
+type ApplyResult (ApplyResult( function-type:Type , return-type:Type ));
 

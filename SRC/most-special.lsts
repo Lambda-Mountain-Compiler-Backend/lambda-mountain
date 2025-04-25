@@ -1,0 +1,19 @@
+
+# specialization does not always choose the lowest on the subsumption hierarchy
+# for example: x -> x <: A -> A
+# but for specialization we choose: A -> A
+# This is because specialization chooses the most specific covariant,covariant domain,range pair
+# This is different than the traditional contravariant,covariant unification for arrows
+# Theoretically this is justified by flow-of-information during disambiguation
+#    f(x) is interpreted as "f informed by x"
+#    rather than as simply "f of x"
+
+let most-special(t1: Type, t2: Type): Type = (
+   if t1.is-arrow && t2.is-arrow {
+      if can-unify(t1.domain, t2.domain) then t2
+      else if can-unify(t2.domain, t1.domain) then t1
+      else TAny
+   } else if can-unify(t1, t2) then t2
+     else if can-unify(t2, t1) then t1
+     else TAny
+);

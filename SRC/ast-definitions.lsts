@@ -12,7 +12,7 @@ type AST = ASTEOF
          | Seq { left: AST[], right: AST[] }
          | Glb { key: Token , val: AST[] }
          | Typedef { lhs: AST[] , rhs: AST[] }
-         | Meta { description: AST[] };
+         | Meta { val: AST[] };
 zero AST = ASTEOF;
 
 # constructor with a default argument

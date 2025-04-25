@@ -19,9 +19,9 @@ import SRC/index-types.lm;
 import SRC/index-preprocess.lm;
 import SRC/index-plugins.lm;
 
-import SRC/main.lsts;
-
 # TODO: remove Core dependency on "parse-type" function
 import SRC/substitute.lsts;
 import SRC/union.lsts;
 import SRC/actx-bind.lsts;
+
+import SRC/main.lsts;

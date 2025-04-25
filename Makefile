@@ -1,9 +1,8 @@
 CC = cc
 
 dev: install-production
-	lm tests/regress/interface.lsts
-	gcc tmp.c
-	./a.out
+	lm SRC/index-index.lm
+	cc tmp.c
 
 build: compile-production
 	time ./production --c -o deploy1.c SRC/index-index.lm

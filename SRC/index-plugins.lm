@@ -10,7 +10,6 @@ import PLUGINS/BACKEND/BLOB/index-index.lm;
 import PLUGINS/FRONTEND/LM/index-index.lm;
 import PLUGINS/FRONTEND/LSTS/index-index.lm;
 import PLUGINS/FRONTEND/C/index-index.lm;
-c-input-files := (: LEOF List<String>);
 
 frontend-has-seen := (: (HashtableEq( 0_u64 0_u64 (as 0_u64 Tuple<String,U64>[]) )) HashtableEq<String,U64>);
 frontend := λ(: fp String). (: (
@@ -56,16 +55,8 @@ frontend := λ(: fp String). (: (
          (lm-frontend( fp text ))
          (set todo 0_u64)
       ) ())
-      (if (&&( todo (.has-suffix( fp '.h_s )) )) (
-         (set c-input-files (cons( fp c-input-files )))
-         (set todo 0_u64)
-      ) ())
       (if todo (
          ((.lookup( plugins-frontends-index (.file-extension fp) plugin-null-frontend )) fp)
       ) ())
    ))
-) Nil);
-
-frontend-flush := λ. (: (
-   (if (non-zero c-input-files) (c-parse-all c-input-files) ())
 ) Nil);

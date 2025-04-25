@@ -2,7 +2,7 @@
 let union(ctx: FContext, tctx: Maybe<TContext>): FContext = (
    let r = ctx;
    for Tuple{ k=first, vt=second } in tctx.get-or([] :: TContext) {
-      r = FCtxBind{ close(r), k, TAny, mk-fragment() };
+      r = r.bind( k, TAny, mk-fragment() );
    };
    r
 );

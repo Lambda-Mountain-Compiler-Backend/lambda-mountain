@@ -1,0 +1,28 @@
+
+int main(){
+   int x ;
+   int y ;
+   int z ;
+   int z2 ;
+   int z3 ;
+   int z4 ;
+   int z5 ;
+   if(x){{y;}}else{};
+   if(x){{y;}}else{{y;}};
+   for(;;){{(x+1);}};
+   for(;;){{(x+2);}};
+   for(({z2=2;({});});;){{(x+3);}};
+   for(;x;){{(x+4);}};
+   for(;;x){{(x+5);}};
+   for(;x;){{(x+6);}};
+   for(;;x){{(x+7);}};
+   for(;x;x){{(x+8);}};
+   for(;x;x){{(x+9);}};
+   while(x){{x;}};
+   do{{x;}}while(x);
+   switch(1){{case 1:continue;default:break;}};
+   return;
+   return 0;
+   label_0:;
+   goto label_0;
+}

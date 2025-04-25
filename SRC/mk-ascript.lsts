@@ -1,0 +1,7 @@
+
+let .ascript(t: AST, tt: Type): AST = (
+   mk-app(
+      mk-lit(c":"),
+      mk-cons( t, mk-atype(tt) )
+   )
+);

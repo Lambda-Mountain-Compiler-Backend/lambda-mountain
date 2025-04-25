@@ -1,4 +1,7 @@
 
+## linked list
+##
+## consider using [type(Vector<x>)] instead
 type List<x> LEOF | (LCons( head:x , tail:List<x>[] )); zero List<x> LEOF;
 
 cons := λ(: hd x)(: tl List<x>). (: (

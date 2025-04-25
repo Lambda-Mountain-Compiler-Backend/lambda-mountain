@@ -1,20 +1,23 @@
 
-let alias-index = [] :: List<Tuple<CString,CString,Type>>;
+let alias-index = {} :: HashtableEq<CString,List<(CString,Type)>>;
 
 let add-alias(from: CString, to: CString, tt: Type): Nil = (
-   alias-index = cons( Tuple{from,to,tt}, alias-index );
+   let row = alias-index.lookup(from, [] :: List<(CString,Type)>);
+   alias-index = alias-index.bind(from, cons((to,tt),row) );
 );
 
 let find-alias(from: CString, pars: Type): CString = (
    let to = from;
-   for Tuple{alt-from=first, alt-to=second, third:TGround{tag:c"Arrow",parameters:[_..alt-domain..]}} in alias-index {
-      if from==alt-from && can-unify(alt-domain,pars) { to = alt-to };
+   for Tuple{alt-to=first, second:TGround{tag:c"Arrow",parameters:[_..alt-domain..]}}
+   in alias-index.lookup(from, [] :: List<(CString,Type)>) {
+      if can-unify(alt-domain,pars) { to = alt-to };
    }; to
 );
 
 let find-alias-type(from: CString): Type = (
    let to = TAny;
-   for Tuple{alt-from=first, alt-to=second, alt-tt=third} in alias-index {
-      if from==alt-from { to = to && alt-tt };
+   for Tuple{alt-to=first, alt-tt=second}
+   in alias-index.lookup(from, [] :: List<(CString,Type)>) {
+      to = to && alt-tt;
    }; to
 );

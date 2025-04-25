@@ -1,0 +1,8 @@
+
+let mk-app(f: AST, a: AST): AST = (
+   App{ close(f), close(a) }
+);
+
+let mk-cons(f: AST, a: AST): AST = (
+   App{ true, close(f), close(a) }
+);

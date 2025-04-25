@@ -1,0 +1,8 @@
+
+let mk-var(val: CString): AST = (
+   Var{ val, mk-token(val) }
+);
+
+let mk-var(val: SmartString): AST = (
+   Var{ untern(val), mk-token(val) }
+);

@@ -9,9 +9,21 @@ let std-c-compile-call(ctx: FContext, fname: CString, fterm: AST, args: AST): Fr
             r = blob-render(callee-ctx, rhs, r, 0);
             r.context = close(caller-ctx);
          );
-      };
-      r
+      }; r
+   } else if typeof(fterm).is-t(c"Prop") { std-c-compile-expr(ctx, args, false)
    } else {
-      fail("TODO std-c-compile-call Function"); mk-fragment();
+      let push-args = std-c-compile-push-args(ctx, args);
+      let ictx = mk-fragment().set(c"function-id", SAtom{mangle-identifier(fname, typeof(fterm))});
+      let inner-ctx = mk-fctx().bind(c"ictx", t1(c"ImplicitContext"), ictx)
+                               .bind(c"args", typeof(args), push-args);
+      let f = ctx.lookup(c"primitive::call", t3(c"Cons",t1(c"ImplicitContext"),typeof(args)), args);
+      let r = mk-fragment();
+      match f.term {
+         Abs{lhs=lhs, rhs=rhs} => (
+            r = blob-render(inner-ctx, rhs, r, 0);
+            r.context = close(ctx);
+         );
+      }; r
    }
 );
+

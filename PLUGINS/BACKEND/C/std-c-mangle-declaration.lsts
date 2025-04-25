@@ -9,6 +9,10 @@ let std-c-mangle-declaration-internal(tt: Type): Tuple<S,S> = (
          let rest = std-c-mangle-declaration-internal(array-base);
          ( rest.first, rest.second + SAtom{c"[]"} )
       );
+      TGround{tag:c"Array", parameters:[ TGround{tag:c"C",parameters:[TGround{width=tag}..]}.. array-base.. ]} => (
+         let rest = std-c-mangle-declaration-internal(array-base);
+         ( rest.first, rest.second + SAtom{c"["} + SAtom{width} + SAtom{c"]"} )
+      );
       TGround{tag:c"Array", parameters:[ TGround{width=tag}.. array-base.. ]} => (
          let rest = std-c-mangle-declaration-internal(array-base);
          ( rest.first, rest.second + SAtom{c"["} + SAtom{width} + SAtom{c"]"} )

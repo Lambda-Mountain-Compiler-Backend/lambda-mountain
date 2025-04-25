@@ -1,0 +1,22 @@
+
+import stdio.h;
+import stdlib.h;
+import string.h;
+import regex.h;
+
+strcmp := λ: FFI(: l U8[])(: r U8[]). (: __uninitialized I32);
+memcmp := λ: FFI(: l ?[])(: r ?[])(: len U64). (: __uninitialized U32);
+printf := λ: FFI(: format String)(: arg Any). (: __uninitialized U32);
+fprintf := λ: FFI(: io IO::File)(: format String)(: arg Any). (: __uninitialized U32);
+putchar := λ: FFI(: x U32). (: __uninitialized U32);
+exit := λ: FFI(: x U32). (: __uninitialized Nil);
+malloc := λ: FFI(: sz U64). (: __uninitialized ?[]);
+realloc := λ: FFI(: ptr ?[])(: sz U64). (: __uninitialized ?[]);
+memset :=  λ: FFI(: ptr ?[])(: x U32)(: sz U64). (: __uninitialized ?[]);
+fopen := λ: FFI(: fp U8[])(: mode U8[]). (: __uninitialized IO::File);
+fread := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f IO::File). (: __uninitialized U64);
+fwrite := λ: FFI(: buff ?[])(: size U64)(: count U64)(: f IO::File). (: __uninitialized U64);
+fclose := λ: FFI(: f IO::File). (: __uninitialized U32);
+execvp := λ: FFI(: file U8[])(: argv U8[][]). (: __uninitialized U32);
+mktemp := λ: FFI(: template U8[]). (: __uninitialized U8[]);
+system := λ: FFI(: command U8[]). (: __uninitialized U32);

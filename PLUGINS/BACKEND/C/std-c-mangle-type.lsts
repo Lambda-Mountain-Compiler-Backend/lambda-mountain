@@ -7,7 +7,13 @@ let std-c-mangle-type(tt: Type): S = (
 
 let std-c-mangle-type-internal(tt: Type): S = (
    match tt {
-      TAnd{ left=left, right=right } => std-c-mangle-type-internal(left) || std-c-mangle-type-internal(right);
+      TAnd{ left=left, right=right } => (
+         let lt = std-c-mangle-type-internal(left);
+         let rt = std-c-mangle-type-internal(right);
+         if non-zero(lt) && non-zero(rt) then lt + SAtom{c" "} + rt
+         else if non-zero(lt) then lt
+         else rt
+      );
       TAny{} => SNil;
       TGround{tag:c"Type", parameters:[inner-tt..]} => std-c-mangle-type-internal(inner-tt);
       TGround{tag:c"Array", parameters:[_.. array-base..]} => (

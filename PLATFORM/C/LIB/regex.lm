@@ -1,6 +1,4 @@
 
-import regex.h;
-
 atom suffix Regex _rgx;
 
 .rm_so := λ: Blob(: t C_regmatch__t_). (: (

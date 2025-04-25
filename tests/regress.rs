@@ -45,7 +45,7 @@ fn run_bootstrap(target: &str, leave_tmp: bool) -> String {
 
    let mut output = "".to_string();
    if !exit.status.success() {
-      output = "Error: ".to_owned() + &String::from_utf8_lossy(&exit.stdout).to_string()
+      output = "Compilation Error: ".to_owned() + &String::from_utf8_lossy(&exit.stdout).to_string()
                                     + &String::from_utf8_lossy(&exit.stderr).to_string();
    };
    if output=="" {
@@ -75,7 +75,7 @@ fn run_bootstrap(target: &str, leave_tmp: bool) -> String {
       output = if exit.status.success() {
          String::from_utf8_lossy(&exit.stdout).to_string()
       } else {
-         "Error: ".to_owned() + &String::from_utf8_lossy(&exit.stdout).to_string()
+         "Runtime Error: ".to_owned() + &String::from_utf8_lossy(&exit.stdout).to_string()
                               + &String::from_utf8_lossy(&exit.stderr).to_string()
       };
    }

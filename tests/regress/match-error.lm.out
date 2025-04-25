@@ -1,1 +1,1 @@
-Error: Pattern Match Failure at File: tests/regress/match-error.lm Line: 6 Column: 5
+Runtime Error: Pattern Match Failure at File: tests/regress/match-error.lm Line: 6 Column: 5

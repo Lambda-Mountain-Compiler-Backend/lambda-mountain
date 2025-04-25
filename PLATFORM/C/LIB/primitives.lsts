@@ -1,5 +1,12 @@
 
-declare-binop( mov, raw-type(datatype), raw-type(datatype), raw-type(Nil), ( l"({"; y; l"="; x; l";({});})"; ) );
+# TODO remove after porting to new C frontend
+type "C_regex__t_*_" => C<"regex_t">[];
+type "C_char_*" => C<"char">[];
+type "C_size__t_" => C<"size_t">;
+type "C_regmatch__t_*" => C<"regmatch_t">[];
+type "C_int" => C<"int32_t">;
+
+declare-binop( mov, raw-type(datatype-rhs), raw-type(datatype-lhs), raw-type(Nil), ( l"({"; y; l"="; x; l";({});})"; ) );
 
 declare-unop( branchtrue, raw-type(Nil), raw-type(BranchConditional), l"1" );
 declare-unop( branchfalse, raw-type(Nil), raw-type(BranchConditional), l"0" );

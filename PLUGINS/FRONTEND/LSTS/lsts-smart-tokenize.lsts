@@ -6,12 +6,21 @@ let lsts-tokenize-string(file-path: CString, text: CString): List<Token> = (
 let lsts-tokenize-string(file-path: String, text: String): List<Token> = (
    smart-token-path-index = smart-token-path-index.bind( text.data as U64, file-path );
 
+   let push-newline = 0;
    let tokens = [] :: List<String>;
    while non-zero(text) {match text {
       "\s".. rest => text = rest;
       "\t".. rest => text = rest;
-      "\n".. rest => text = rest;
+      "\n".. rest => (
+         if push-newline {
+            push-newline = 0;
+            tokens = cons("\n", tokens);
+         };
+         text = rest;
+      );
 
+      "__".. rest => (tokens = cons(text[:"__".length], tokens); text = rest;);
+      "**".. rest => (tokens = cons(text[:"**".length], tokens); text = rest;);
       "\\".. rest => (tokens = cons(text[:"\\".length], tokens); text = rest;);
       "~=".. rest => (tokens = cons(text[:"~=".length], tokens); text = rest;);
       "+=".. rest => (tokens = cons(text[:"+=".length], tokens); text = rest;);
@@ -51,6 +60,14 @@ let lsts-tokenize-string(file-path: String, text: String): List<Token> = (
       "=".. rest => (tokens = cons(text[:"=".length], tokens); text = rest;);
       "^".. rest => (tokens = cons(text[:"^".length], tokens); text = rest;);
       ".".. rest => (tokens = cons(text[:".".length], tokens); text = rest;);
+
+      # for docs
+      "'".. rest => (tokens = cons(text[:"'".length], tokens); text = rest;);
+      "##".. rest => (
+         tokens = cons("##", tokens);
+         text = rest;
+         push-newline = 1;
+      );
 
       (lit=r/^[cl]?["]([^"\\]|([\\].))*["]/).. rest => (
          tokens = cons(text[:lit.length], tokens); text = rest;

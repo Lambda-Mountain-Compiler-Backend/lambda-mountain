@@ -1,0 +1,7 @@
+
+let .is-var(tt: Type): U64 = (
+   match tt {
+      TVar{} => true;
+      _ => false;
+   }
+);
