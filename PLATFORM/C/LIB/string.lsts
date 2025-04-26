@@ -35,7 +35,7 @@ type CStringIter = CStringIter { ptr: CString };
 type CStringIter implements Iterator<U8>;
 
 let .next(self: CStringIter[]): Maybe<U8> = (
-   let val = open(self).ptr[0];
+   let val = (open(self).ptr as U8[])[0];
    if val == 0_u8 {
       None :: Maybe<U8>
    } else {

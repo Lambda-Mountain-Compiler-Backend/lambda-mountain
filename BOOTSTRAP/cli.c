@@ -33273,7 +33273,7 @@ return ({({while((((((_EQ__EQ__CL__LT_Arrow_LT_U64_GT__LT_Cons_LT_String_GT__LT_
 ((_EQ__EQ__CL__LT_Arrow_LT_U64_GT__LT_Cons_LT_String_GT__LT_String_GT__GT__GT_((lsts_SB_parse_SB_head_CL__LT_Arrow_LT_String_GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833)),":"))?({({(lsts_SB_parse_SB_expect_CL__LT_Arrow_LT_Nil_GT__LT_Cons_LT_List_LT_Token_GT__GT__LT_String_GT__GT__GT_(":",uuid__00000000000f3833));
 ({uuid__00000000000f3833=(tail_CL__LT_Arrow_LT_List_LT_Token_GT__GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833));({});});
 });
-({uuid__00000000000f3cb0=((_EQ__EQ__CL__LT_Arrow_LT_U64_GT__LT_Cons_LT_String_GT__LT_String_GT__GT__GT_((lsts_SB_parse_SB_head_CL__LT_Arrow_LT_String_GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833)),"]"))?({LM__LT_AST_GT_ rvalue={.field_0=6};rvalue.field_6001=(with_SB_location_CL__LT_Arrow_LT_Token_GT__LT_Cons_LT_SourceLocation_GT__LT_Token_GT__GT__GT_((mk_SB_token_CL__LT_Arrow_LT_Token_GT__LT_SmartString_GT__GT_(uuid__00000000000f3cb1)),uuid__00000000000f386c));rvalue.field_6002="minimum-I64";rvalue;}):({({({uuid__00000000000f3cb3=(lsts_SB_parse_SB_small_SB_expression_CL__LT_Arrow_LT_Tuple_LT_List_LT_Token_GT__GT__LT_AST_GT__GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833));({});})
+({uuid__00000000000f3cb0=((_EQ__EQ__CL__LT_Arrow_LT_U64_GT__LT_Cons_LT_String_GT__LT_String_GT__GT__GT_((lsts_SB_parse_SB_head_CL__LT_Arrow_LT_String_GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833)),"]"))?({LM__LT_AST_GT_ rvalue={.field_0=6};rvalue.field_6001=(with_SB_location_CL__LT_Arrow_LT_Token_GT__LT_Cons_LT_SourceLocation_GT__LT_Token_GT__GT__GT_((mk_SB_token_CL__LT_Arrow_LT_Token_GT__LT_SmartString_GT__GT_(uuid__00000000000f3cb1)),uuid__00000000000f386c));rvalue.field_6002="-2147483648_i64";rvalue;}):({({({uuid__00000000000f3cb3=(lsts_SB_parse_SB_small_SB_expression_CL__LT_Arrow_LT_Tuple_LT_List_LT_Token_GT__GT__LT_AST_GT__GT__LT_List_LT_Token_GT__GT__GT_(uuid__00000000000f3833));({});})
 ;
 ({uuid__00000000000f3833=(uuid__00000000000f3cb3.field_1);({});});
 });
@@ -50543,7 +50543,7 @@ uuid__00000000000f2813=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_
 uuid__00000000000f2815=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("macro::bind-field-by-key"));
 uuid__00000000000f3a93=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("as"));
 uuid__00000000000f3ba5=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("0_i64"));
-uuid__00000000000f3cb1=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("minimum-I64"));
+uuid__00000000000f3cb1=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("-2147483648_i64"));
 uuid__00000000000f3dbc=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("[:]"));
 uuid__00000000000f4e71=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("r/"));
 uuid__00000000000f4e73=(intern_CL__LT_Arrow_LT_SmartString_GT__LT_String_GT__GT_("c\""));

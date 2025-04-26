@@ -51,11 +51,16 @@ let length-or-zero(from: Collection<x>+Iterable<x>): U64 = (
 
 let remaining-eq(a: Iterator<ax>, b: Iterator<bx>): U64 = (
    let ok = true;
-   while ok {
+   let continue = true;
+   while (ok as U64) && (continue as U64) {
       let av = (&a).next();
       let bv = (&b).next();
       if av != bv {
          ok = false;
+      } else {
+         if not(av.is-some()) {
+            continue = false;
+         };
       };
    };
    ok
