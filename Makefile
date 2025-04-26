@@ -16,6 +16,12 @@ build: compile-production
 deploy: build smoke-test
 deploy-lite: build smoke-test-lite
 
+valgrind: install-bootstrap
+	valgrind --tool=callgrind lm SRC/index-index.lm
+
+valgrind-view:
+	callgrind_annotate callgrind.out.20002
+
 gprof:
 	$(CC) -O3 -pg -o bootstrap.exe BOOTSTRAP/cli.c
 	./bootstrap.exe SRC/index-index.lm

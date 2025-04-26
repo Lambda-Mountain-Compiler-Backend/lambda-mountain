@@ -1006,6 +1006,9 @@ let lsts-parse-small-expression(tokens: List<Token>): Tuple<AST,List<Token>> = (
       );
       [Token{key:c"for"}.. rest] => (
          let loc = head(tokens).location; tokens = rest;
+         let is-vector = if lsts-parse-head(tokens)==c"vector" {
+            tokens = tail(tokens); true
+         } else false;
          let lhs-rest = lsts-parse-lhs(tokens);
          tokens = lhs-rest.second;
          lsts-parse-expect(c"in", tokens); tokens = tail(tokens);
@@ -1021,7 +1024,7 @@ let lsts-parse-small-expression(tokens: List<Token>): Tuple<AST,List<Token>> = (
          lsts-parse-expect(c"}", tokens); tokens = tail(tokens);
          base = App {
             close(App{
-               close(Var{ c"for-each", with-location(mk-token("for-each"),loc) }),
+               close(Var{ if is-vector then c"for-each-v" else c"for-each", with-location(mk-token("for-each"),loc) }),
                close(App{
                   close(App{
                      close(lhs-rest.first),

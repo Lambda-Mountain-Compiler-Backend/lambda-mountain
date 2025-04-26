@@ -24,7 +24,7 @@ has-infinite := λ(: base-type Type)(: active Type). (: (
    (match active (
       ()
       ( (TGround( 'Array_s _ )) () )
-      ( (TGround( 'Field_s (LCons( _ (LCons( p1 LEOF )) )) )) (set return (has-infinite( base-type active ))) )
+      ( (TGround( 'Vector_s _ )) () )
       ( (TGround( 'Cons_s (LCons( p2 (LCons( p1 LEOF )) )) )) (
          (set return (max(
             (has-infinite( base-type p1 ))

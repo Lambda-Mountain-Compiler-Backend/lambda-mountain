@@ -41,6 +41,16 @@ macro ( ('for-each (item 'in collection) loop) ) (
    )))
 );
 
+macro ( ('for-each-v (item 'in iter) loop) ) (
+   (let (uuid iter-term) iter)
+   (let (uuid iter-i) 0_u64)
+   (let (uuid iter-length) (.length (uuid iter-term)))
+   (while (<( (uuid iter-i) (uuid iter-length))) (match ([]( (uuid iter-term) (uuid iter-i) )) (
+      ()
+      (item( loop (set (uuid iter-i) (+( (uuid iter-i) 1_u64 )) ) ))
+   )))
+);
+
 for-arg-i := λ: Blob(: vi x...). (: () x);
 macro ( ('for-arg (item 'in iter) loop) ) (
    (scope('for-arg_r (
