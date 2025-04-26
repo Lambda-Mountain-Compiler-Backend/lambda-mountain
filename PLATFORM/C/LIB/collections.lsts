@@ -9,7 +9,7 @@ let .last(self: Collection<x>): x = (
    if ln == 0 {
       fail("cannot get .last() from empty element");
    };
-   self[(ln-1)]
+   self[(ln - 1)]
 );
 
 interface Iterator<t> {
@@ -42,6 +42,10 @@ let length-or-zero(from: Iterable<x>): U64 = (
 );
 
 let length-or-zero(from: Collection<x>): U64 = (
+   from.length()
+);
+
+let length-or-zero(from: Collection<x>+Iterable<x>): U64 = (
    from.length()
 );
 
@@ -174,22 +178,28 @@ let .zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): ZipIterator<ait,bit> = (
    ZipIterator { ai, bi }
 );
 
-type TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>> = TryZipIterator { aii: ai, bii: bi };
-type TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>> implements Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
-type TryZipIterator<ai+Iterator<at>+IteratorRemaining, bi+Iterator<bt>+IteratorRemaining> implements IteratorRemaining;
+type Unused<t> = Unused {};
 
-let .remaining(self: TryZipIterator<Iterator<at>+IteratorRemaining, Iterator<bt>+IteratorRemaining>): U64 = (
+let unused(tt: Type<t>): Unused<t> = (
+   Unused {}
+);
+
+type TryZipIterator<ai, bi, at, bt> = TryZipIterator { aii: ai, bii: bi, _a: Unused<at>, _b: Unused<bt> };
+type TryZipIterator<ai, bi, at, bt> implements Iterator<Tuple<Maybe<at>, Maybe<bt>>>;
+type TryZipIterator<ai+IteratorRemaining, bi+IteratorRemaining, at, bt> implements IteratorRemaining;
+
+let .remaining(self: s+TryZipIterator<ai+IteratorRemaining, bi+IteratorRemaining, at, bt>): U64 = (
    max(self.aii.remaining(), self.bii.remaining())
 );
 
-let .skip(self: TryZipIterator<ai,bi>, num: U64): TryZipIterator<ai,bi> = (
-   TryZipIterator { self.aii.skip(num), self.bii.skip(num) }
+let .skip(self: s+TryZipIterator<ai,bi,at,bt>, num: U64): TryZipIterator<ai,bi,at,bt> = (
+   TryZipIterator { self.aii.skip(num), self.bii.skip(num), unused(type(at)), unused(type(bt)) }
 );
 
-let .next(p: s+TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>>[]): Maybe<Tuple<Maybe<at>,Maybe<bt>>> = (
+let .next(p: s+TryZipIterator<ai, bi, at, bt>[]): Maybe<Tuple<Maybe<at>,Maybe<bt>>> = (
    let v = open(p);
-   let av = (&v.aii).next();
-   let bv = (&v.bii).next();
+   let av = (&(v.aii)).next();
+   let bv = (&(v.bii)).next();
 
    let res = if av.is-some() || bv.is-some() {
       Some { Tuple { av, bv } } :: Maybe<Tuple<Maybe<at>,Maybe<bt>>>
@@ -202,31 +212,31 @@ let .next(p: s+TryZipIterator<ai+Iterator<at>, bi+Iterator<bt>>[]): Maybe<Tuple<
    res
 );
 
-let .try-zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): TryZipIterator<ait,bit> = (
-   TryZipIterator { ai, bi }
+let .try-zip(ai: ait+Iterator<at>, bi: bit+Iterator<bt>): TryZipIterator<ait,bit,at,bt> = (
+   TryZipIterator { ai, bi, unused(type(at)), unused(type(bt)) }
 );
 
-type EnumerateIterator<i+Iterator<t>> = EnumerateIterator { ii: i, idx: U64 };
-type EnumerateIterator<Iterator<t>> implements Iterator<Tuple<U64,t>>;
-type EnumerateIterator<Iterator<t>+IteratorRemaining> implements IteratorRemaining;
+type EnumerateIterator<i,t> = EnumerateIterator { ii: i, idx: U64, _x: Unused<t> };
+type EnumerateIterator<i,t> implements Iterator<Tuple<U64,t>>;
+type EnumerateIterator<IteratorRemaining,t> implements IteratorRemaining;
 
-let .remaining(self: EnumerateIterator<Iterator<t>+IteratorRemaining>): U64 = (
+let .remaining(self: EnumerateIterator<IteratorRemaining,t>): U64 = (
    self.ii.remaining()
 );
 
-let .next(p: EnumerateIterator<i+Iterator<t>>[]): Maybe<Tuple<U64, t>> = (
+let .next(p: EnumerateIterator<it,t>[]): Maybe<Tuple<U64, t>> = (
    let v = open(p);
-   let iv = (&v.ii).next();
+   let iv = (&(v.ii)).next();
 
    let res = match iv {
       Some { content=content } => (
          let oldv = v.idx;
          v.idx = v.idx + 1;
-         Some { Tuple { oldv, content } } :: Maybe<Tuple<at,bt>>
+         Some { Tuple { oldv, content } } :: Maybe<Tuple<U64,t>>
       );
 
       None {} => (
-         None :: Maybe<Tuple<at,bt>>
+         None :: Maybe<Tuple<U64,t>>
       );
    };
 
@@ -235,23 +245,23 @@ let .next(p: EnumerateIterator<i+Iterator<t>>[]): Maybe<Tuple<U64, t>> = (
    res
 );
 
-let .enumerate(i: t+Iterator<x>): EnumerateIterator<x> = (
-   EnumerateIterator { i, 0_u64 }
+let .enumerate(i: t+Iterator<x>): EnumerateIterator<t,x> = (
+   EnumerateIterator { i, 0_u64, unused(type(x)) }
 );
 
-type CollectionIteratorBase<c> = CollectionIteratorBase { coll: c, idx: U64 };
-type CollectionIteratorBase<Collection<t>> implements Iterator<t>;
-type CollectionIteratorBase<Collection<t>> implements IteratorRemaining;
+type CollectionIteratorBase<c,t> = CollectionIteratorBase { coll: c, idx: U64, _u: Unused<t> };
+type CollectionIteratorBase<c,t> implements Iterator<t>;
+type CollectionIteratorBase<c,t> implements IteratorRemaining;
 
-let .remaining(self: CollectionIteratorBase<c+Collection<t>>): U64 = (
+let .remaining(self: CollectionIteratorBase<c,t>): U64 = (
    self.coll.length() - self.idx
 );
 
-let .skip(self: CollectionIteratorBase<c>, num: U64): CollectionIteratorBase<c> = (
-   CollectionIteratorBase { self.coll, self.idx + num }
+let .skip(self: CollectionIteratorBase<c,t>, num: U64): CollectionIteratorBase<c,t> = (
+   CollectionIteratorBase { self.coll, self.idx + num, unused(type(t)) }
 );
 
-let .next(p: CollectionIteratorBase<Collection<t>>[]): Maybe<t> = (
+let .next(p: CollectionIteratorBase<c,t>[]): Maybe<t> = (
    let v = p[0];
    if v.idx < v.coll.length() {
       let val = v.coll[v.idx];
@@ -261,6 +271,10 @@ let .next(p: CollectionIteratorBase<Collection<t>>[]): Maybe<t> = (
    } else {
       None :: Maybe<t>
    }
+);
+
+let .into(self: c+Collection<t>, out: Type<CollectionIteratorBase<c,t>>): CollectionIteratorBase<c,t> = (
+   CollectionIteratorBase { self, 0_u64, unused(type(t)) }
 );
 
 let cmp(ls: at+Collection<a>, rs: bt+Collection<b>): Ord = (
@@ -283,7 +297,7 @@ let cmp(ls: at+Collection<a>, rs: bt+Collection<b>): Ord = (
    Equal
 );
 
-let .contains(self: it+Iterable<t>, value: t): U64 = (
+let .contains(self: Iterable<t>, value: t): U64 = (
    let ok = false;
    for x in self.unsafe-iter() {
       if x == value {
@@ -332,7 +346,7 @@ let .find-first(self: it+Iterable<t>, seq: sit+Iterable<t>): Maybe<U64> = (
    };
 );
 
-let .contains(self: it+Iterable<t>, seq: sit+Iterable<t>): U64 = (
+let .contains-seq(self: Iterable<t>, seq: Iterable<t>): U64 = (
    self.find-first(seq).is-some()
 );
 

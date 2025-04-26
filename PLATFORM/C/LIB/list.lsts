@@ -27,9 +27,9 @@ type ListIter<x> = ListIter { list: List<x> };
 type ListIter<x> implements Iterator<x>;
 
 let .next(ls: ListIter<x>[]): Maybe<x> = (
-   match open(ls.list) {
+   match open(open(ls).list) {
       [i.. rst] => (
-         ls[0].list = rst;
+         ls[0_u64] = ListIter { rst };
          Some(i)
       );
       [] => (None :: Maybe<x>);

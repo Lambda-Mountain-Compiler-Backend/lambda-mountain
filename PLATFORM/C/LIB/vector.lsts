@@ -137,13 +137,13 @@ let $"set[]"( v: Vector<t>, i: U64, val: t ): Nil = (
 
 # for safety, we clone the vector
 # All modifications done to the vector after creating the iterator will not be seen
-let .iter(v: Vector<t>): CollectionIteratorBase<Vector<t>> = (
+let .iter(v: Vector<t>): CollectionIteratorBase<Vector<t>,t> = (
    v.clone().unsafe-iter()
 );
 
 # If you modify the vector after creating the iterator, weird things will happen
-let .unsafe-iter(v: Vector<t>): CollectionIteratorBase<Vector<t>> = (
-   VectorIter { v, 0_u64 }
+let .unsafe-iter(v: Vector<t>): CollectionIteratorBase<Vector<t>,t> = (
+   v.into(type(CollectionIteratorBase<Vector<t>,t>))
 );
 
 let .reverse-self(v: Vector<t>): Nil = (
@@ -185,7 +185,7 @@ let print(v: Vector<x>): Nil = (
 );
 
 let .push-all(self: Vector<t>, val: Iterable<t>): Vector<t> = (
-   let ln = length-or-null(val);
+   let ln = length-or-zero(val);
    if ln != 0 {
       self = self.reserve-additional(ln);
    };

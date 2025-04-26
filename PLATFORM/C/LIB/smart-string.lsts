@@ -2,11 +2,11 @@
 type SmartString implements Collection<U8>;
 type SmartString implements Iterable<U8>;
 
-let .iter(self: SmartString): CollectionIteratorBase<SmartString> = (
-   CollectionIteratorBase { self, 0_u64 }
+let .iter(self: SmartString): CollectionIteratorBase<SmartString,U8> = (
+   self.into(type(CollectionIteratorBase<SmartString,U8>))
 );
 
-let .unsafe-iter(self: SmartString): CollectionIteratorBase<SmartString> = (
+let .unsafe-iter(self: SmartString): CollectionIteratorBase<SmartString,U8> = (
    self.iter()
 );
 
