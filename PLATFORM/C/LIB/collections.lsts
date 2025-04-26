@@ -22,8 +22,8 @@ interface Iterable<t> {
 };
 
 type Iterator<t> implements Iterable<t>;
-let .iter(x: t+Iterator<x>): t = ( x );
-let .unsafe-iter(x: t+Iterator<x>): t = ( x );
+let .iter(x: t+Iterator<elt>): t = ( x );
+let .unsafe-iter(x: t+Iterator<elt>): t = ( x );
 
 interface IteratorRemaining {
    let .remaining(x: self + Iterator<t>): U64;
@@ -70,7 +70,7 @@ let .skip(self: t+Iterator<x>, num: U64): t = (
 );
 
 type RangeIter = RangeIter { i: U64, len: U64, step: U64 };
-type RangeIter implements Iterable<U64>;
+type RangeIter implements Iterator<U64>;
 type RangeIter implements IteratorRemaining;
 
 let .remaining(self: RangeIter): U64 = (
@@ -298,13 +298,7 @@ let cmp(ls: at+Collection<a>, rs: bt+Collection<b>): Ord = (
 );
 
 let .contains(self: Iterable<t>, value: t): U64 = (
-   let ok = false;
-   for x in self.unsafe-iter() {
-      if x == value {
-         ok = true;
-      };
-   };
-   ok
+   self.find-first(value).is-some()
 );
 
 let .has-prefix-at(self: it+Iterable<t>, off: U64, seq: sit+Iterable<t>): U64 = (
@@ -329,7 +323,7 @@ let .has-suffix(self: it+Iterable<t>+Collection<t>, seq: sit+Iterable<t>+Collect
    };
 );
 
-let .find-first(self: it+Iterable<t>, seq: sit+Iterable<t>): Maybe<U64> = (
+let .find-first-seq(self: it+Iterable<t>, seq: sit+Iterable<t>): Maybe<U64> = (
    let found = false;
    let i = 0_u64;
    while i < self.length() && not(found) {
@@ -347,7 +341,7 @@ let .find-first(self: it+Iterable<t>, seq: sit+Iterable<t>): Maybe<U64> = (
 );
 
 let .contains-seq(self: Iterable<t>, seq: Iterable<t>): U64 = (
-   self.find-first(seq).is-some()
+   self.find-first-seq(seq).is-some()
 );
 
 let .join(self: it+Iterable<t>, sep: String, prefix: String, suffix: String): String = (
@@ -377,31 +371,61 @@ let to-smart-string(ls: it+Iterable<t>): String = (
    ls.join(", ", "[", "]")
 );
 
-# TODO: use iterators in the following 3 functions
-
-let .find-first(list: it+Collection<t>, elem: e): Maybe<U64> = (
+let .find-first(list: Iterable<t>, elem: e): Maybe<U64> = (
+   let iter = list.unsafe-iter();
+   let idx = 0_u64;
    let found = false;
+   let break = false;
+   while not(break) {
+      let x = (&iter).next();
+      match x {
+         Some{ content=content } => (
+            if content == elem {
+               break = true;
+               found = true;
+            } else {
+               idx = idx + 1;
+            };
+         );
 
-   let i = 0_u64;
-   let where = 0_u64;
-   let len = list.length();
-   while i < len {
-      if list[i] == elem {
-         found = true;
-         where = i;
-         i = len; # break
-      } else {
-         i = i + 1;
+         None{} => (
+            break = true;
+         );
       };
    };
 
    if found {
-      Some{where}
+      Some { idx }
    } else {
-      None{} :: Maybe<U64>
+      None :: Maybe<U64>
    }
 );
 
+let .find-last(list: Iterable<t>, elem: e): Maybe<U64> = (
+   let iter = list.unsafe-iter();
+   let idx = 0_u64;
+   let occ_idx = None :: Maybe<U64>;
+   let break = false;
+   while not(break) {
+      let x = (&iter).next();
+      match x {
+         Some{ content=content } => (
+            if content == elem {
+               occ_idx = Some { idx };
+            };
+            idx = idx + 1;
+         );
+
+         None{} => (
+            break = true;
+         );
+      };
+   };
+   occ_idx
+);
+
+
+# TODO: this only needs a Iterable, not a Collection
 let .find-first-with-indent(list: lit+Collection<t>, elem: e, up: uit+Collection<uv>, down: dit+Collection<dv>): Maybe<U64> = (
    let found = false;
 
@@ -449,10 +473,6 @@ let .find-first-with-indent(list: lit+Collection<t>, elem: e, up: uit+Collection
    } else {
       None{} :: Maybe<U64>
    }
-);
-
-let .collect(x: it+Iterator<t>): Vector<t> = (
-   x.collect(type(Vector<t>))
 );
 
 type UniqueIter<t,i+Iterator<t>> = UniqueIter { set: Hashset<t>, ii: i };
@@ -518,27 +538,6 @@ let .next(vp: SplitWithIndentIter<t,sp,uv,dv>[]): Maybe<Vector<t>> = (
 
 let split-with-indent(self: sit+Collection<t>, split: sp, up: ut+Collection<uv>, down: dt+Collection<dv>): SplitWithIndentIter<t,sp,uv,dv> = (
    SplitWithIndentIter { self.unsafe-iter().collect(), split, up.unsafe-iter().collect(), down.unsafe-iter().collect() }
-);
-
-let .find-last(list: lit+Collection<t>, elem: e): Maybe<U64> = (
-   let found = false;
-   let found_idx = 0_u64;
-
-   let i = 0_u64;
-   let len = list.length();
-   while i < len {
-      if list[i] == elem {
-         found = true;
-         found_idx = i;
-      };
-      i = i + 1;
-   };
-
-   if found {
-      Some{found_idx}
-   } else {
-      None{} :: Maybe<U64>
-   }
 );
 
 let .repeat(self: sit+Iterable<t>, times: U64): Vector<t> = (

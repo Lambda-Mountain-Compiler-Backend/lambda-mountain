@@ -1200,7 +1200,7 @@ let lsts-parse-assign(tokens: List<Token>): Tuple<AST,List<Token>> = (
 let lsts-make-lit(t: Token): AST = (
    let loc = t.location;
    let base = Lit { t.key, t };
-   if t.key.has-suffix(c"_ss") && t.key.contains(c"\\{") {
+   if t.key.has-suffix(c"_ss") && t.key.contains-seq(c"\\{") {
       let s = t.key;
       base = ASTEOF {};
       let buffer = SNil{};
