@@ -280,11 +280,11 @@ let $"+"(l: Umbra[], r: t): Umbra = (
     concat-to-umbra(l, r)
 );
 
-let .iter(self: Umbra): CollectionIteratorBase<Umbra> = (
+let .iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (
    self.into(type(Umbra)).unsafe-iter()
 );
 
-let .unsafe-iter(self: Umbra): CollectionIteratorBase<Umbra> = (
-   CollectionIteratorBase { self, 0_u64 }
+let .unsafe-iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (
+   self.into(type(CollectionIteratorBase<Umbra, U8>))
 );
 
