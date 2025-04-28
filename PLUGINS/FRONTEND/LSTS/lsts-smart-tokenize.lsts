@@ -69,15 +69,15 @@ let lsts-tokenize-string(file-path: String, text: String): List<Token> = (
          push-newline = 1;
       );
 
-      (lit=r/^[cl]?["]([^"\\]|([\\].))*["]/).. rest => (
+      (lit=r/^[cl]?["]([^"\\]|([\\].))*?["]/).. rest => (
          tokens = cons(text[:lit.length], tokens); text = rest;
       );
 
-      (rgx=r/^r[\/]([^\/]|([\\].))*[\/]/).. rest => (
+      (rgx=r/^r[\/]([^\/]|([\\].))*?[\/]/).. rest => (
          tokens = cons(text[:rgx.length], tokens); text = rest;
       );
 
-      (id=r/^[$]["]([^"\\]|([\\].))*["]/).. rest => (
+      (id=r/^[$]["]([^"\\]|([\\].))*?["]/).. rest => (
          tokens = cons(text[:id.length], tokens); text = rest;
       );
 
@@ -85,7 +85,7 @@ let lsts-tokenize-string(file-path: String, text: String): List<Token> = (
          tokens = cons(text[:id.length], tokens); text = rest;
       );
 
-      (comment=r/^#[^\n]*[\n]/).. rest => (
+      (comment=r/^#[^\n]*?[\n]/).. rest => (
          text = rest;
       );
 
