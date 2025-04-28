@@ -232,7 +232,7 @@ let .into(self: Umbra, t: Type<Vector<U8>>): Vector<U8> = (
 let .into(self: Umbra, t: Type<CString>): CString = (
    let v = self.into(type(Vector<U8>));
    v = v.push(0_u8);
-   ((v.data as U8[]) as CString);
+   ((v.span.data as U8[]) as CString);
 );
 
 let .into(self: Umbra, t: Type<SmartString>): SmartString = (

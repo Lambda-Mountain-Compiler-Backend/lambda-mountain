@@ -200,9 +200,9 @@ let print(v: Vector<x>): Nil = (
 
 ## does not destory input vec
 let .into(in: Vector<U8>, res: Type<CString>): CString = (
-   let out = mk-vector(type(U8), in.span.length()+1);
+   let out = mk-vector(type(U8), in.length()+1);
    let i = 0_u64;
-   while i < in.span.length() { out = out.push(in[i]); i = i + 1; };
+   while i < in.length() { out = out.push(in[i]); i = i + 1; };
    out = out.push(0_u8);
    ((out.span.data as U8[]) as CString)
 );
