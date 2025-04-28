@@ -1,0 +1,86 @@
+## MemSpan represents a re-allocatable, contiguous, mutable, owned collection.
+## It provides a safe interface to libc's realloc and handles ownership of inner elements.
+type MemSpan<t> = MemSpan { data: t[], length: U32, capacity: U32 };
+
+let mk-memspan(type: Type<t>, capacity: U64): MemSpan<t> = (
+   let ptr = if (capacity == 0_u64) then (0_u64 as t[]) else (safe-alloc(capacity, type(t)));
+   MemSpan { ptr, 0_u32, capacity as U32 }
+);
+
+let mk-memspan(ty: Type<t>): MemSpan<t> = (
+   mk-memspan(ty, 0_u64)
+);
+
+## Reallocates the memory to the target capacity
+## Does not change the length or destroy old elements
+let .realloc(span: MemSpan<t>, target-capacity: U64): MemSpan<t> = (
+   let newp = if (target-capacity == 0_u64) then (0_u64 as t[]) else (safe-realloc(span.data, target-capacity, type(t)));
+   MemSpan { newp, span.length, target-capacity as U32 }
+);
+
+## Reserve additional num elements to the current length
+let .reserve-additional(span: MemSpan<t>, additional: U64): MemSpan<t> = (
+   if (span.capacity - span.length) < additional as U32 {
+      span.realloc((span.length as U64) + additional)
+   } else {
+      span
+   }
+);
+
+## Grows the capacity if needed using a 1.5x growth factor
+let .ensure-capacity(span: MemSpan<t>, min-capacity: U64): MemSpan<t> = (
+   if span.capacity < (min-capacity as U32) {
+      let new-cap = if span.capacity == 0 {
+         4_u64
+      } else {
+         let current = span.capacity as U64;
+         let needed = min-capacity;
+         if (current * 3_u64 / 2_u64) >= needed {
+            current * 3_u64 / 2_u64  # grow by 1.5x
+         } else {
+            needed  # grow to exact size needed
+         }
+      };
+      span.realloc(new-cap)
+   } else {
+      span
+   }
+);
+
+## Shrinks the capacity if it has way too much unused space
+let .shrink-to-fit(span: MemSpan<t>): MemSpan<t> = (
+    let too-much = span.capacity - span.length;
+    let minimum = (span.length >> 1) + span.length; # mul 1.5
+    if too-much > minimum {
+       span.realloc(minimum as U64)
+    } else {
+       span
+    }
+);
+
+## Get element at index
+let $"[]"(span: MemSpan<t>, i: U64): t = (
+   if i >= (span.length as U64) {
+      fail("MemSpan Index Out of Bounds");
+   };
+   span.data[i]
+);
+
+## Set element at index
+let $"set[]"(span: MemSpan<t>, i: U64, val: t): Nil = (
+   if i >= (span.length as U64) {
+      fail("MemSpan Index Out of Bounds");
+   };
+   span.data[i] = val;
+   ()
+);
+
+## Get the length of the span
+let .length(span: MemSpan<t>): U64 = (
+   span.length as U64
+);
+
+## Get the capacity of the span
+let .capacity(span: MemSpan<t>): U64 = (
+   span.capacity as U64
+);

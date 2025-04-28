@@ -1,15 +1,14 @@
 
 ## faster than [type(List<t>)]. should be used when you append or remove data a lot
-type Vector<t> = Vector { data: t[], _length: U32, capacity: U32 };
+type Vector<t> = Vector { span: MemSpan<t> };
 type Vector<t> implements Collection<t>;
 
 let .length(v: Vector<t>): U64 = (
-   v._length
+   v.span.length()
 );
 
 let mk-vector(type: Type<t>, capacity: U64): Vector<t> = (
-   let ptr = if (capacity == 0_u64) then (0_u64 as t[]) else (safe-alloc(capacity, type(t)));
-   Vector { ptr, 0_u32, capacity as U32 }
+   Vector { mk-memspan(type, capacity) }
 );
 
 let mk-vector(ty: Type<t>): Vector<t> = (
@@ -28,32 +27,20 @@ let fill-vector(value: t, len: U64): Vector<t> = (
 
 ## does not change the length length, or destroy old elements!
 let .realloc(v: Vector<t>, target-capacity: U64): Vector<t> = (
-   let newp = if (target-capacity == 0_u64) then (0_u64 as t[]) else (safe-realloc(v.data, target-capacity, type(t)));
-   Vector { newp, v.length as U32, target-capacity as U32 }
+   Vector { v.span.realloc(target-capacity) }
 );
 
 ## reserve additional num elements to the current length
 let .reserve-additional(v: Vector<t>, additional: U64): Vector<t> = (
-   if (v.capacity - v.length) < additional as U32 {
-      v.realloc((v.length as U64) + additional)
-   } else {
-      v
-   }
+   Vector { v.span.reserve-additional(additional) }
 );
 
 ## INPUT VECTOR GETS POISONED
 let .push(v: Vector<t>, i: t): Vector<t> = (
-   if v.length >= v.capacity {
-      let new-cap = if v.capacity == 0 {
-         4_u64
-      } else {
-         (v.length >> 1_u32) + v.length # this is mul 1.5, not 3
-      };
-      v = v.realloc(new-cap as U64);
-   };
-   v.data[v.length as U64] = i;
-   v._length = v._length + 1_u32;
-   v
+   let span = v.span.ensure-capacity(v.span.length() + 1);
+   span.data[span.length as U64] = i;
+   span.length = span.length + 1_u32;
+   Vector { span }
 );
 
 let .into(l: List<t>, out: Type<Vector<t>>): Vector<t> = (
@@ -66,39 +53,36 @@ let .into(l: List<t>, out: Type<Vector<t>>): Vector<t> = (
 
 ## shrinks the vector if it has way too many elements. shouldn't be called manually
 let .shrink(v: Vector<t>): Vector<t> = (
-    let too-much = v.capacity - v.length;
-    let minimum = (v.length >> 1) + v.length; # mul 1.5
-    if too-much > minimum {
-       v = v.realloc(minimum);
-    };
-    v
+    Vector { v.span.shrink-to-fit() }
 );
 
 ## INPUT VECTOR GETS POISONED
 let .remove-front(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
+    if num > v.span.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.span.length()}");
     };
 
+    let span = v.span;
     let i = num;
-    while i < v.length() {
-        v[i-num] = v[i];
+    while i < span.length() {
+        span[i-num] = span[i];
         i = i + 1;
     };
-    v._length = v._length - (num as U32);
+    span.length = span.length - (num as U32);
 
-    v.shrink();
+    Vector { span.shrink-to-fit() }
 );
 
 ## INPUT VECTOR GETS POISONED
 let .remove-back(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
+    if num > v.span.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.span.length()}");
     };
 
-    v._length = v._length - (num as U32);
+    let span = v.span;
+    span.length = span.length - (num as U32);
 
-    v.shrink();
+    Vector { span.shrink-to-fit() }
 );
 
 ## INPUT VECTOR GETS POISONED
@@ -127,51 +111,47 @@ let .pop(v: Vector<t>): Tuple<Vector<t>, t> = (
 );
 
 let $"[]"( v: Vector<t>, i: U64 ): t = (
-   if i >= (v.length as U64) {
-      fail("Vector Index Out of Bounds");
-   };
-   v.data[i]
+   v.span[i]
 );
 
-let $"+"( vl: Vector<t>, vr: Vector<t> ): t = (
-   let v = mk-vector(type(t), vl.length + vr.length);
+let $"+"( vl: Vector<t>, vr: Vector<t> ): Vector<t> = (
+   let v = mk-vector(type(t), vl.span.length() + vr.span.length());
    let vi = 0_u64;
-   while vi < (vl.length as U64) { v = v.push(vl[vi]); vi = vi + 1; };
+   while vi < vl.span.length() { v = v.push(vl[vi]); vi = vi + 1; };
    vi = 0_u64;
-   while vi < (vr.length as U64) { v = v.push(vr[vi]); vi = vi + 1; };
+   while vi < vr.span.length() { v = v.push(vr[vi]); vi = vi + 1; };
    v
 );
 
 let $"set[]"( v: Vector<t>, i: U64, val: t ): Nil = (
-   if i >= v.length {
-      fail("Vector Index Out of Bounds");
-   };
-   v.data[i] = val; 
+   v.span[i] = val;
    ()
 );
 
 let .reverse-self(v: Vector<t>): Nil = (
    let i = 0_u64;
-   while i < (v.length >> 1) {
-      let ri = v.length - i - 1;
-      let temp = v[i];
-      v[i] = v[ri];
-      v[ri] = temp;
+   let span = v.span;
+   while i < (span.length >> 1) {
+      let ri = span.length - i - 1;
+      let temp = span[i];
+      span[i] = span[ri];
+      span[ri] = temp;
       i = i + 1;
    };
 );
 
 let .sort(v: Vector<t>): Vector<t> = (
-   let n = v.length;
+   let span = v.span;
+   let n = span.length;
    let i = 0_u64;
    while i < n - 1_u64 {
       let swapped = 0;
       let j = 0;
       while j < n - i - 1_u64 {
-         if v[j + 1_u64] < v[j] {
-            let tmp = v[j];
-            v[j] = v[j + 1_u64];
-            v[j + 1_u64] = tmp;
+         if span[j + 1_u64] < span[j] {
+            let tmp = span[j];
+            span[j] = span[j + 1_u64];
+            span[j + 1_u64] = tmp;
             swapped = 1;
          };
          j = j + 1_u64;
@@ -186,10 +166,11 @@ let .sort(v: Vector<t>): Vector<t> = (
 
 let print(v: Vector<x>): Nil = (
    let vi = 0_u64;
+   let span = v.span;
    print(c"[");
-   while vi < v.length {
+   while vi < span.length {
       if vi > 0_u64 then print(c",");
-      print(v.data[vi]);
+      print(span[vi]);
       vi = vi + 1_u64;
    };
    print(c"]");
@@ -197,11 +178,11 @@ let print(v: Vector<x>): Nil = (
 
 ## does not destory input vec
 let .into(in: Vector<U8>, res: Type<CString>): CString = (
-   let out = mk-vector(type(U8), in.length+1);
+   let out = mk-vector(type(U8), in.span.length()+1);
    let i = 0_u64;
-   while i < in.length { out = out.push(in[i]); i = i + 1; };
+   while i < in.span.length() { out = out.push(in[i]); i = i + 1; };
    out = out.push(0_u8);
-   ((out.data as U8[]) as CString)
+   ((out.span.data as U8[]) as CString)
 );
 
 ## does not destory input vec
