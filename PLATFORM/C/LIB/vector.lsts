@@ -11,8 +11,8 @@ let .capacity(v: Vector<t>): U64 = (
    v.span.length()
 );
 
-let mk-vector(type: Type<t>, capacity: U64): Vector<t> = (
-   Vector { (mk-memspan(type, capacity)), 0_u32 }
+let mk-vector(ty: Type<t>, capacity: U64): Vector<t> = (
+   Vector { (mk-memspan(ty, capacity)), 0_u32 }
 );
 
 let mk-vector(ty: Type<t>): Vector<t> = (
