@@ -1,14 +1,18 @@
 
-## faster than [type(List<t>)]. should be used when you append or remove data a lot
-type Vector<t> = Vector { span: MemSpan<t> };
+## Preferred over [type(List<t>)] for all use cases. Provides O(1) append/remove operations and contiguous memory layout.
+type Vector<t> = Vector { span: MemSpan<t>, length: U32 };
 type Vector<t> implements Collection<t>;
 
 let .length(v: Vector<t>): U64 = (
+   v.length as U64
+);
+
+let .capacity(v: Vector<t>): U64 = (
    v.span.length()
 );
 
 let mk-vector(type: Type<t>, capacity: U64): Vector<t> = (
-   Vector { mk-memspan(type, capacity) }
+   Vector { mk-memspan(type, capacity), 0_u32 }
 );
 
 let mk-vector(ty: Type<t>): Vector<t> = (
@@ -22,25 +26,40 @@ let fill-vector(value: t, len: U64): Vector<t> = (
       v[len-1] = value;
       len = len - 1;
    };
+   v.length = len as U32;
    v
 );
 
-## does not change the length length, or destroy old elements!
+## does not change the length or destroy old elements!
 let .realloc(v: Vector<t>, target-capacity: U64): Vector<t> = (
-   Vector { v.span.realloc(target-capacity) }
+   Vector { v.span.realloc(target-capacity), v.length }
 );
 
 ## reserve additional num elements to the current length
 let .reserve-additional(v: Vector<t>, additional: U64): Vector<t> = (
-   Vector { v.span.reserve-additional(additional) }
+   if (v.capacity() - v.length()) < additional {
+      v.realloc(v.length() + additional)
+   } else {
+      v
+   }
 );
 
 ## INPUT VECTOR GETS POISONED
 let .push(v: Vector<t>, i: t): Vector<t> = (
-   let span = v.span.ensure-capacity(v.span.length() + 1);
-   span.data[span.length as U64] = i;
-   span.length = span.length + 1_u32;
-   Vector { span }
+   let vec = if v.length >= (v.span.length() as U32) {
+      let new-cap = if v.span.length() == 0 {
+         4_u64
+      } else {
+         let current = v.span.length() as U64;
+         (current * 3_u64) / 2_u64  # grow by 1.5x
+      };
+      v.realloc(new-cap)
+   } else {
+      v
+   };
+   vec.span[vec.length as U64] = i;
+   vec.length = vec.length + 1_u32;
+   vec
 );
 
 let .into(l: List<t>, out: Type<Vector<t>>): Vector<t> = (
@@ -53,36 +72,39 @@ let .into(l: List<t>, out: Type<Vector<t>>): Vector<t> = (
 
 ## shrinks the vector if it has way too many elements. shouldn't be called manually
 let .shrink(v: Vector<t>): Vector<t> = (
-    Vector { v.span.shrink-to-fit() }
+    let too-much = v.capacity() - v.length();
+    let minimum = (v.length() * 3_u64) / 2_u64; # mul 1.5
+    if too-much > minimum {
+       v.realloc(minimum)
+    } else {
+       v
+    }
 );
 
 ## INPUT VECTOR GETS POISONED
 let .remove-front(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.span.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.span.length()}");
+    if num > v.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
     };
 
-    let span = v.span;
     let i = num;
-    while i < span.length() {
-        span[i-num] = span[i];
+    while i < v.length() {
+        v.span[i-num] = v.span[i];
         i = i + 1;
     };
-    span.length = span.length - (num as U32);
+    v.length = v.length - (num as U32);
 
-    Vector { span.shrink-to-fit() }
+    v.shrink()
 );
 
 ## INPUT VECTOR GETS POISONED
 let .remove-back(v: Vector<t>, num: U64): Vector<t> = (
-    if num > v.span.length() {
-        fail("tried to remove \{num} elements from vector, but only have \{v.span.length()}");
+    if num > v.length() {
+        fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
     };
 
-    let span = v.span;
-    span.length = span.length - (num as U32);
-
-    Vector { span.shrink-to-fit() }
+    v.length = v.length - (num as U32);
+    v.shrink()
 );
 
 ## INPUT VECTOR GETS POISONED
