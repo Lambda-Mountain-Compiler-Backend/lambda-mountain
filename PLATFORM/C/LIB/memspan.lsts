@@ -12,7 +12,6 @@ let mk-memspan(ty: Type<t>): MemSpan<t> = (
 );
 
 ## Reallocates the memory to the target size
-## Does not destroy old elements
 let .realloc(span: MemSpan<t>, target-size: U64): MemSpan<t> = (
    let newp = if (target-size == 0_u64) then (0_u64 as t[]) else (safe-realloc(span.data, target-size, type(t)));
    MemSpan { newp, target-size as U32 }
