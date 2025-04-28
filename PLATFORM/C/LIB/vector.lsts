@@ -1,5 +1,5 @@
 
-## Preferred over [type(List<t>)] for all use cases. Provides O(1) append/remove operations and contiguous memory layout.
+## Always use this over [type(List<t>)] because of way better CPU cache hit rate
 type Vector<t> = Vector { span: MemSpan<t>, length: U32 };
 type Vector<t> implements Collection<t>;
 
