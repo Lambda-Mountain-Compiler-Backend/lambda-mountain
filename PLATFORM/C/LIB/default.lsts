@@ -36,6 +36,7 @@ import PLATFORM/C/LIB/tuple.lsts;
 import PLATFORM/C/LIB/list.lm;
 import PLATFORM/C/LIB/list.lsts;
 import PLATFORM/C/LIB/maybe.lsts;
+import PLATFORM/C/LIB/memspan.lsts;
 import PLATFORM/C/LIB/vector.lsts;
 import PLATFORM/C/LIB/hashtable.lm;
 import PLATFORM/C/LIB/hashtable.lsts;
