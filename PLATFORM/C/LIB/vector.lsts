@@ -1,10 +1,10 @@
 
 ## Always use this over [type(List<t>)] because of way better CPU cache hit rate
-type Vector<t> = Vector { span: MemSpan<t>, length: U32 };
+type Vector<t> = Vector { span: MemSpan<t>, _length: U32 };
 type Vector<t> implements Collection<t>;
 
 let .length(v: Vector<t>): U64 = (
-   v.length as U64
+   v._length as U64
 );
 
 let .capacity(v: Vector<t>): U64 = (
