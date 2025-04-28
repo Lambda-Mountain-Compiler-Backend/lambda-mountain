@@ -1,6 +1,6 @@
 ## MemSpan represents a re-allocatable, contiguous, mutable, owned memory block.
 ## It provides a safe interface to libc's realloc and handles ownership of inner elements.
-type MemSpan<t> = MemSpan { data: t[], length: U32 };
+type MemSpan<t> = MemSpan { data: t[], _length: U32 };
 
 let mk-memspan(type: Type<t>, size: U64): MemSpan<t> = (
    let ptr = if (size == 0_u64) then (0_u64 as t[]) else (safe-alloc(size, type(t)));
@@ -19,7 +19,7 @@ let .realloc(span: MemSpan<t>, target-size: U64): MemSpan<t> = (
 
 ## Get element at index
 let $"[]"(span: MemSpan<t>, i: U64): t = (
-   if i >= (span.length as U64) {
+   if i >= (span._length as U64) {
       fail("MemSpan Index Out of Bounds");
    };
    span.data[i]
@@ -27,7 +27,7 @@ let $"[]"(span: MemSpan<t>, i: U64): t = (
 
 ## Set element at index
 let $"set[]"(span: MemSpan<t>, i: U64, val: t): Nil = (
-   if i >= (span.length as U64) {
+   if i >= (span._length as U64) {
       fail("MemSpan Index Out of Bounds");
    };
    span.data[i] = val;
@@ -36,5 +36,5 @@ let $"set[]"(span: MemSpan<t>, i: U64, val: t): Nil = (
 
 ## Get the size of the span
 let .length(span: MemSpan<t>): U64 = (
-   span.length as U64
+   span._length as U64
 );
