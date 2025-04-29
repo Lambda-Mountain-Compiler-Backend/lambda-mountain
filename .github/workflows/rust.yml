@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Set clang as cc
+      run: cp `which clang` `which cc`
     - name: Build
       run: cargo build --verbose
     - name: Run tests
