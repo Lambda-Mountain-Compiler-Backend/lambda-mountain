@@ -94,14 +94,14 @@ let .count-right-spaces(self: String): U64 = (
 let .trim-right(self: String): String = (
    while self.length() > 0 && self.last().is-space() {
       let l = self.length() - 1;
-      self = self[:l];
+      self = self[0_u64:l];
    };
    self
 );
 
 let .trim-left(self: String): String = (
    let n = self.count-left-spaces();
-   self[n:]
+   self[n:self.length()]
 );
 
 let .trim(self: String): String = (
