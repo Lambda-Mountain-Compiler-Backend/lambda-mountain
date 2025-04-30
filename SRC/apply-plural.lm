@@ -4,7 +4,7 @@ apply-plural := λ(: ft Type)(: pt Type). (: (
    (match ft (
       ()
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (set r (+( r (apply-plural( c pt)) ))))
+         (for-each (c in conjugate) (set r (+( r (apply-plural( c pt)) ))))
       ))
       ( (TGround( 'Array_s (LCons( _ (LCons(
          (TGround( 'Arrow_s (LCons( frt (LCons( fpt LEOF )) )) ))

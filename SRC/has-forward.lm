@@ -28,7 +28,7 @@ has-forward := λ(: tt Type). (: (
          ) ())
       ))
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (set return (max( return (has-forward c) ))))
+         (for-each (c in conjugate) (set return (max( return (has-forward c) ))))
       ))
       ( _ () )
    ))
