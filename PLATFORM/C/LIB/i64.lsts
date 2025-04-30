@@ -1,6 +1,4 @@
 
-let minimum-I64 = -2147483648_i64;
-
 declare-binop( $"!=", raw-type(I64), raw-type(I64), raw-type(U64), ( l"("; x; l"!="; y; l")"; ) );
 declare-binop( $"==", raw-type(I64), raw-type(I64), raw-type(U64), ( l"("; x; l"=="; y; l")"; ) );
 declare-binop( $"<",  raw-type(I64), raw-type(I64), raw-type(U64), ( l"("; x; l"<"; y; l")"; ) );
