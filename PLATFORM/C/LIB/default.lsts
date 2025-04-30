@@ -39,6 +39,7 @@ import PLATFORM/C/LIB/maybe.lsts;
 import PLATFORM/C/LIB/vector.lsts;
 import PLATFORM/C/LIB/hashtable.lm;
 import PLATFORM/C/LIB/hashtable.lsts;
+import PLATFORM/C/LIB/hashset.lsts;
 import PLATFORM/C/LIB/array.lm;
 import PLATFORM/C/LIB/array.lsts;
 import PLATFORM/C/LIB/io.lm;

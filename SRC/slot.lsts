@@ -6,7 +6,7 @@ let .slot(tt: Type, sl: CString): Type = (
       );
       TAnd{ conjugate=conjugate } => (
          let return = TAny;
-         for vector c in conjugate { if not(non-zero(return)) then return = c.slot(sl) };
+         for c in conjugate { if not(non-zero(return)) then return = c.slot(sl) };
          return
       );
       _ => TAny{};

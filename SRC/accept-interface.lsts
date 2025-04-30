@@ -9,7 +9,7 @@ let .should-accept-interface(tt: Type): U64 = (
    match tt {
       TAnd{ conjugate=conjugate } => (
          let result = true as U64;
-         for vector c in conjugate { result = result && c.should-accept-interface };
+         for c in conjugate { result = result && c.should-accept-interface };
          result
       );
       TGround{tag=tag} => interface-index.has(tt.ground-tag-and-arity);

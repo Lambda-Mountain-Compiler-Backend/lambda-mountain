@@ -5,7 +5,7 @@ let deep-hash(tt: Type): U64 = (
       TVar{name=name} => deep-hash(name);
       TAnd{conjugate=conjugate} => (
          let result = 0_u64;
-         for vector c in conjugate { result = result + deep-hash(c) };
+         for c in conjugate { result = result + deep-hash(c) };
          result
       );
       TGround{tag=tag,parameters=parameters} => deep-hash(tag) + deep-hash(parameters);

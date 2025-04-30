@@ -18,7 +18,7 @@ let can-unify(fpt: Type, pt: Type): U64 = (
       Tuple{ first:TAnd{ lconjugate=conjugate }, second:TAnd{ rconjugate=conjugate } } => (
          let result = true as U64;
          let ri = 0_u64;
-         for vector lc in lconjugate {
+         for lc in lconjugate {
             if result then (match lc {
                TGround{tag:c"Any"} => ();
                TGround{ltag=tag} => (
@@ -52,12 +52,12 @@ let can-unify(fpt: Type, pt: Type): U64 = (
       );
       Tuple{ first:TAnd{ lconjugate=conjugate }, rt=second } => (
          let result = true as U64;
-         for vector c in lconjugate { result = result && can-unify(c,rt) };
+         for c in lconjugate { result = result && can-unify(c,rt) };
          result
       );
       Tuple{ lt=first, second:TAnd{ rconjugate=conjugate } } => (
          let result = false as U64;
-         for vector c in rconjugate { result = result || can-unify(lt,c) };
+         for c in rconjugate { result = result || can-unify(lt,c) };
          result
       );
 

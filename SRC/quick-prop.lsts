@@ -31,9 +31,9 @@ let enrich-quick-prop(base: Type, pre: Type): Type = (
       );
       TAnd { conjugate=conjugate } => (
          let result = mk-vector(type(Type), 0_u64);
-         for vector c in conjugate {
+         for c in conjugate {
             match enrich-quick-prop(base, c) {
-               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAnd{rconjugate=conjugate} => for rc in rconjugate { result = result.push(rc) };
                TAny{} => ();
                rc => ( result = result.push(rc); () );
             }
@@ -76,7 +76,7 @@ let weaken-quick-prop(original-base: Type, base: Type, pre: Type): Type = (
          };
       );
       TAnd { conjugate=conjugate } => (
-         for vector c in conjugate { base = weaken-quick-prop(original-base, base, c) };
+         for c in conjugate { base = weaken-quick-prop(original-base, base, c) };
       );
       _ => ();
    };
