@@ -1564,8 +1564,7 @@ let lsts-parse-atom-tail(base: AST, tokens: List<Token>): Tuple<AST,List<Token>>
             if lsts-parse-head(tokens)==c":" {
                lsts-parse-expect( c":", tokens ); tokens = tail(tokens);
                term2 = if lsts-parse-head(tokens)==c"]" {
-                  # TODO: replace with minimum-I64
-                  Lit{ c"-2147483648_i64", with-location(mk-token("-2147483648_i64"),loc) }
+                  Lit{ c"minimum-I64", with-location(mk-token("minimum-I64"),loc) }
                } else {
                   let term2-rest = lsts-parse-small-expression(tokens);
                   tokens = term2-rest.second;

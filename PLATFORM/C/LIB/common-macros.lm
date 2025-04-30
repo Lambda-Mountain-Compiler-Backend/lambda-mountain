@@ -154,8 +154,7 @@ macro ('match-pats-arm( term ('macro::lhs-prefix-or-suffix( ('macro::lhs-bind( (
    ( (let (uuid v) term) (
       (if (.has-prefix( (uuid v) l )) (
          (let b (.remove-prefix( (uuid v) l )))
-         # TODO: replace with minimum-I64
-         (match-pats-arm( ([:]( (uuid v) (.length b) -2147483648_i64 )) rest ))
+         (match-pats-arm( ([:]( (uuid v) (.length b) minimum-I64 )) rest ))
       ) (branchfalse()))
    ))
 );

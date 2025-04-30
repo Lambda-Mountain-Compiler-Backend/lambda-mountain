@@ -52,8 +52,7 @@ print := λ(: x SmartString). (: (
    (if (<( low 0_i64 )) (
       (set low (+( (as (.length x) I64) low )))
    ) ())
-   # TODO: replace with minimum-I64 (also search for other occurances in this file)
-   (if (==( hi -2147483648_i64 )) (
+   (if (==( hi minimum-I64 )) (
       (set hi (as (.length x) I64))
    ) (
       (if (<( hi 0_i64 )) (
@@ -111,7 +110,7 @@ head-string := λ(: x SmartString). (: (
 
 .remove-prefix := λ(: base SmartString)(: pfx SmartString). (: (
    (if (.has-prefix( base pfx ))
-       ([:]( base (as (.length pfx) I64) -2147483648_i64 ))
+       ([:]( base (as (.length pfx) I64) minimum-I64 ))
        base)
 ) SmartString);
 
