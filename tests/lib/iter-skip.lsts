@@ -1,0 +1,6 @@
+
+import LIB/default.lsts;
+
+for x in range(10).skip(2_u64) {
+   print(x);
+};

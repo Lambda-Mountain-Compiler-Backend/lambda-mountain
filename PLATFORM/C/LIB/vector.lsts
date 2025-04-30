@@ -231,7 +231,7 @@ let .into(self: Vector<U8>, res: Type<SmartString>): SmartString = (
 );
 
 let .into(l: Iterable<t>, out: Type<Vector<t>>): Vector<t> = (
-   l.iterator().collect(type(Vector<t>))
+   l.iter().collect(type(Vector<t>))
 );
 
 let .ptr(v: Vector<t>, toelem: U64): t[] = (

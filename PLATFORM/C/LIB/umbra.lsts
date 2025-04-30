@@ -281,7 +281,7 @@ let $"+"(l: Umbra[], r: t): Umbra = (
 );
 
 let .iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (
-   self.into(type(Umbra)).unsafe-iter()
+   self.unsafe-iter()
 );
 
 let .unsafe-iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (

@@ -26,12 +26,12 @@ declare-unop( into-branch-conditional, raw-type(F64), raw-type(BranchConditional
 let cmp(l: F64, r: F64): Ord = if l==r then Equal else if l<r then LessThan else GreaterThan;
 
 let .abs(self: F64): F64 = (
-   if self < 0 { 0_f64 - self } else { self }
+   if self < 0_f64 { 0_f64 - self } else { self }
 );
 
 let to-smart-string(value: F64): SmartString = (
    let out = "";
-   if value < 0 {
+   if value < 0_f64 {
       out = out + to-smart-string(close(45_u8) as CString);
    };
    value = value.abs();

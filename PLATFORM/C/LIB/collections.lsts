@@ -66,10 +66,10 @@ let remaining-eq(a: Iterator<ax>, b: Iterator<bx>): U64 = (
    ok
 );
 
-let .skip(self: t+Iterator<x>, num: U64): t = (
-   while num > 0 {
+let .skip(self: s+Iterator<t>, num: U64): s = (
+   while num > 0_u64 {
       (&self).next();
-      num = num - 1;
+      num = num - 1_u64;
    };
    self
 );
