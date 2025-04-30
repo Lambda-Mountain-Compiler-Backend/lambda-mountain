@@ -9,7 +9,7 @@ let std-c-mangle-type-internal(tt: Type): S = (
    match tt {
       TAnd{ conjugate=conjugate } => (
          let result = SNil;
-         for vector c in conjugate {
+         for c in conjugate {
             let rt = std-c-mangle-type-internal(c);
             result = if non-zero(result) && non-zero(rt) then result + SAtom{c" "} + rt
             else if non-zero(result) then result

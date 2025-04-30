@@ -5,7 +5,7 @@ let .is-open(tt: Type): U64 = (
       TVar {} => true;
       TAnd { conjugate=conjugate } => (
          let result = false as U64;
-         for vector c in conjugate { result = result || c.is-open };
+         for c in conjugate { result = result || c.is-open };
          result
       );
       TGround { tag:c"Array", parameters:[_.. TAny{}..] } => false;

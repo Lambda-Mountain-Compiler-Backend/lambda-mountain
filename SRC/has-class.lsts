@@ -4,7 +4,7 @@ let .has-class(tt: Type): U64 = (
       TGround {} => true;
       TAnd { conjugate=conjugate } => (
          let result = false as U64;
-         for vector c in conjugate { result = result || c.has-class };
+         for c in conjugate { result = result || c.has-class };
          result
       );
       _ => false;

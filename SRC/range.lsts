@@ -3,7 +3,7 @@ let .range(tt: Type): Type = (
    match tt {
       TAnd { conjugate=conjugate } => (
          let result = TAny;
-         for vector c in conjugate { result = result || c.range };
+         for c in conjugate { result = result || c.range };
          result
       );
       TGround { tag:c"Arrow", parameters:[rng.. dom..] } => rng;
