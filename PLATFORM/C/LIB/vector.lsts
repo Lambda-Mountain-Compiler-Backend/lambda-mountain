@@ -1,13 +1,20 @@
 
 ## faster than [type(List<t>)]. should be used when you append or remove data a lot
-type Vector<t> = Vector { data: t[], length: U64, capacity: U64 };
-type Vector<t> implements Collection<t>;
-
+type Vector<t> = Vector { data: t[], _length: U32, capacity: U32 };
 type Vector<t> implements Collection<t>;
 type Vector<t> implements Iterable<t>;
 
+let .length(v: Vector<t>): U64 = (
+   v._length
+);
+
 let mk-vector(type: Type<t>, capacity: U64): Vector<t> = (
-   Vector { safe-alloc(capacity, type(t)), 0_u64, capacity }
+   let ptr = if (capacity == 0_u64) then (0_u64 as t[]) else (safe-alloc(capacity, type(t)));
+   Vector { ptr, 0_u32, capacity as U32 }
+);
+
+let mk-vector(ty: Type<t>): Vector<t> = (
+   mk-vector(ty, 0_u32)
 );
 
 ## generate a [type(Vector<t>)], in which each element is [value]
@@ -22,14 +29,14 @@ let fill-vector(value: t, len: U64): Vector<t> = (
 
 ## does not change the length length, or destroy old elements!
 let .realloc(v: Vector<t>, target-capacity: U64): Vector<t> = (
-   let newp = safe-realloc(v.data, target-capacity, type(t));
-   Vector { newp, v.length, target-capacity }
+   let newp = if (target-capacity == 0_u64) then (0_u64 as t[]) else (safe-realloc(v.data, target-capacity, type(t)));
+   Vector { newp, v.length as U32, target-capacity as U32 }
 );
 
 ## reserve additional num elements to the current length
 let .reserve-additional(v: Vector<t>, additional: U64): Vector<t> = (
-   if (v.capacity - v.length) < additional {
-      v.realloc(v.length + additional)
+   if (v.capacity - v.length) < additional as U32 {
+      v.realloc((v.length as U64) + additional)
    } else {
       v
    }
@@ -41,12 +48,12 @@ let .push(v: Vector<t>, i: t): Vector<t> = (
       let new-cap = if v.capacity == 0 {
          4_u64
       } else {
-         (v.length >> 1_u64) + v.length # this is mul 1.5, not 3
+         (v.length >> 1_u32) + v.length # this is mul 1.5, not 3
       };
-      v = v.realloc(new-cap);
+      v = v.realloc(new-cap as U64);
    };
-   v.data[v.length] = i;
-   v.length = v.length + 1_u64;
+   v.data[v.length as U64] = i;
+   v._length = v._length + 1_u32;
    v
 );
 
@@ -71,7 +78,7 @@ let .remove-front(v: Vector<t>, num: U64): Vector<t> = (
         v[i-num] = v[i];
         i = i + 1;
     };
-    v.length = v.length - num;
+    v._length = v._length - (num as U32);
 
     v.shrink();
 );
@@ -82,7 +89,7 @@ let .remove-back(v: Vector<t>, num: U64): Vector<t> = (
         fail("tried to remove \{num} elements from vector, but only have \{v.length()}");
     };
 
-    v.length = v.length - num;
+    v._length = v._length - (num as U32);
 
     v.shrink();
 );
@@ -106,7 +113,7 @@ let .pop(v: Vector<t>): Tuple<Vector<t>, t> = (
     };
 
     let lasti = v.length - 1;
-    let last = v[lasti];
+    let last = v[lasti as U64];
     v = v.remove-back(1);
 
     Tuple { v, last }
@@ -117,14 +124,10 @@ let .clone(self: Vector<t>): Vector<t> = (
 );
 
 let $"[]"( v: Vector<t>, i: U64 ): t = (
-   if i >= v.length {
+   if i >= (v.length as U64) {
       fail("Vector Index Out of Bounds");
    };
    v.data[i]
-);
-
-let $"+"( vl: Vector<t>, vr: Vector<t> ): t = (
-   concat-to-vector(vl, vr)
 );
 
 let $"set[]"( v: Vector<t>, i: U64, val: t ): Nil = (
@@ -229,4 +232,11 @@ let .into(self: Vector<U8>, res: Type<SmartString>): SmartString = (
 
 let .into(l: Iterable<t>, out: Type<Vector<t>>): Vector<t> = (
    l.iterator().collect(type(Vector<t>))
+);
+
+let .ptr(v: Vector<t>, toelem: U64): t[] = (
+   if toelem >= v.capacity {
+      fail("Vector.ptr() index out of capacity bounds");
+   };
+   ((v.data as U64) + sizeof(t) * toelem) as t[]
 );

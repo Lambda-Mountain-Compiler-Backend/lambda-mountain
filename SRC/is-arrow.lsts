@@ -1,7 +1,11 @@
 
 let .is-arrow(tt: Type): U64 = (
    match tt {
-      TAnd { left=left, right=right } => left.is-arrow || right.is-arrow;
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || c.is-arrow };
+         result
+      );
       TGround { tag:c"Arrow" } => true;
       TGround { tag:c"Array", parameters:[_.. array-base..] } => array-base.is-arrow;
       _ => false;
@@ -10,7 +14,11 @@ let .is-arrow(tt: Type): U64 = (
 
 let .contains-arrow(tt: Type): U64 = (
    match tt {
-      TAnd { left=left, right=right } => left.contains-arrow || right.contains-arrow;
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || c.contains-arrow };
+         result
+      );
       TGround { tag:c"Arrow" } => true;
       TGround { parameters=parameters } => parameters.contains-arrow;
       _ => false;

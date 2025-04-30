@@ -131,6 +131,7 @@ head-string := λ(: x SmartString). (: (
 # Smart Strings may allocated a hidden null byte after the data to protect against any accidental CString coercions
 + := λ(: l SmartString)(: r SmartString). (: (
    (let length (+( (.length l) (.length r) )))
+   # when porting this to LSTS, replace malloc with safe-alloc
    (let data (as (malloc( (+( length 1_u64 )) )) U8[]))
    (let li 0_u64)
    (while (<( li (.length l) )) (

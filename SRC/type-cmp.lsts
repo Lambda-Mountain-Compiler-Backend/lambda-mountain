@@ -3,13 +3,24 @@ let cmp(left: Type, right: Type): Ord = (
    match left {
       TGround { ltag=tag, lparameters=parameters } => (match right {
          TGround { rtag=tag, rparameters=parameters } => (
-            cmp(ltag,rtag) && cmp(lparameters, rparameters)
+            let c1 = cmp(ltag,rtag);
+            if c1!=Equal then c1 else cmp(lparameters, rparameters)
          );
          _ => cmp($".0"(left), $".0"(right));
       });
-      TAnd{ left-left=left, left-right=right } => (match right {
-         TAnd{ right-left=left, right-right=right } => (
-            cmp(left-left,right-left) && cmp(left-right, right-right);
+      TAnd{ lconjugate=conjugate } => (match right {
+         TAnd{ rconjugate=conjugate } => (
+            let result = Equal;
+            if lconjugate.length < rconjugate.length then result = LessThan
+            else if lconjugate.length > rconjugate.length then result = GreaterThan
+            else {
+               let ci = 0_u64;
+               while ci < lconjugate.length && result==(Equal) {
+                  result = result && cmp(lconjugate[ci], rconjugate[ci]);
+                  ci = ci + 1;
+               };
+            };
+            result;
          );
          _ => cmp($".0"(left), $".0"(right));
       });

@@ -16,6 +16,7 @@ let enrich-quick-prop(base: Type): Type = (
 );
 
 let enrich-quick-prop(base: Type, pre: Type): Type = (
+   let original-pre = pre;
    match pre {
       TGround {} => (
          for Tuple { lt=first, rt=second } in quick-prop.lookup( pre.ground-tag-and-arity, ([] :: List<(Type,Type)>) ) {
@@ -23,17 +24,23 @@ let enrich-quick-prop(base: Type, pre: Type): Type = (
                let tctx = unify(lt, base);
                let post = substitute(tctx, rt);
                if not(can-unify(post, base)) {
-                  pre = TAnd { close(pre), close(post) };
+                  pre = pre && post;
                };
             );
          };
       );
-      TAnd { lt=left, rt=right } => (
-         let next-lt = enrich-quick-prop(base, lt);
-         let next-rt = enrich-quick-prop(base, rt);
-         if not(is(lt,next-lt)) || not(is(rt,next-rt)) then (
-            pre = TAnd { close(next-lt), close(next-rt) };
-         );
+      TAnd { conjugate=conjugate } => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match enrich-quick-prop(base, c) {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then (pre = TAny)
+         else if result.length==1 then (pre = result[0])
+         else (pre = tand(result));
       );
       _ => ();
    };
@@ -68,9 +75,8 @@ let weaken-quick-prop(original-base: Type, base: Type, pre: Type): Type = (
             );
          };
       );
-      TAnd { lt=left, rt=right } => (
-         base = weaken-quick-prop(original-base, base, lt);
-         base = weaken-quick-prop(original-base, base, rt);
+      TAnd { conjugate=conjugate } => (
+         for vector c in conjugate { base = weaken-quick-prop(original-base, base, c) };
       );
       _ => ();
    };

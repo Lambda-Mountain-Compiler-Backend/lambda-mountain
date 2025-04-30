@@ -1,7 +1,11 @@
 
 let is-sized-array(tt: Type): U64 = (
    match tt {
-      TAnd { left=left, right=right } => is-sized-array(left) || is-sized-array(right);
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || is-sized-array(c) };
+         result;
+      );
       TGround { tag:c"Array", parameters:[ TGround { array-size=tag }.. _ ] } => array-size.is-digit;
       _ => false;
    }

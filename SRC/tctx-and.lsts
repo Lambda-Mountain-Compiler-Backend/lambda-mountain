@@ -2,3 +2,7 @@
 let $"&&"(lctx: Maybe<TContext>, rctx: Maybe<TContext>): Maybe<TContext> = (
    if lctx.is-none then lctx else if rctx.is-none then rctx else union(lctx, rctx)
 );
+
+let $"||"(lctx: Maybe<TContext>, rctx: Maybe<TContext>): Maybe<TContext> = (
+   if lctx.is-none then rctx else if rctx.is-none then lctx else union(lctx, rctx)
+);

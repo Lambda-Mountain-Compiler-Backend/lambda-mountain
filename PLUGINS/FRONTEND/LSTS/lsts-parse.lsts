@@ -300,7 +300,7 @@ let lsts-parse-type(tokens: List<Token>): Tuple<Type,List<Token>> = (
    if lsts-parse-head(tokens)==c"+" {
       tokens = tail(tokens);
       let ntt-rest = lsts-parse-type(tokens);
-      tt = TAnd{ close(ntt-rest.first), close(tt) };
+      tt = ntt-rest.first && tt;
       tokens = ntt-rest.second;
    };
    Tuple { tt, tokens };

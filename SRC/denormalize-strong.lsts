@@ -5,7 +5,19 @@ let denormalize-strong(tt: type): Type = (
 
 let denormalize-strong-inner(tt: Type): Type = (
    match tt {
-      TAnd{left=left, right=right} => denormalize-strong-inner(left) && denormalize-strong-inner(right);
+      TAnd{conjugate=conjugate} => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match denormalize-strong-inner(c) {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
+      );
       TGround{tag:c"Arrow", parameters:[rng..dom..]} => t3(c"Arrow",denormalize-strong(dom),denormalize-strong(rng));
       TGround{tag:c"Cons", parameters:[p2..p1..]} => t3(c"Cons",denormalize-strong(p1),denormalize-strong(p2));
       _ => tt;

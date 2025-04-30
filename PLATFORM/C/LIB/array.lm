@@ -19,12 +19,6 @@ const-cons := λ: Blob(: v x)(: i L). (: (
    ))
 ) Array<x,CONST>);
 
-close := λ(: x p). (: (
-   (let r (as (malloc(sizeof p)) p[]))
-   (set[]( r 0_u64 x ))
-   r
-) p[]);
-
 #declare-binop( mov, raw-type(base[CONST+array-len]), raw-type(base[CONST+array-len]), raw-type(Nil), (
 #   l"({memcpy(&"; y;
 #   l","; x;

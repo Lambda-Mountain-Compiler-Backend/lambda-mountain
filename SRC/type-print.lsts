@@ -5,12 +5,14 @@ let print(io: IO::File, tt: Type): Nil = (
    match tt {
       TAny{} => print(io, "?");
       TVar{name=name} => print(io, name);
-      TAnd{lt=left,rt=right} => (
-         if lt.is-arrow then (
-            print(io, lt); print(io, " +\n"); print(io, rt);
-         ) else (
-            print(io, lt); print(io, " + "); print(io, rt);
-         )
+      TAnd{conjugate=conjugate} => (
+         let ongoing = false;
+         for vector c in conjugate {
+            if ongoing && c.is-arrow then print(io, " +\n")
+            else if ongoing then print(io, " + ");
+            print(io, c);
+            ongoing = true;
+         };
       );
       TGround{tag=tag, parameters:[]} => if tag[0] >= 97 && tag[0] <= 122 then print(io, "\"\{tag}\"") else print(io, tag);
       TGround{tag=tag, ps=parameters} => (

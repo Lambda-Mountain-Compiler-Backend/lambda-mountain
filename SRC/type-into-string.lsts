@@ -20,13 +20,27 @@ let .into(tt: Type, tgt: Type<String>): String = (
             r = r + ">";
          }; r
       );
-      TAnd{left=left,right=right} => "\{left}+\{right}";
+      TAnd{conjugate=conjugate} => (
+         let result = "";
+         for vector c in conjugate {
+            if non-zero(result) then (result = result + "+" + c.into(type(String)))
+            else (result = c.into(type(String)));
+         };
+         result
+      );
    }
 );
 
 let .pretty(tt: Type): String = (
    match tt {
-      TAnd{left=left,right=right} => "\{left.pretty}+\n\{right.pretty}";
+      TAnd{conjugate=conjugate} => (
+         let result = "";
+         for vector c in conjugate {
+            if non-zero(result) then (result = result + "+\n" + c.into(type(String)))
+            else (result = c.into(type(String)));
+         };
+         result
+      );
       _ => tt.into(type(String));
    }
 );

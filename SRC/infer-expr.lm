@@ -129,17 +129,23 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
          (let weak-ctx (infer-expr( tctx r Scoped TAny Tail )))
          (ascript-normal( term (typeof r) ))
       ))
-      ( (App( (Var( 'open_s _ )) r )) (
+      ( (App( (@( o-t (Var( 'open_s _ )) )) r )) (
          (set tctx (infer-expr( tctx r Unscoped TAny Used )))
          (let deref-type (typeof r))
          (match (.slot( deref-type 'Array_s )) (
             ()
             ( (TGround( 'Array_s (LCons( _ (LCons( TAny LEOF )) )) )) () )
             ( (TGround( 'Array_s (LCons( TAny (LCons( array-base LEOF )) )) )) (
+               (let def (defof-var( term tctx 'open_s deref-type )))
+               (set var-to-def-index (.bind( var-to-def-index o-t def )))
                (maybe-specialize( 'open_s (typeof-var-raw( term tctx 'open_s )) deref-type ))
                (set deref-type array-base)
             ))
-            ( _ (do-specialize( 'open_s (typeof-var-raw( term tctx 'open_s )) deref-type term )) )
+            ( _ (
+               (let def (defof-var( term tctx 'open_s deref-type )))
+               (set var-to-def-index (.bind( var-to-def-index o-t def )))
+               (do-specialize( 'open_s (typeof-var-raw( term tctx 'open_s )) deref-type term ))
+            ))
          ))
          (ascript-normal( term deref-type ))
       ))
@@ -267,7 +273,7 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
          (let arg-type (typeof r))
          (if (&&( (non-zero(var-name-if-var l)) (.is-arrow(typeof l)) )) (
             (let def (defof-var( term tctx (var-name-if-var l) arg-type )))
-            (set var-to-def-index (.bind( var-to-def-index term def )))
+            (set var-to-def-index (.bind( var-to-def-index l def )))
          ) ())
       ))
       ( (Abs( lhs rhs tlt )) (

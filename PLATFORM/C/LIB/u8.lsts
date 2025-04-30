@@ -27,7 +27,7 @@ declare-unop( into-branch-conditional, raw-type(U8), raw-type(BranchConditional)
 let print(x: U8): Nil = print(x as U64);
 
 let clone-rope(s: U8): CString = (
-   let x = malloc(2) as U8[];
+   let x = safe-alloc(2, type(U8));
    x[0] = s;
    x[1] = 0_u8;
    x as CString;

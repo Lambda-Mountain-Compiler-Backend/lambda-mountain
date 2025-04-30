@@ -1,6 +1,7 @@
 
+# TGround needs to be the last type (tag 0) or else sorted unification will not work right
 type Type = TAny
           | TVar { name: CString }
-          | TGround { tag: CString, parameters: List<Type>[] }
-          | TAnd { left: Type[], right: Type[] };
+          | TAnd { conjugate:Vector<Type> }
+          | TGround { tag: CString, parameters: List<Type>[] };
 zero Type = TAny;

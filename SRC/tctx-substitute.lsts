@@ -8,7 +8,19 @@ let substitute(tctx: Maybe<TContext>, tt: List<Type>): List<Type> = (
 
 let substitute(tctx: Maybe<TContext>, tt: Type): Type = (
    match tt {
-      TAnd{left=left,right=right} => TAnd{close(substitute(tctx,left)), close(substitute(tctx,right))};
+      TAnd{conjugate=conjugate} => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match substitute(tctx,c) {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
+      );
       TGround{tag=tag,parameters=parameters} => TGround{tag,close(substitute(tctx,parameters))};
       TVar{name=name} => (
          let ta = tctx.get-or([] :: List<Tuple<CString,Type,AST>>).lookup(name,Tuple{TAny,ASTEOF});

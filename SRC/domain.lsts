@@ -1,7 +1,11 @@
 
 let .domain(tt: Type): Type = (
    match tt {
-      TAnd { left=left, right=right } => left.domain || right.domain;
+      TAnd { conjugate=conjugate } => (
+         let result = TAny;
+         for vector c in conjugate { result = result || c.domain };
+         result
+      );
       TGround { tag:c"Arrow", parameters:[rng.. dom..] } => dom;
       TGround { tag:c"Array", parameters:[_.. array-base..] } => array-base.domain;
       _ => TAny;

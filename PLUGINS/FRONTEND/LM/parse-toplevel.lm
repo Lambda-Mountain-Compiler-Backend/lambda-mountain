@@ -85,12 +85,12 @@ parse-toplevel := λ(: tokens List<Token>). (: (
             (set parse-suffixes (cons(
                (Tuple(
                   suffix
-                  (TAnd(
-                     (close(TAnd(
-                        (close(TGround( 'Constant_s (close(: LEOF List<Type>)) )))
-                        (close(TGround( 'Literal_s (close(: LEOF List<Type>)) )))
-                     )))
-                     (close(parse-type atype))
+                  (&&(
+                     (&&(
+                        (TGround( 'Constant_s (close(: LEOF List<Type>)) ))
+                        (TGround( 'Literal_s (close(: LEOF List<Type>)) ))
+                     ))
+                     (parse-type atype)
                   ))
                ))
                parse-suffixes

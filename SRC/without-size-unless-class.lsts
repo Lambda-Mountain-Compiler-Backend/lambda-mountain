@@ -15,7 +15,19 @@ let without-size-unless-class(tt: Type): Type = (
 
 let without-size-unless-class-inner(tt: Type): Type = (
    match tt {
-      TAnd{left=left,right=right} => without-size-unless-class-inner(left) && without-size-unless-class-inner(right);
+      TAnd{conjugate=conjugate} => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match without-size-unless-class-inner(c) {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
+      );
       TGround{tag:c"Sized"} => TAny;
       TGround{tag=tag,parameters=parameters} => TGround{tag,close(without-size-unless-class(parameters))};
       _ => tt;      

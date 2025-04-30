@@ -1,14 +1,14 @@
 
 let std-c-compile-call(ctx: FContext, fname: CString, fterm: AST, args: AST): Fragment = (
    if typeof(fterm).is-t(c"Blob") {
-      let f = ctx.lookup(fname, typeof(args), args);
       let r = mk-fragment();
-      match f.term {
-         Abs{lhs=lhs, rhs=rhs} => (
+      match fterm {
+         Glb{val:Abs{lhs=lhs, rhs=rhs}} => (
             (let callee-ctx, let caller-ctx) = std-c-compile-args(global-ctx, ctx, lhs, args);
             r = blob-render(callee-ctx, rhs, r, 0);
             r.context = close(caller-ctx);
          );
+         _ => fail("Unexpected fterm in std-c-compile-call: \{fname}\n\{fterm}\n");
       }; r
    } else if typeof(fterm).is-t(c"Prop") { std-c-compile-expr(ctx, args, false)
    } else {
@@ -16,13 +16,13 @@ let std-c-compile-call(ctx: FContext, fname: CString, fterm: AST, args: AST): Fr
       let ictx = mk-fragment().set(c"function-id", SAtom{mangle-identifier(fname, typeof(fterm))});
       let inner-ctx = mk-fctx().bind(c"ictx", t1(c"ImplicitContext"), ictx)
                                .bind(c"args", typeof(args), push-args);
-      let f = ctx.lookup(c"primitive::call", t3(c"Cons",t1(c"ImplicitContext"),typeof(args)), args);
       let r = mk-fragment();
-      match f.term {
-         Abs{lhs=lhs, rhs=rhs} => (
+      match find-global-callable(c"primitive::call", t3(c"Cons",t1(c"ImplicitContext"),typeof(args))) {
+         Glb{val:Abs{lhs=lhs, rhs=rhs}} => (
             r = blob-render(inner-ctx, rhs, r, 0);
             r.context = close(ctx);
          );
+         _ => fail("Unexpected fterm in std-c-compile-call: \{fname}\n\{fterm}\n");
       }; r
    }
 );

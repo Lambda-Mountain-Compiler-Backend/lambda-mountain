@@ -1,11 +1,18 @@
 
 let remove-info(base: Type, rm: Type): Type = (
    match base {
-      TAnd{ left=left, right=right } => (
-         let new-left = remove-info(left, rm);
-         let new-right = remove-info(right, rm);
-         if is(left,new-left) && is(right,new-right) then base
-         else (new-left && new-right);
+      TAnd{ conjugate=conjugate } => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match remove-info(c,rm) {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
       );
       TGround{} => (
          if can-unify(rm,base) then TAny else base

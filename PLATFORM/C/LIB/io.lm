@@ -24,24 +24,6 @@ fail := λ(: msg String). (: (
    (as (exit 1_u32) Never)
 ) Never);
 
-read-file := λ(: fp String). (: (
-   (let buff-sz 0_u64)
-   (let buff (as (malloc 1024_u64) U8[]))
-   (let f (fopen( (as fp U8[]) (as 'r_s U8[]) )))
-   (if (==( (as f U64) 0_u64 )) (
-      (print 'Unable\sTo\sRead\sFrom\sFile:\s_s)(print fp)(print '\n_s)(exit 1_u64)
-   ) ())
-   (let bytes-read 1_u64)
-   (while bytes-read (
-      (set bytes-read (fread( (+( buff buff-sz )) 1_u64 1023_u64 f )))
-      (set buff-sz (+( buff-sz bytes-read )))
-      (set buff (as (realloc( buff (+( buff-sz 1023_u64 )) )) U8[]))
-   ))
-   (fclose f)
-   (set[]( buff buff-sz 0_u8 ))
-   (as buff String)
-) String);
-
 write-file := λ(: fp String)(: contents String). (: (
    (let f (fopen( (as fp U8[]) (as 'w_s U8[]) )))
    (fwrite( (as contents U8[]) 1_u64 (.length contents) f ))

@@ -59,8 +59,8 @@ is-incomplete-typedef := λ(: tt Type). (: (
       ( (TGround( 'Cons_s (LCons( p1 (LCons( p2 LEOF )) )) )) (
          (set r (||( (is-incomplete-typedef p1) (is-incomplete-typedef p2) )))
       ))
-      ( (TAnd( lt rt )) (
-         (set r (||( (is-incomplete-typedef lt) (is-incomplete-typedef rt) )))
+      ( (TAnd( conjugate )) (
+         (for-each-v (c in conjugate) (set r (||( r (is-incomplete-typedef c) ))))
       ))
       ( TAny () )
       ( (TVar _) () )

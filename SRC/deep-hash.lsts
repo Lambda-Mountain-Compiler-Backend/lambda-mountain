@@ -3,7 +3,11 @@ let deep-hash(tt: Type): U64 = (
    match tt {
       TAny{} => 0_u64;
       TVar{name=name} => deep-hash(name);
-      TAnd{lt=left,rt=right} => deep-hash(lt) + deep-hash(rt);
+      TAnd{conjugate=conjugate} => (
+         let result = 0_u64;
+         for vector c in conjugate { result = result + deep-hash(c) };
+         result
+      );
       TGround{tag=tag,parameters=parameters} => deep-hash(tag) + deep-hash(parameters);
    }
 );

@@ -2,7 +2,11 @@
 let .has-class(tt: Type): U64 = (
    match tt {
       TGround {} => true;
-      TAnd { left=left, right=right } => left.has-class || right.has-class;
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || c.has-class };
+         result
+      );
       _ => false;
    }
 );

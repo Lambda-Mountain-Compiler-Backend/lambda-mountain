@@ -5,7 +5,7 @@ type "A" => "B";
 
 type A = A{};
 
-let f(b: B): B = b;
+let f(b: A+B): A+B = b;
 
 f(A);
 

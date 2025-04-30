@@ -15,11 +15,50 @@ let can-unify(fpt: Type, pt: Type): U64 = (
       Tuple{ first:TAny{} } => true;
       Tuple{ first:TGround{tag:c"Any"} } => true;
       Tuple{ first:TVar{} } => true;
-      Tuple{ first:TAnd{ lt1=left,lt2=right }, rt=second } => (
-         can-unify(lt1,rt) && can-unify(lt2,rt)
+      Tuple{ first:TAnd{ lconjugate=conjugate }, second:TAnd{ rconjugate=conjugate } } => (
+         let result = true as U64;
+         let ri = 0_u64;
+         for vector lc in lconjugate {
+            if result then (match lc {
+               TGround{tag:c"Any"} => ();
+               TGround{ltag=tag} => (
+                  let this-result-ok = false as U64;
+                  let rc = rconjugate[ri];
+                  let rtag = rc.simple-tag;
+                  if not(non-zero(rtag)) then () else (
+                     while ri<rconjugate.length && rtag < ltag {
+                        ri = ri + 1;
+                        if ri < rconjugate.length {
+                           rc = rconjugate[ri];
+                           rtag = rc.simple-tag;
+                        }
+                     };
+                     let scan-ri = ri;
+                     while scan-ri<rconjugate.length && rtag==ltag {
+                        this-result-ok = this-result-ok || can-unify(lc,rc);
+                        scan-ri = scan-ri + 1;
+                        if scan-ri < rconjugate.length {
+                           rc = rconjugate[scan-ri];
+                           rtag = rc.simple-tag;
+                        }
+                     };
+                  );
+                  result = result && this-result-ok;
+               );
+               _ => result = result && can-unify(lc,pt);
+            });
+         };
+         result;
       );
-      Tuple{ lt=first, second:TAnd{ rt1=left,rt2=right } } => (
-         can-unify(lt,rt1) || can-unify(lt,rt2)
+      Tuple{ first:TAnd{ lconjugate=conjugate }, rt=second } => (
+         let result = true as U64;
+         for vector c in lconjugate { result = result && can-unify(c,rt) };
+         result
+      );
+      Tuple{ lt=first, second:TAnd{ rconjugate=conjugate } } => (
+         let result = false as U64;
+         for vector c in rconjugate { result = result || can-unify(lt,c) };
+         result
       );
 
       # Ignore C Access Modifiers For Now

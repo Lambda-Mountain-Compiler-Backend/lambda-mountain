@@ -4,6 +4,36 @@ let t2(tag: CString, p1: Type): Type = TGround{ tag, close([p1]) };
 let t3(tag: CString, p1: Type, p2: Type): Type = TGround{ tag, close([p2, p1]) };
 let tv(v: CString): Type = TVar{ v };
 let ta = TAny;
-let $"&&"(lt: Type, rt: Type): Type = if not(non-zero(lt)) then rt else if not(non-zero(rt)) then lt else TAnd{ close(lt), close(rt) };
+let tand(t: Vector<Type>): Type = TAnd{t.sort};
+let $"&&"(lt: Type, rt: Type): Type = (
+   match (lt, rt) {
+      Tuple{first:TAny{}} => rt;
+      Tuple{second:TAny{}} => lt;
+      Tuple{first:TAnd{lconjugate=conjugate},second:TAnd{rconjugate=conjugate}} => (
+         let result = mk-vector(type(Type), lconjugate.length+rconjugate.length);
+         for vector c in lconjugate { result = result.push(c) };
+         for vector c in rconjugate { result = result.push(c) };
+         tand(result)
+      );
+      Tuple{first=first,second:TAnd{rconjugate=conjugate}} => (
+         let result = mk-vector(type(Type), 1+rconjugate.length);
+         result = result.push(first);
+         for vector c in rconjugate { result = result.push(c) };
+         tand(result)
+      );
+      Tuple{first:TAnd{lconjugate=conjugate},second=second} => (
+         let result = mk-vector(type(Type), lconjugate.length+1);
+         for vector c in lconjugate { result = result.push(c) };
+         result = result.push(second);
+         tand(result)
+      );
+      Tuple{first=first,second=second} => (
+         let result = mk-vector(type(Type), 2);
+         result = result.push(first);
+         result = result.push(second);
+         tand(result)
+      );
+   }
+);
 let $"||"(lt: Type, rt: Type): Type = if non-zero(lt) then lt else rt;
 

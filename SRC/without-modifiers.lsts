@@ -1,7 +1,19 @@
 
 let .without-modifiers(tt: Type): Type = (
    match tt {
-      TAnd { left=left, right=right } => left.without-modifiers && right.without-modifiers;
+      TAnd { conjugate=conjugate } => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match c.without-modifiers {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
+      );
       TGround { tag:c"C", parameters:[TGround{tag:c"extern"}..] } => TAny;
       _ => tt;
    }

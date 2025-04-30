@@ -3,7 +3,11 @@
 let .reify-type-variables(tt: Type): Type = (
    match tt {
       TAny{} => TAny;
-      TAnd{left=left, right=right} => left.reify-type-variables && right.reify-type-variables;
+      TAnd{conjugate=conjugate} => (
+         let result = TAny;
+         for vector c in conjugate { result = result && c.reify-type-variables };
+         result
+      );
       TGround{tag=tag, parameters=parameters} => TGround{tag, close(parameters.reify-type-variables)};
       TVar{name=name} => t1(c"ReifiedTypeVariable_" + name);
    }

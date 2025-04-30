@@ -10,9 +10,10 @@ mangle-c-type-internal := λ(: tt Type). (: (
    (let r SNil)
    (match tt (
       ()
-      ( (TAnd( lt rt )) (
-         (set r (mangle-c-type lt))
-         (if (non-zero r) () (set r (mangle-c-type rt)))
+      ( (TAnd( conjugate )) (
+         (for-each-v (c in conjugate) (
+            (if (non-zero r) () (set r (mangle-c-type c)))
+         ))
       ))
       ( TAny (set r (SAtom 'void_s)) )
       ( (TVar _) () )

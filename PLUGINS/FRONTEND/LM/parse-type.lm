@@ -26,9 +26,9 @@ parse-type := λ(: tt String). (: (
                   (set base-type bt)
                ))
                ( _ (
-                  (set base-type (TAnd(
-                     (close base-type)
-                     (close(parse-type-single (clone-rope buff)))
+                  (set base-type (&&(
+                     base-type
+                     (parse-type-single (clone-rope buff))
                   )))
                ))
             ))
@@ -55,9 +55,9 @@ parse-type := λ(: tt String). (: (
             (set base-type bt)
          ))
          ( _ (
-            (set base-type (TAnd(
-               (close base-type)
-               (close(parse-type-single (clone-rope buff)))
+            (set base-type (&&(
+               base-type
+               (parse-type-single (clone-rope buff))
             )))
          ))
       ))

@@ -6,3 +6,24 @@ let .file-extension(path: CString): CString = (
       None{} => untern("");
    }
 );
+
+let read-binary-file-to(out: Vector<U8>, path: CString): Vector<U8> = (
+   let fp = fopen(path as U8[], untern("rb") as U8[]);
+   if (fp as U64) == 0_u64 {
+      fail("Unable to read from file: \{path}");
+   };
+   let by = 1_u64;
+   while by {
+      let increment = 1024_u64;
+      out = out.reserve-additional(increment);
+      by = fread(out.ptr(out.length), 1_u64, increment, fp);
+      out._length = (out.length + by) as U32;
+   };
+   fclose(fp);
+   out
+);
+
+let read-file(fp: CString): CString = (
+   let v = read-binary-file-to(mk-vector(type(U8)), fp);
+   v.into(type(CString))
+);

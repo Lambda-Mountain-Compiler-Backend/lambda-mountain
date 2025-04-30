@@ -1,9 +1,13 @@
 
-let std-c-is-ctype(tt: Type): Bool = (
+let std-c-is-ctype(tt: Type): U64 = (
    match tt {
       TGround{tag:c"C"} => true;
       TGround{tag:c"Array", parameters:[_.. base-type..]} => std-c-is-ctype(base-type);
-      TAnd{ left=left, right=right } => if std-c-is-ctype(left) then true else std-c-is-ctype(right);
+      TAnd{ conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || std-c-is-ctype(c) };
+         result
+      );
       _ => false;
    }
 );

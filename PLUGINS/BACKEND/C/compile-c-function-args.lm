@@ -3,22 +3,22 @@ compile-c-function-args := λ(: ctx FContext)(: lhs AST). (: (
    (let r SNil)
    (match lhs (
       ()
-      ( (App( rst (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) )) (
+      ( (App( rst (App( (Lit( ':_s _ )) (App( (@( v-t (Var( k _ )) )) (AType kt) )) )) )) (
          (let decl (mangle-c-declaration kt))
          (set r (compile-c-function-args(ctx rst)))
          (set r (+( r (SAtom ',_s) )))
          (set r (+( r (.first decl) )))
          (set r (+( r (SAtom '\s_s) )))
-         (let kf (.lookup( ctx k TAny lhs )))
-         (set r (+( r (.get( kf 'expression_s)) )))
+         (let def-bound (.lookup( std-c-fragment-context v-t (mk-fragment()) )))
+         (set r (+( r (.get( def-bound 'expression_s)) )))
          (set r (+( r (.second decl) )))
       ))
-      ( (App( (Lit( ':_s _ )) (App( (Var( k _ )) (AType kt) )) )) (
+      ( (App( (Lit( ':_s _ )) (App( (@( v-t (Var( k _ )) )) (AType kt) )) )) (
          (let decl (mangle-c-declaration kt))
          (set r (.first decl))
          (set r (+( r (SAtom '\s_s) )))
-         (let kf (.lookup( ctx k TAny lhs )))
-         (set r (+( r (.get( kf 'expression_s)) )))
+         (let def-bound (.lookup( std-c-fragment-context v-t (mk-fragment()) )))
+         (set r (+( r (.get( def-bound 'expression_s)) )))
          (set r (+( r (.second decl) )))
       ))
       ( _ () )

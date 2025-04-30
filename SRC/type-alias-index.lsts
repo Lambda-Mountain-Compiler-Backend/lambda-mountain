@@ -16,12 +16,18 @@ let .rewrite-type-alias(lt: Type): Type = (
          };
          lt
       );
-      TAnd{ left=left, right=right } => (
-         let new-left = left.rewrite-type-alias;
-         let new-right = right.rewrite-type-alias;
-         if not(is(left, new-left)) || not(is(right, new-right)) {
-            new-left && new-right
-         } else lt;
+      TAnd{ conjugate=conjugate } => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match c.rewrite-type-alias {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
       );
       _ => lt;
    }
@@ -50,12 +56,18 @@ let .rewrite-opaque-type-alias(lt: Type): Type = (
          };
          lt
       );
-      TAnd{ left=left, right=right } => (
-         let new-left = left.rewrite-opaque-type-alias;
-         let new-right = right.rewrite-opaque-type-alias;
-         if not(is(left, new-left)) || not(is(right, new-right)) {
-            new-left && new-right
-         } else lt;
+      TAnd{ conjugate=conjugate } => (
+         let result = mk-vector(type(Type), 0_u64);
+         for vector c in conjugate {
+            match c.rewrite-opaque-type-alias {
+               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then TAny
+         else if result.length==1 then result[0]
+         else tand(result)
       );
       _ => lt;
    }

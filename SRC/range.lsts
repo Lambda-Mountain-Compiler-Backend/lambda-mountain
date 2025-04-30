@@ -1,7 +1,11 @@
 
 let .range(tt: Type): Type = (
    match tt {
-      TAnd { left=left, right=right } => left.range || right.range;
+      TAnd { conjugate=conjugate } => (
+         let result = TAny;
+         for vector c in conjugate { result = result || c.range };
+         result
+      );
       TGround { tag:c"Arrow", parameters:[rng.. dom..] } => rng;
       TGround { tag:c"Array", parameters:[_.. array-base..] } => array-base.range;
       _ => TAny;

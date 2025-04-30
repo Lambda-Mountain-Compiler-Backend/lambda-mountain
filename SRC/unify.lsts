@@ -10,6 +10,7 @@ let unify(fpt: Type, pt: Type): Maybe<TContext> = (
 let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
    let ctx = None :: Maybe<TContext>;
    let yes = Some([] :: TContext);
+   let no = None :: Maybe<TContext>;
    match (Tuple{fpt, pt}) {
       Tuple{ first:TAny{} } => ctx = yes;
       Tuple{ first:TGround{tag:c"Any"} } => ctx = yes;
@@ -17,11 +18,50 @@ let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
          ctx = ctx.bind(name, normalize(pt), Lit{tag, mk-token(tag)});
       );
       Tuple{ first:TVar{name=name} } => ctx = ctx.bind(name, normalize(pt), ASTEOF);
-      Tuple{ first:TAnd{ lt1=left,lt2=right }, rt=second } => (
-         ctx = unify-inner(lt1, rt) && unify-inner(lt2, rt);
+      Tuple{ first:TAnd{ lconjugate=conjugate }, second:TAnd{ rconjugate=conjugate } } => (
+         let result = yes;
+         let ri = 0_u64;
+         for vector lc in lconjugate {
+            if result.is-some then (match lc {
+               TGround{tag:c"Any"} => ();
+               TGround{ltag=tag} => (
+                  let this-result-ok = no;
+                  let rc = rconjugate[ri];
+                  let rtag = rc.simple-tag;
+                  if not(non-zero(rtag)) then () else (
+                     while ri<rconjugate.length && rtag < ltag {
+                        ri = ri + 1;
+                        if ri < rconjugate.length {
+                           rc = rconjugate[ri];
+                           rtag = rc.simple-tag;
+                        }
+                     };
+                     let scan-ri = ri;
+                     while scan-ri<rconjugate.length && rtag==ltag {
+                        this-result-ok = this-result-ok || unify(lc,rc);
+                        scan-ri = scan-ri + 1;
+                        if scan-ri < rconjugate.length {
+                           rc = rconjugate[scan-ri];
+                           rtag = rc.simple-tag;
+                        }
+                     };
+                  );
+                  result = result && this-result-ok;
+               );
+               _ => result = result && unify(lc,pt);
+            });
+         };
+         ctx = result;
       );
-      Tuple{ lt=first, second:TAnd{ rt1=left,rt2=right } } => (
-         ctx = union(unify-inner(lt, rt1), unify-inner(lt, rt2));
+      Tuple{ first:TAnd{ lconjugate=conjugate }, rt=second } => (
+         ctx = yes;
+         for vector c in lconjugate { ctx = ctx && unify-inner(c,rt) };
+         ctx
+      );
+      Tuple{ lt=first, second:TAnd{ rconjugate=conjugate } } => (
+         ctx = yes;
+         for vector c in rconjugate { ctx = union(ctx, unify-inner(lt,c)) };
+         ctx
       );
 
       # Ignore C Access Modifiers For Now

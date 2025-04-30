@@ -3,7 +3,11 @@ let .is-open(tt: Type): U64 = (
    match tt {
       TAny {} => true;
       TVar {} => true;
-      TAnd { left=left, right=right } => left.is-open || right.is-open;
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || c.is-open };
+         result
+      );
       TGround { tag:c"Array", parameters:[_.. TAny{}..] } => false;
       TGround { tag:c"Array", parameters:[_.. base-type..] } => base-type.is-open;
       TGround { parameters=parameters } => (

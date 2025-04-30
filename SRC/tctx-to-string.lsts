@@ -1,0 +1,10 @@
+
+let .into(tctx: Maybe<TContext>, tt: Type<String>): String = (
+   let result = "";
+   for Tuple{first=first,second=second} in tctx.get-or([] :: TContext) {
+      result = result + "\{first} : \{second}\n";
+   };
+   result
+);
+
+let to-smart-string(tctx: Maybe<TContext>): String = tctx.into(type(String));

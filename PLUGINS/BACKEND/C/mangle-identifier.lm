@@ -62,11 +62,10 @@ mangle-identifier := λ(: kt Type). (: (
          ))
          (set r (SCons( (close r) (close(SAtom '_GT__s)) )))
       ))
-      ( (TAnd( tl tr )) (
-         (set r (SCons(
-            (close(mangle-identifier tl))
-            (close(mangle-identifier tr))
-         )))
+      ( (TAnd( conjugate )) (
+         (for-each-v (c in conjugate) (
+            (set r (+( r (mangle-identifier c) )))
+         ))
       ))
    ))
    r

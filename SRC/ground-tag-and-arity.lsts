@@ -9,9 +9,17 @@ let .ground-tag-and-arity(tt: Type): (CString,U64) = (
       TGround { tag=tag, parameters=parameters } => (tag, parameters.length);
       TAny {} => (c"?", 0_u64);
       TVar {} => (c"", 9999999_u64);
-      TAnd { left=left, right=right } => (
-         let lga = left.ground-tag-and-arity;
-         if lga.second==9999999 then right.ground-tag-and-arity else lga
+      TAnd { conjugate=conjugate } => (
+         let result = (c"", 9999999_u64);
+         for vector c in conjugate { if result.second==9999999 then result = c.ground-tag-and-arity };
+         result
       );
+   }
+);
+
+let .simple-tag(tt: Type): CString = (
+   match tt {
+      TGround { tag=tag } => tag;
+      _ => c"";
    }
 );

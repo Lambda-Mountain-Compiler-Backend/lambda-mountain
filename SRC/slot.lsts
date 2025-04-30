@@ -4,9 +4,10 @@ let .slot(tt: Type, sl: CString): Type = (
       TGround{ tag=tag } => (
          if tag==sl then tt else TAny{}
       );
-      TAnd{ left=left, right=right } => (
-         let lt = left.slot(sl);
-         if non-zero(lt) then lt else right.slot(sl)
+      TAnd{ conjugate=conjugate } => (
+         let return = TAny;
+         for vector c in conjugate { if not(non-zero(return)) then return = c.slot(sl) };
+         return
       );
       _ => TAny{};
    }

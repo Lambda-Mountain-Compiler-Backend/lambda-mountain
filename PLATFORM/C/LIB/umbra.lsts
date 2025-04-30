@@ -212,7 +212,7 @@ let new-umbra(length: U64): Umbra = (
         let cs = const-cons(0_u8, 4_l);
         Umbra(length as U32,
             UmbraLong(cs as U8[4],
-                malloc(length) as U8[]))
+                safe-alloc(length, type(U8))))
     }
 );
 

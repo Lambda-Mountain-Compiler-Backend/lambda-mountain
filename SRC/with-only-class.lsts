@@ -1,9 +1,10 @@
 
 let .with-only-class(tt: Type): Type = (
    match tt {
-      TAnd{ left=left, right=right } => (
-         let lc = left.with-only-class;
-         if non-zero(lc) then lc else right.with-only-class;
+      TAnd{ conjugate=conjugate } => (
+         let result = TAny;
+         for vector c in conjugate { if not(non-zero(result)) then result = c.with-only-class };
+         result;
       );
       TGround{ tag=tag, parameters=parameters } => (
          if tt.is-class && not(tt.is-fragment) then tt else TAny

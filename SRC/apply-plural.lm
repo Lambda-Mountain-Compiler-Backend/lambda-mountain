@@ -3,11 +3,8 @@ apply-plural := λ(: ft Type)(: pt Type). (: (
    (let r (: LEOF List<Type>))
    (match ft (
       ()
-      ( (TAnd( t1 t2 )) (
-         (set r (+(
-            (apply-plural( t1 pt ))
-            (apply-plural( t2 pt ))
-         )))
+      ( (TAnd( conjugate )) (
+         (for-each-v (c in conjugate) (set r (+( r (apply-plural( c pt)) ))))
       ))
       ( (TGround( 'Array_s (LCons( _ (LCons(
          (TGround( 'Arrow_s (LCons( frt (LCons( fpt LEOF )) )) ))

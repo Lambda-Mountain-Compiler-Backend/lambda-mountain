@@ -1,7 +1,11 @@
 
 let .is-t(tt: Type, tt-tag: CString): U64 = (
    match tt {
-      TAnd { left=left, right=right } => left.is-t(tt-tag) || right.is-t(tt-tag);
+      TAnd { conjugate=conjugate } => (
+         let result = false as U64;
+         for vector c in conjugate { result = result || c.is-t(tt-tag) };
+         result
+      );
       TGround { tag=tag } => tag == tt-tag;
       _ => false;
    }

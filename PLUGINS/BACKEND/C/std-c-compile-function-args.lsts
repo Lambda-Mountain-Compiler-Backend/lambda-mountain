@@ -1,7 +1,7 @@
 
 let std-c-compile-function-args(ctx: FContext, lhs: AST): S = (
    match lhs {
-      App{ rest=left, right:App{ left:Lit{key:c":"}, right:App{ left:Var{k=key}, right:AType{kt=tt} } } } => (
+      App{ rest=left, right:App{ left:Lit{key:c":"}, right:App{ v-t=left:Var{k=key}, right:AType{kt=tt} } } } => (
          let decl = std-c-mangle-declaration(kt);
          let text = std-c-compile-function-args(ctx, rest);
          text = text + SAtom{c","};
@@ -12,12 +12,13 @@ let std-c-compile-function-args(ctx: FContext, lhs: AST): S = (
          } else {
             text = text + decl.first;
             text = text + SAtom{c" "};
-            text = text + ctx.lookup(k,TAny,lhs).get(c"expression"); # the uuid
+            let def-bound = std-c-fragment-context.lookup(v-t, mk-fragment());
+            text = text + def-bound.get(c"expression"); # the uuid
             text = text + decl.second;
          };
          text
       );
-      App{ left:Lit{key:c":"}, right:App{ left:Var{k=key}, right:AType{kt=tt} } } => (
+      App{ left:Lit{key:c":"}, right:App{ v-t=left:Var{k=key}, right:AType{kt=tt} } } => (
          let decl = std-c-mangle-declaration(kt);
          let text = SNil{};
          if can-unify( t2(c"C",t1(c"...")), kt ) {
@@ -27,7 +28,8 @@ let std-c-compile-function-args(ctx: FContext, lhs: AST): S = (
          } else {
             text = text + decl.first;
             text = text + SAtom{c" "};
-            text = text + ctx.lookup(k,TAny,lhs).get(c"expression"); # the uuid
+            let def-bound = std-c-fragment-context.lookup(v-t, mk-fragment());
+            text = text + def-bound.get(c"expression"); # the uuid
             text = text + decl.second;
          };
          text
