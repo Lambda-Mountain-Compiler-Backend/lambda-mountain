@@ -1,6 +1,64 @@
 
-let std-infer-expr(tctx: Maybe<TContext>, term: AST, is-scoped: Bool, used: IsUsed): (TContext?, AST) = (
+let std-infer-expr(tctx: Maybe<TContext>, term: AST, is-scoped: Bool, used: IsUsed, hint: Type): (TContext?, AST) = (
    match term {
+      App{left:Lit{key:c":"}, right:App{t=left,right:AType{tt=tt}}} => (
+         tt = tt.rewrite-type-alias;
+         add-concrete-type-instance(tt);
+         if var-name-if-var(t)==c"__uninitialized" {
+            ascript-normal(t, tt);
+         } else {
+            match t {
+               Lit{} => ascript-normal(t, tt);
+               _ => (tctx = infer-expr(tctx, t, Unscoped, tt, Tail));
+            }
+         };
+         ascript-normal(term, tt);
+         if tt.is-t(c"SmartString") then maybe-apply-global-callable(c"intern", tt, term);
+         if var-name-if-var(t)!=c"__uninitialized" && not(is(used, C)) {
+            ascript-normal(t, tt);
+         }
+      );
+      ASTEOF{} => ascript-normal(term, t1(c"Nil"));
+      ASTNil{} => ascript-normal(term, t1(c"Nil"));
+      Meta{} => ascript-normal(term, t1(c"Nil"));
+      Typedef{} => ();
+      AType{tt=tt} => ascript-normal(term, tt);
+      Seq{left=left, right=right} => (
+         (tctx, let new-left) = std-infer-expr(tctx, left, false, Used, TAny);
+         (tctx, let new-right) = std-infer-expr(tctx, right, false, Used, TAny);
+         if not(is(left,new-left)) || not(is(right,new-right))
+         then term = mk-seq(new-left, new-right);
+      );
+      Glb{key=key, val=val} => (
+         # TODO: remove after infer-expr.lm is ported
+         #(tctx, let new-val) = std-infer-expr(tctx, val, false, Used);
+         #if not(is(val,new-val)) then term = mk-glb(key, val);
+         let rough-tt = typeof(term);
+         if rough-tt.is-arrow && not(rough-tt.is-open) {
+            infer-expr(tctx, val, if is-scoped then Scoped else Unscoped, TAny, used);
+         };
+      );
+      Var{key=key, token=token} => (
+         if key==c"__uninitialized" then ascript-normal(term, hint)
+         else ascript-normal(term, typeof-var(term, tctx, key));
+         mark-var-to-def-todo(tctx, key, TAny, term);
+      );
+      Lit{key=key, token=token} => (
+         if not(non-zero(typeof(term))) {
+            let tt = typeof-tag(key);
+            if non-zero(tt) {
+               if non-zero(hint) then tt = hint;
+               ascript-normal(term,tt);
+            }
+         }
+      );
+      Abs{lhs=lhs, rhs=rhs:App{left:Lit{key:c":"},right:App{inner-rhs=left, right:AType{return-type=tt}}}, misc-tt=tt} => (
+         tctx = infer-ctx(tctx, lhs);
+         infer-expr(tctx, inner-rhs, Unscoped, return-type, Tail);
+         ascript-normal(rhs, return-type);
+         let domain-tt = typeof-lhs(lhs);
+         ascript-normal(term, t3(c"Arrow", typeof-lhs(lhs), return-type) && misc-tt);
+      );
       App{ is-cons=is-cons, l=left, r=right } => (
          if is-cons {
             tctx = infer-expr(tctx, l, Unscoped, TAny, Used);
@@ -32,8 +90,8 @@ let std-infer-expr(tctx: Maybe<TContext>, term: AST, is-scoped: Bool, used: IsUs
                } else {
                   tctx = infer-expr(tctx, r, Unscoped, TAny, Used);
                };
-               rt = if typeof(l).is-arrow && non-zero(var-name-if-var(l)) {
-                  apply-global-callable(var-name-if-var(l), typeof(r), term);
+               rt = if typeof(l).is-arrow && non-zero(var-name-if-var-or-lit(l)) {
+                  apply-global-callable(var-name-if-var-or-lit(l), typeof(r), term);
                } else {
                   t3(c"Cons", typeof(l), typeof(r))
                };
@@ -45,6 +103,10 @@ let std-infer-expr(tctx: Maybe<TContext>, term: AST, is-scoped: Bool, used: IsUs
          if not(index-macro-table.has(var-name-if-var(l))) && not(is-cons) && non-zero(var-name-if-var(l)) && typeof(l).is-arrow {
             mark-var-to-def-todo(tctx, var-name-if-var(l), typeof(r), l);
          };
+      );
+      _ => (
+         # TODO: remove after infer-expr.lm is ported
+         infer-expr(tctx, term, if is-scoped then Scoped else Unscoped, TAny, used);
       );
    };
    (tctx, term);

@@ -2,6 +2,13 @@
 let var-name-if-var(t: AST): CString = (
    match t {
       Var{key=key} => key;
+      _ => c"";
+   }
+);
+
+let var-name-if-var-or-lit(t: AST): CString = (
+   match t {
+      Var{key=key} => key;
       Lit{key=key} => key;
       _ => c"";
    }

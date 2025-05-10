@@ -23,70 +23,6 @@ meta
 infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hint Type)(: used IsUsed). (: (
    (match term (
       ()
-      ( ASTNil (ascript-normal( term (t1 'Nil_s) )) )
-      ( ASTEOF (ascript-normal( term (t1 'Nil_s) )) )
-      ( (Seq( l r )) (
-         (infer-expr( tctx l Unscoped TAny Used ))
-         (infer-expr( tctx r Unscoped TAny Used ))
-      ))
-      ( (Typedef( _ _ )) () )
-      ( (Glb( k (@( v (Abs( _ )) )) )) (
-         (if (.is-open(typeof term)) () (
-            (infer-expr( tctx v Unscoped TAny Used ))
-            (let vt (typeof v))
-         ))
-      ))
-      ( (Glb( k v )) () ) # globals should already be inferred by now
-      ( (App( (Lit( ':_s _ )) (App( (Lit( _ _ )) (AType tt) )) )) (
-         (set tt (.rewrite-type-alias tt))
-         (add-concrete-type-instance tt)
-         (match term (
-            ()
-            ( (App( _ (App( t _ )) )) (
-               (if (.is-t( tt 'String_s )) () (
-                  (infer-expr( tctx t Unscoped tt used ))
-               ))
-               (let inner-tt (typeof t))
-               (if (non-zero inner-tt) (
-                  (if (can-unify( tt inner-tt )) (
-                     (set tt inner-tt)
-                  ) (
-                     (set tt (&&( inner-tt tt )))
-                  ))
-               ) (
-                  (ascript-normal( t tt ))
-               ))
-               (ascript-normal( term tt ))
-            ))
-         ))
-      ))
-      ( (App( (Lit( ':_s _ )) (App( t (AType tt) )) )) (
-         (set tt (.rewrite-type-alias tt))
-         (match t (
-            ()
-            ( (Var( '__uninitialized_s _ )) (
-               (ascript-normal( t tt ))
-            ))
-            ( _ (set tctx (infer-expr( tctx t Unscoped tt Tail ))) )
-         ))
-         (let inner-tt (typeof t))
-         (if (non-zero inner-tt) (
-            (ascript-normal( term tt ))
-            (match term (
-               ()
-               ( (App( las ras )) (
-                  (ascript-normal( las tt ))
-                  (ascript-normal( ras tt ))
-               ))
-            ))
-         ) ())
-         (if (.is-t( tt 'SmartString_s )) () (
-            (maybe-apply-global-callable( 'intern_s tt term ))
-         ))
-         (if (&&( (!=( (var-name-if-var t) '__uninitialized_s )) (not(is( used C ))) )) (
-            (ascript-normal( t tt ))
-         ) ())
-      ))
       ( (App( (App( (App( (Var( 'if_s _ )) cond )) t )) f )) (
          (if (is( scoped Scoped )) (scope(
             (let tctx-inner (infer-expr( tctx cond Unscoped TAny Used )))
@@ -169,58 +105,15 @@ infer-expr-one := λ(: tctx Maybe<TContext>)(: term AST)(: scoped IsScoped)(: hi
          (set tctx (.bind( tctx lname tt def )))
          (ascript-normal( term (t1 'Nil_s) ))
       ))
-      ( (App( is-cons l r )) (
-         (let tctx-term (std-infer-expr( tctx term false used )))
+      ( _ (
+         (let tctx-term (std-infer-expr( tctx term false used hint )))
+         (set tctx (.first tctx-term)) 
          (if (not(is( term (.second tctx-term) ))) (
             (print 'TODO:\sinfer-expr\sreplace\sterm\sin\scontext\n_s)
             (print (.second tctx-term))(print '\n_s)
             (exit 1_u64)
          ) ())
-         (set tctx (.first tctx-term))
       ))
-      ( (Abs( lhs rhs tlt )) (
-         (set tctx (infer-ctx( tctx lhs )))
-         (if (.is-t( tlt 'Blob_s )) (
-            (match rhs (
-               ()
-               ( (App( (Lit( ':_s _ )) (App( inner-rhs (AType return-type) )) )) (
-                  (infer-expr( tctx inner-rhs Unscoped TAny Tail ))
-                  (ascript-normal( rhs return-type ))
-               ))
-            ))
-         ) (
-            (if (.is-t( tlt 'C-FFI_s )) (
-               (infer-expr( tctx rhs Unscoped TAny C ))
-            ) (
-               (infer-expr( tctx rhs Unscoped TAny Tail ))
-            ))
-         ))
-         (let lt (typeof-lhs lhs))
-         (let rt (typeof rhs))
-         (ascript-normal( term (&&( (t3( 'Arrow_s lt rt )) tlt )) ))
-
-         (if (.is-t( tlt 'Blob_s )) () (
-            (maybe-apply-global-callable( 'cdecl::return_s rt term ))
-         ))
-      ))
-      ( (Var( v vtk )) (
-         (let vt (denormalize(typeof-var( term tctx v ))))
-         (ascript-normal( term vt ))
-         (mark-var-to-def-todo( tctx v TAny term ))
-      ))
-      ( (Lit( l _ )) (
-         (if (non-zero(typeof term)) () (
-            (let tt (typeof-tag l))
-            (if (non-zero tt) (
-               (if (non-zero hint) (
-                  (set tt hint)
-               ) ())
-               (ascript-normal( term tt ))
-            ) ())
-         ))
-      ))
-      ( (Meta( _ )) (ascript-normal( term (t1 'Nil_s) )) )
-      ( (AType( tt )) (ascript-normal( term tt )) )
    ))
    tctx
 ) Maybe<TContext>);
