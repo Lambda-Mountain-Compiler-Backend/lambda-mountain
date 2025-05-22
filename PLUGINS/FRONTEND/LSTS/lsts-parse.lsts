@@ -1272,7 +1272,7 @@ let lsts-parse-match2-lhs(tokens: List<Token>): Tuple<AST,List<Token>> = (
       fail("Invalid Prefix/Suffix Chain", original-tokens.formatted-location);
    };
    lhs = presufs[starti];
-   for vector p in prefixes {
+   for p in prefixes {
       lhs = mk-app(mk-var(c"macro::lhs-prefix"), mk-cons(p, lhs));
    };
    while suffixes.length > 0 {

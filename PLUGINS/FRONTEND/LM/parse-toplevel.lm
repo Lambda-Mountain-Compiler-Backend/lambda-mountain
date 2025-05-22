@@ -15,7 +15,7 @@ parse-toplevel := λ(: tokens List<Token>). (: (
                      ()
                      ( (Tuple( mrhs-tokens mremainder2 )) (
                         (let mrhs (parse-toplevel mrhs-tokens))
-                        (for-each-v (s in (.unroll-seq mrhs)) (
+                        (for-each (s in (.unroll-seq mrhs)) (
                            (set preprocess-macros (MSeq(
                               (close preprocess-macros)
                               (Macro( (without-location mlhs) (without-location s) ))

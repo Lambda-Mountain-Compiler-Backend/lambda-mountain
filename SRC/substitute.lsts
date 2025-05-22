@@ -49,7 +49,7 @@ let substitute(ctx: AContext, term: AST): AST = (
       Lit{} => term.unique;
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(substitute(ctx,s)) };
+         for s in seq { ret = ret.push(substitute(ctx,s)) };
          Seq{ret}
       );
       App{is-cons=is-cons,left=left,right=right} => mk-cons-or-app(is-cons,substitute(ctx,left),substitute(ctx,right));

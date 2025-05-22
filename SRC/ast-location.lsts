@@ -8,7 +8,7 @@ let .location(term: AST): SourceLocation = (
       Glb{ key=key, val=val } => key.location || val.location;
       Seq{ seq=seq } => (
          let loc = mk-location();
-         for vector s in seq { loc = loc || s.location };
+         for s in seq { loc = loc || s.location };
          loc
       );
       Typedef{ lhs=lhs, rhs=rhs } => lhs.location || rhs.location;

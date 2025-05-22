@@ -10,7 +10,7 @@ let .unique(term: AST): AST = (
       Lit{key=key, token=token} => Lit{key, token.unique};
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(s.unique) };
+         for s in seq { ret = ret.push(s.unique) };
          Seq{ret}
       );
       App{is-cons=is-cons,left=left,right=right} => mk-cons-or-app(is-cons,left.unique,right.unique);

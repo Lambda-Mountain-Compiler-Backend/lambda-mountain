@@ -27,7 +27,7 @@ apply := λ(: ctx AContext)(: term AST). (: (
       ))
       ( (Seq( seq )) (
          (set return ASTEOF)
-         (for-each-v (s in seq) (
+         (for-each (s in seq) (
             (set return (+( return (apply( ctx s )) )))
          ))
       ))

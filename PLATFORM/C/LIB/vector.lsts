@@ -237,7 +237,7 @@ let .into(l: Iterable<t>, out: Type<Vector<t>>): Vector<t> = (
 let to-smart-string(self: Vector<x>): String = (
    let rval = "[";
    let has-item = false;
-   for vector v in self {
+   for v in self {
       if has-item then rval = rval + ",";
       has-item = true;
       rval = rval + v.into(type(String));

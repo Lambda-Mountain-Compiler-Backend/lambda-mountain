@@ -1,6 +1,6 @@
 
 compile-program-ordered := λ(: global-ctx FContext)(: program AST). (: (
-   (for-each-v (g in (.unroll-seq program)) (match g (
+   (for-each (g in (.unroll-seq program)) (match g (
       ()
       ( (Glb( k_t rhs )) (
          (if (.is-open(typeof(def-to-sym g))) () (

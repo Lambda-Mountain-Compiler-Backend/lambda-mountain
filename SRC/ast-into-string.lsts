@@ -25,7 +25,7 @@ let .into(t: AST, tgt: Type<String>): String = (
       AType{tt=tt} => tt.into(type(String));
       Seq{seq=seq} => (
          let ret = "";
-         for vector s in seq { if non-zero(ret) then ret = ret + "\n"; ret = ret + s.into(type(String)) };
+         for s in seq { if non-zero(ret) then ret = ret + "\n"; ret = ret + s.into(type(String)) };
          ret
       );
       Typedef{lhs=lhs,rhs=rhs} => "type \{lhs} = \{rhs};";
