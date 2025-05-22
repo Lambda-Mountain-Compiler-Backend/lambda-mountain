@@ -9,9 +9,9 @@ let find-global-callable(fname: CString, arg-types: Type, blame: AST): AST = (
       }
    };
    let result = ASTEOF;
-   for vector Tuple{kt1=first, t1=second} in match-set { if not(non-zero(result)) {
+   for Tuple{kt1=first, t1=second} in match-set { if not(non-zero(result)) {
       let all-accept = true;
-      for vector Tuple{kt2=first, t2=second} in match-set {
+      for Tuple{kt2=first, t2=second} in match-set {
          if is(t1,t2) then ()
          else if most-special(kt1,kt2)!=kt1 then all-accept = false;
       };
@@ -19,7 +19,7 @@ let find-global-callable(fname: CString, arg-types: Type, blame: AST): AST = (
    }};
    if not(non-zero(result)) && match-set.length > 0 {
       eprint("Unable to find unambiguous global callable: \{fname} \{arg-types}\n");
-      for vector Tuple{kt=first, t=second} in match-set {
+      for Tuple{kt=first, t=second} in match-set {
          eprint("\{kt}\n");
       };
       exit(1);
@@ -42,9 +42,9 @@ let apply-global-callable(fname: CString, arg-types: Type, blame: AST, can-fail:
    };
    let result-normal = TAny;
    let result-denormal = TAny;
-   for vector Tuple{ot1=first, kt1=second, t1=third} in match-set { if not(non-zero(result-normal)) {
+   for Tuple{ot1=first, kt1=second, t1=third} in match-set { if not(non-zero(result-normal)) {
       let all-accept = true;
-      for vector Tuple{kt2=second, t2=third} in match-set {
+      for Tuple{kt2=second, t2=third} in match-set {
          if is(t1,t2) then ()
          else if most-special(kt1,kt2)!=kt1 then all-accept = false;
       };
@@ -52,7 +52,7 @@ let apply-global-callable(fname: CString, arg-types: Type, blame: AST, can-fail:
    }};
    if can-fail && not(non-zero(result-normal)) && match-set.length > 0 {
       eprint("Unable to find unambiguous global callable: \{fname} \{arg-types}\nAt \{blame.location}\n");
-      for vector Tuple{kt=second, t=third} in match-set {
+      for Tuple{kt=second, t=third} in match-set {
          eprint("\{kt}\n");
       };
       exit(1);

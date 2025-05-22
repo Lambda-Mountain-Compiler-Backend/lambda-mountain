@@ -11,7 +11,7 @@ let .ground-tag-and-arity(tt: Type): (CString,U64) = (
       TVar {} => (c"", 9999999_u64);
       TAnd { conjugate=conjugate } => (
          let result = (c"", 9999999_u64);
-         for vector c in conjugate { if result.second==9999999 then result = c.ground-tag-and-arity };
+         for c in conjugate { if result.second==9999999 then result = c.ground-tag-and-arity };
          result
       );
    }

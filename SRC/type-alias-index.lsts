@@ -18,9 +18,9 @@ let .rewrite-type-alias(lt: Type): Type = (
       );
       TAnd{ conjugate=conjugate } => (
          let result = mk-vector(type(Type), 0_u64);
-         for vector c in conjugate {
+         for c in conjugate {
             match c.rewrite-type-alias {
-               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAnd{rconjugate=conjugate} => for rc in rconjugate { result = result.push(rc) };
                TAny{} => ();
                rc => ( result = result.push(rc); () );
             }
@@ -58,9 +58,9 @@ let .rewrite-opaque-type-alias(lt: Type): Type = (
       );
       TAnd{ conjugate=conjugate } => (
          let result = mk-vector(type(Type), 0_u64);
-         for vector c in conjugate {
+         for c in conjugate {
             match c.rewrite-opaque-type-alias {
-               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAnd{rconjugate=conjugate} => for rc in rconjugate { result = result.push(rc) };
                TAny{} => ();
                rc => ( result = result.push(rc); () );
             }

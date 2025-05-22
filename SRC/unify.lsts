@@ -21,7 +21,7 @@ let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
       Tuple{ first:TAnd{ lconjugate=conjugate }, second:TAnd{ rconjugate=conjugate } } => (
          let result = yes;
          let ri = 0_u64;
-         for vector lc in lconjugate {
+         for lc in lconjugate {
             if result.is-some then (match lc {
                TGround{tag:c"Any"} => ();
                TGround{ltag=tag} => (
@@ -55,12 +55,12 @@ let unify-inner(fpt: Type, pt: Type): Maybe<TContext> = (
       );
       Tuple{ first:TAnd{ lconjugate=conjugate }, rt=second } => (
          ctx = yes;
-         for vector c in lconjugate { ctx = ctx && unify-inner(c,rt) };
+         for c in lconjugate { ctx = ctx && unify-inner(c,rt) };
          ctx
       );
       Tuple{ lt=first, second:TAnd{ rconjugate=conjugate } } => (
          ctx = yes;
-         for vector c in rconjugate { ctx = union(ctx, unify-inner(lt,c)) };
+         for c in rconjugate { ctx = union(ctx, unify-inner(lt,c)) };
          ctx
       );
 

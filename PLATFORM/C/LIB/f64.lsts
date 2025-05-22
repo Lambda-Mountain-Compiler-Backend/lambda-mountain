@@ -23,4 +23,22 @@ declare-unop( not, raw-type(F64), raw-type(U64), ( l"(!"; x; l")"; ) );
 
 declare-unop( into-branch-conditional, raw-type(F64), raw-type(BranchConditional), x );
 
+let cmp(l: F64, r: F64): Ord = if l==r then Equal else if l<r then LessThan else GreaterThan;
 
+let .abs(self: F64): F64 = (
+   if self < 0_f64 { 0_f64 - self } else { self }
+);
+
+let to-smart-string(value: F64): SmartString = (
+   let out = "";
+   if value < 0_f64 {
+      out = out + to-smart-string(close(45_u8) as CString);
+   };
+   value = value.abs();
+   out = out + to-smart-string(value as U64);
+   out = out + to-smart-string(close(46_u8) as CString);
+   let v = (value - ((value as U64) as F64)) * (10000 as F64);
+   let vs = to-smart-string(v as U64).pad-left-str(48_u8, 4);
+   out = out + vs;
+   out
+);

@@ -1,6 +1,6 @@
 
 plugins-backend-blob-compile := λ. (: (
-   (for-each-v (p in (.unroll-seq ast-parsed-program)) (match p (
+   (for-each (p in (.unroll-seq ast-parsed-program)) (match p (
       ()
       ( (Typedef( lhs rhs )) () )
       ( (Glb( k_t rhs )) (
@@ -21,7 +21,7 @@ plugins-backend-blob-compile := λ. (: (
       ( _ () )
    )))
    (let blob SNil)
-   (for-each-v (p in (.unroll-seq ast-parsed-program)) (match p (
+   (for-each (p in (.unroll-seq ast-parsed-program)) (match p (
       ()
       ( (Glb( k_t rhs )) () )
       ( (Typedef( lhs rhs )) () )

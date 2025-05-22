@@ -6,7 +6,7 @@ let substitute-uuids(ctx: AContext, term: AST): AST = (
       );
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(substitute-uuids(ctx,s)) };
+         for s in seq { ret = ret.push(substitute-uuids(ctx,s)) };
          Seq{ret}
       );
       Typedef{lhs=lhs,rhs=rhs} => (

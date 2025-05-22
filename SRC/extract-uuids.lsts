@@ -8,7 +8,7 @@ let extract-uuids(term: AST): AContext = (
       App{left=left, right=right} => extract-uuids(left) + extract-uuids(right);
       Seq{seq=seq} => (
          let ret = [] :: AContext;
-         for vector s in seq { ret = ret + extract-uuids(s) };
+         for s in seq { ret = ret + extract-uuids(s) };
          ret
       );
       Abs{lhs=lhs, rhs=rhs} => extract-uuids(lhs) + extract-uuids(rhs);

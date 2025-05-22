@@ -42,7 +42,7 @@ let macro-type-peep-holes(mtype: Type): Type = (
       TGround{} => t1(c"Yes");
       TAnd{conjugate=conjugate} => (
          let peep = ta;
-         for vector c in conjugate {
+         for c in conjugate {
             peep = peep || macro-type-peep-holes(c);
          };
          peep;

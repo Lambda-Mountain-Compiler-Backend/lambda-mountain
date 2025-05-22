@@ -53,7 +53,7 @@ assert-well-typed := λ(: term AST). (: (
          (assert-one-typed term)
       ))
       ( (Seq( seq )) (
-         (for-each-v (s in seq) (assert-well-typed s))
+         (for-each (s in seq) (assert-well-typed s))
       ))
       ( (Meta( _ )) () )
    ))

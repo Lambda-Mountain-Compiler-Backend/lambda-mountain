@@ -1,5 +1,14 @@
 
 type SmartString implements Collection<U8>;
+type SmartString implements Iterable<U8>;
+
+let .iter(self: SmartString): CollectionIteratorBase<SmartString,U8> = (
+   self.into(type(CollectionIteratorBase<SmartString,U8>))
+);
+
+let .unsafe-iter(self: SmartString): CollectionIteratorBase<SmartString,U8> = (
+   self.iter()
+);
 
 let cmp(l: CString, r: String): Ord = (
    cmp( intern(l), r )
@@ -53,6 +62,7 @@ let print(io: IO::File, x: SmartString): Nil = (
       start = start + 1_u64;
    };
 );
+
 let print(x: SmartString): Nil = print( $"io::file::stdout"() as IO::File, x );
 
 let eprint(io: IO::File, x: SmartString): Nil = (
@@ -63,3 +73,48 @@ let eprint(io: IO::File, x: SmartString): Nil = (
    };
 );
 let eprint(x: SmartString): Nil = print( $"io::file::stderr"() as IO::File, x );
+
+let .pad-left-str(self: String, value: U8, minlen: U64): String = (
+   self.pad-left(value, minlen).into(type(String))
+);
+
+let .pad-right-str(self: String, value: U8, minlen: U64): String = (
+   self.pad-right(value, minlen).into(type(String))
+);
+
+let .count-left-spaces(self: String): U64 = (
+   let num = 0_u64;
+
+   let i = 0_u64;
+   while i < self.length() {
+      if self[i].is-space() {
+         num = num + 1;
+      } else {
+         i = self.length(); # break
+      };
+      i = i + 1;
+   };
+
+   num
+);
+
+let .count-right-spaces(self: String): U64 = (
+   self.length() - self.trim-right().length()
+);
+
+let .trim-right(self: String): String = (
+   while self.length() > 0 && self.last().is-space() {
+      let l = self.length() - 1;
+      self = self[0_u64:l];
+   };
+   self
+);
+
+let .trim-left(self: String): String = (
+   let n = self.count-left-spaces();
+   self[n:self.length()]
+);
+
+let .trim(self: String): String = (
+   self.trim-left().trim-right()
+);

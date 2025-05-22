@@ -3,7 +3,7 @@ let .is-arrow(tt: Type): U64 = (
    match tt {
       TAnd { conjugate=conjugate } => (
          let result = false as U64;
-         for vector c in conjugate { result = result || c.is-arrow };
+         for c in conjugate { result = result || c.is-arrow };
          result
       );
       TGround { tag:c"Arrow" } => true;
@@ -16,7 +16,7 @@ let .contains-arrow(tt: Type): U64 = (
    match tt {
       TAnd { conjugate=conjugate } => (
          let result = false as U64;
-         for vector c in conjugate { result = result || c.contains-arrow };
+         for c in conjugate { result = result || c.contains-arrow };
          result
       );
       TGround { tag:c"Arrow" } => true;

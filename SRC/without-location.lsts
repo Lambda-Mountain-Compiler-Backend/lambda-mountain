@@ -8,7 +8,7 @@ let without-location(term: AST): AST = (
       App{is-cons=is-cons,left=left,right=right} => App{is-cons,close(without-location(left)),close(without-location(right))};
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(without-location(s)) };
+         for s in seq { ret = ret.push(without-location(s)) };
          Seq{ret}
       );
       Abs{lhs=lhs,rhs=rhs,tt=tt} => Abs{close(without-location(lhs)),close(without-location(rhs)),tt};

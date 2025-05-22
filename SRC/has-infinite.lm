@@ -35,7 +35,7 @@ has-infinite := λ(: base-type Type)(: active Type). (: (
          (set return (has-infinite( base-type cls (.length ps) ps 1_u64 )))
       ))
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (set return (max( return (has-infinite( base-type c )) ))))
+         (for-each (c in conjugate) (set return (max( return (has-infinite( base-type c )) ))))
       ))
       ( _ () )
    ))

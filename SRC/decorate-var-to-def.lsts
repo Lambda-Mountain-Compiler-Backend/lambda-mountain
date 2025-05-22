@@ -6,7 +6,7 @@ let mark-var-to-def-todo(tctx: Maybe<TContext>, k: CString, tt: Type, t: AST): N
 );
 
 let decorate-var-to-def(): Nil = (
-   for vector Tuple{tctx=first, k=second, tt=third, t=fourth} in decorate-var-to-def-todo {
+   for Tuple{tctx=first, k=second, tt=third, t=fourth} in decorate-var-to-def-todo {
       let def = defof-var(t, tctx, k, tt);
       if non-zero(def) then mark-var-to-def(t, def);
    }

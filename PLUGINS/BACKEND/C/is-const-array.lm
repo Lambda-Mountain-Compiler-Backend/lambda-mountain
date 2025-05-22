@@ -4,7 +4,7 @@ is-const-array := λ(: tt Type). (: (
    (match tt (
       ()
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (
+         (for-each (c in conjugate) (
             (set r (||( r (is-const-array( c )) )))
          ))
       ))

@@ -15,7 +15,7 @@ infer-tctx := λ(: tctx Maybe<TContext>)(: tt Type). (: (
    (match tt (
       ()
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (set tctx (infer-tctx( tctx c ))))
+         (for-each (c in conjugate) (set tctx (infer-tctx( tctx c ))))
       ))
       ( (TVar( tv )) (
          (set tctx (.bind(

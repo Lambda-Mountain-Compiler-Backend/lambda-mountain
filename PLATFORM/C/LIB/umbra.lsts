@@ -37,6 +37,9 @@ type UmbraShortLong = UmbraShort { arr: U8[12] } | UmbraLong { prefix: U8[4], pt
 
 type Umbra = Umbra { len: U32, backing: UmbraShortLong };
 
+type Umbra implements Collection<U8>;
+type Umbra implements Iterable<U8>;
+
 let .length(s: Umbra[]): U64 = (
     s.len as U64
 );
@@ -276,3 +279,12 @@ let $"+"(l: t, r: Umbra[]): Umbra = (
 let $"+"(l: Umbra[], r: t): Umbra = (
     concat-to-umbra(l, r)
 );
+
+let .iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (
+   self.unsafe-iter()
+);
+
+let .unsafe-iter(self: Umbra): CollectionIteratorBase<Umbra, U8> = (
+   self.into(type(CollectionIteratorBase<Umbra, U8>))
+);
+

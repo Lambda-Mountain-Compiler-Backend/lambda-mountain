@@ -3,7 +3,7 @@ let .with-only-class(tt: Type): Type = (
    match tt {
       TAnd{ conjugate=conjugate } => (
          let result = TAny;
-         for vector c in conjugate { if not(non-zero(result)) then result = c.with-only-class };
+         for c in conjugate { if not(non-zero(result)) then result = c.with-only-class };
          result;
       );
       TGround{ tag=tag, parameters=parameters } => (

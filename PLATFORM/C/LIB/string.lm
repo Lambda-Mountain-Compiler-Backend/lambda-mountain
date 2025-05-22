@@ -32,27 +32,6 @@ deep-hash := λ(: key String). (: (
    si
 ) U64);
 
-.has-prefix := λ(: base String)(: pfx String). (: (
-   (let r 1_u64)
-   (while (head-string pfx) (
-      (if (head-string base) (
-         (let bc (head-string base))
-         (let pc (head-string pfx))
-         (if (==( bc pc )) (
-            (set base (tail-string base))
-            (set pfx (tail-string pfx))
-         ) (
-            (set r 0_u64)
-            (set pfx '_s)
-         ))
-      ) (
-         (set r 0_u64)
-         (set pfx '_s)
-      ))
-   ))
-   r
-) U64);
-
 .remove-prefix := λ(: base String)(: pfx String). (: (
    (if (.has-prefix( base pfx )) (
       (while (head-string pfx) (
@@ -62,17 +41,6 @@ deep-hash := λ(: key String). (: (
    ) ())
    base
 ) String);
-
-.has-suffix := λ(: base String)(: sfx String). (: (
-   (let r 0_u64)
-   (while (head-string base) (
-      (if (==( base sfx )) (
-         (set r 1_u64)
-      ) ())
-      (set base (tail-string base))
-   ))
-   r
-) U64);
 
 .remove-suffix := λ(: base String)(: sfx String). (: (
    (let r SNil)
@@ -103,15 +71,6 @@ deep-hash := λ(: key String). (: (
    ))
    (clone-rope r)
 ) String);
-
-.contains := λ(: base String)(: pat String). (: (
-   (let r 0_u64)
-   (while (!=( (head-string base) 0_u8 )) (
-      (if (.has-prefix( base pat )) (set r 1_u64) ())
-      (set base (tail-string base))
-   ))
-   r
-) U64);
 
 + := λ(: l String)(: r String). (: (
    (clone-rope(+( (SAtom l) (SAtom r) )))
