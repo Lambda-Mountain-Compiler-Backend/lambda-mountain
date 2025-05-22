@@ -1,26 +1,5 @@
 
 preprocess-apply-locations := λ(: program AST). (: (
-   (if (.is-seq program) (
-      (let seqs (: LEOF List<AST>))
-      (while (.is-seq program) (match program (
-         ()
-         ( (Seq( l r )) (
-            (set seqs (cons( (preprocess-apply-locations-one r) seqs )))
-            (set program l)
-         ))
-      )))
-      (set program ASTEOF)
-      (while (non-zero seqs) (
-         (set program (+( program (head seqs) )))
-         (set seqs (tail seqs))
-      ))
-   ) (
-      (set program (preprocess-apply-locations-one program))
-   ))
-   program
-) AST);
-
-preprocess-apply-locations-one := λ(: program AST). (: (
    (let r program)
    (match program (
       ()
@@ -62,10 +41,12 @@ preprocess-apply-locations-one := λ(: program AST). (: (
             (close(preprocess-apply-locations t2))
          )))
       ))
-      ( (Seq( al ar )) (set r (Seq(
-         (close(preprocess-apply-locations al))
-         (close(preprocess-apply-locations ar))
-      ))))
+      ( (Seq( seq )) (
+         (set r ASTEOF)
+         (for-each-v (p in seq) (
+            (set r (+( r (preprocess-apply-locations p) )))
+         ))
+      ))
       ( (Abs( al ar tlt )) (set r (Abs(
          (close(preprocess-apply-locations al))
          (close(preprocess-apply-locations ar))

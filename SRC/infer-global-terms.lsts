@@ -1,0 +1,54 @@
+
+let infer-global-terms(term: AST): AST = (
+   match term {
+      Seq{seq=seq} => (
+         let def-i = 0_u64;
+         while def-i < seq.length {
+            seq[def-i] = infer-global-terms(seq[def-i]);
+            def-i = def-i + 1;
+         };
+      );
+      Glb{val:Abs{}} => ();
+      Glb{k=key, rhs=val} => (
+         (_, let new-rhs) = std-infer-expr((None :: TContext?), rhs, false, Used, TAny);
+         if not(is(rhs,new-rhs)) then {
+            let new-term = mk-glb(k, new-rhs);
+            mark-var-to-def(new-term, term);
+            term = new-term;
+         };
+         let kt = normalize(typeof(rhs)) && t1(c"GlobalVariable");
+         global-type-context = global-type-context.bind(k.key, kt, term);
+         mark-global-as-seen(k.key, kt, TAny);
+         ascript-normal(term, kt);
+         maybe-apply-global-callable(c"mov", t3(c"Cons",kt,kt), term);
+      );
+      _ => ();
+   }; term
+);
+
+let infer-global-context(term: AST): Nil = (
+   match term {
+      Seq{seq=seq} => (
+         for vector s in seq { infer-global-context(s) }
+      );
+      Typedef{ lhs:Lit{base-type=key}, case-constructors=rhs } => (
+         # TODO: remove when LM frontend is removed
+         let bt = parse-type(base-type);
+         infer-type-definition(bt, case-constructors, 0);
+      );
+      Typedef{ lhs:AType{bt=tt}, case-constructors=rhs } => (
+         infer-type-definition(bt, case-constructors, 0);
+      );
+      Glb{ k=key, frhs=val:Abs{lhs=lhs, rhs:App{left:Lit{key:c":"}, right:App{rhs=left, right:AType{return-type=tt}}}, misc-tt=tt} } => (
+         if misc-tt.is-t(c"TypedMacro") then bind-new-macro(k.key, frhs)
+         else {
+            let ft = t3(c"Arrow", typeof-lhs(lhs), return-type) && misc-tt;
+            mark-global-as-seen(k.key, ft, misc-tt);
+            ascript-normal(term, ft);
+            ascript-normal(frhs, ft);
+            global-type-context = global-type-context.bind(k.key, ft, term);
+         };
+      );
+      _ => ();
+   }
+);

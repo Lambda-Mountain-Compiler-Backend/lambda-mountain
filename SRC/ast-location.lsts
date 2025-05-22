@@ -5,8 +5,12 @@ let .location(term: AST): SourceLocation = (
       Lit{ token=token } => token.location;
       App{ left=left, right=right } => left.location || right.location;
       Abs{ lhs=lhs, rhs=rhs } => lhs.location || rhs.location;
-      Seq{ left=left, right=right } => left.location || right.location;
       Glb{ key=key, val=val } => key.location || val.location;
+      Seq{ seq=seq } => (
+         let loc = mk-location();
+         for vector s in seq { loc = loc || s.location };
+         loc
+      );
       Typedef{ lhs=lhs, rhs=rhs } => lhs.location || rhs.location;
       _ => mk-location();
    }

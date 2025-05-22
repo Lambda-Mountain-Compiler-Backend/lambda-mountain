@@ -1,2 +1,21 @@
 
 let var-to-def-index = mk-hashtable-is(type(AST), type(AST));
+
+let var-to-def(k: AST): AST = (
+   let def = var-to-def-index.lookup(k, ASTEOF);
+   if not(non-zero(def)) {
+      exit-error( untern("Unable to Find Symlink in Context: \{k}"), k );
+   };
+   def-to-sym(def)
+);
+
+let def-to-sym(k: AST): AST = (
+   let sym = var-to-def-index.lookup(k, ASTEOF);
+   if non-zero(sym) then sym else k
+);
+
+let mark-var-to-def(k: AST, v: AST): Nil = (
+   let sym = var-to-def-index.lookup(v, ASTEOF);
+   if non-zero(sym) then v = sym;
+   var-to-def-index = var-to-def-index.bind(k, v);
+);

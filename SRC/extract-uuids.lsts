@@ -6,7 +6,11 @@ let extract-uuids(term: AST): AContext = (
          [Tuple{x, Var{id, with-key(xtk,id)}}]
       );
       App{left=left, right=right} => extract-uuids(left) + extract-uuids(right);
-      Seq{left=left, right=right} => extract-uuids(left) + extract-uuids(right);
+      Seq{seq=seq} => (
+         let ret = [] :: AContext;
+         for vector s in seq { ret = ret + extract-uuids(s) };
+         ret
+      );
       Abs{lhs=lhs, rhs=rhs} => extract-uuids(lhs) + extract-uuids(rhs);
       Typedef{lhs=lhs, rhs=rhs} => extract-uuids(lhs) + extract-uuids(rhs);
       Glb{val=val} => extract-uuids(val);

@@ -1,8 +1,8 @@
 CC = cc
-CFLAGS = -O3 -march=native -mtune=native
+CFLAGS = -O3 -march=native -mtune=native -ferror-limit=50
 
 dev: install-production
-	lm tests/regress/seq-macro.lm
+	lm tests/unit/ast-macros.lsts
 	cc tmp.c
 	./a.out
 
@@ -22,7 +22,7 @@ valgrind: install-bootstrap
 	valgrind --tool=callgrind lm SRC/index-index.lm
 
 valgrind-view:
-	callgrind_annotate callgrind.out.6386
+	callgrind_annotate callgrind.out.18778
 
 gprof:
 	$(CC) $(CFLAGS) -pg -o bootstrap.exe BOOTSTRAP/cli.c

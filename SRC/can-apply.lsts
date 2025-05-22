@@ -1,0 +1,2 @@
+
+let can-apply(ft: Type, pt: Type): U64 = can-unify(ft.domain, pt);

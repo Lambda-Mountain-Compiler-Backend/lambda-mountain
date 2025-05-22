@@ -19,6 +19,11 @@ fail := λ(: msg SmartString). (: (
    (as (exit 1_u32) Never)
  ) Never);
 
+fail := λ(: msg SmartString)(: loc SmartString). (: (
+   (print msg)(print '\sat\s_s)(print loc)
+   (as (exit 1_u32) Never)
+) Never);
+
 fail := λ(: msg String). (: (
    (print msg)
    (as (exit 1_u32) Never)

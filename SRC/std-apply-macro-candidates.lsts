@@ -1,0 +1,85 @@
+
+let std-apply-macro-candidates(tctx: TContext?, mname: CString, margs: AST, candidates: List<(Type,AST)>): (TContext?, AST) = (
+   # candidates must be in last-most-first order
+   # Example: Source Definitions
+   # define macro candidate 1
+   # define macro candidate 2
+   # should be sent as
+   # [ candidate 2, candidate 1 ]
+   let t = ASTEOF;
+   for Tuple{ctype=first, second:Abs{mlhs=lhs,rhs:App{left:Lit{key:c":"},right:App{mrhs=left}}}} in candidates {
+      if not(non-zero(t)) {
+         (let new-tctx, let mctx) = std-try-destructure-macro(tctx, margs, ctype, mlhs);
+         if mctx.is-some then mctx = union(mctx, Some{extract-uuids(mrhs)});
+         if mctx.is-some then t = with-location-preserve(substitute(mctx.get-or-panic, mrhs), margs.location);
+      }
+   };
+   (tctx, t)
+);
+
+let std-try-destructure-macro(tctx: TContext?, margs: AST, mtype: Type, mcandidate: AST): (TContext?, AContext?) = (
+   let no = None :: AContext?;
+   if let Abs{lhs=lhs, rhs=rhs} = mcandidate then std-try-destructure-macro(tctx, margs, mtype, lhs)
+   else {
+      match mtype {
+         TGround{tag:c"Cons", parameters:[p2.. p1..]} => (
+            match margs {
+               App{left=left, right=right} => (
+                  match mcandidate {
+                     App{cleft=left, cright=right} => (
+                        (tctx, let mctx1) = std-try-destructure-macro(tctx, left, p1, cleft);
+                        (tctx, let mctx2) = std-try-destructure-macro(tctx, right, p2, cright);
+                        (tctx, union(mctx1, mctx2))
+                     );
+                     _ => (tctx, no);
+                  }
+               );
+               _ => (tctx, no);
+            }
+         );
+         _ => (
+            match mcandidate {
+               App{left:Lit{key:c":"}, right:App{mstruct=left, right:AType{tt=tt}}} => (
+                  if non-zero(std-macro-helper-name(tt))
+                  then {
+                     let macro-helper = std-macro-helper-name(tt);
+                     match margs {
+                        App{left:Var{maybe-helper=key}, helper-args=right} => (
+                           if macro-helper==maybe-helper {
+                              (tctx, let helped) = std-apply-macro-weak(tctx, macro-helper, helper-args, Used);
+                              if non-zero(helped)
+                              then (tctx, std-direct-destructure-macro(helped, mstruct))
+                              else (tctx, no)
+                           } else (tctx, no)
+                        );
+                        _ => (
+                           if index-macro-meta.has(macro-helper) {
+                              (tctx, let helped) = std-apply-macro-weak(tctx, macro-helper, margs, Used);
+                              if non-zero(helped)
+                              then (tctx, std-direct-destructure-macro(helped, mstruct))
+                              else (tctx, no)
+                           } else (tctx, no)
+                        );
+                     }
+                  } else (tctx, std-direct-destructure-macro(margs, mstruct))
+               );
+               _ => (tctx, no);
+            }
+         );
+      }
+   }
+);
+
+let std-macro-helper-name(tt: Type): CString = (
+   match tt {
+      TVar{name=name} => if name.has-prefix(c"macro::") then name else c"";
+      TAnd{conjugate=conjugate} => (
+         let name = c"";
+         for vector c in conjugate {
+            if not(non-zero(name)) then name = std-macro-helper-name(c);
+         };
+         name
+      );
+      _ => c"";
+   };
+);

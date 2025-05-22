@@ -4,8 +4,10 @@ let substitute-uuids(ctx: AContext, term: AST): AST = (
       App{left:Var{key:c"uuid"}, right:Var{x=key}} => (
          ctx.lookup(x,term)
       );
-      Seq{left=left,right=right} => (
-         Seq{close(substitute-uuids(ctx,left)), close(substitute-uuids(ctx,right))}
+      Seq{seq=seq} => (
+         let ret = mk-vector(type(AST), seq.length);
+         for vector s in seq { ret = ret.push(substitute-uuids(ctx,s)) };
+         Seq{ret}
       );
       Typedef{lhs=lhs,rhs=rhs} => (
          Typedef{close(substitute-uuids(ctx,lhs)), close(substitute-uuids(ctx,rhs))}

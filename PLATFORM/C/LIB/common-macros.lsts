@@ -1,0 +1,268 @@
+
+typed macro macro::let(lhs: lazy, rhs: lazy): lazy = (
+   (fn(lhs) = ()) (rhs)
+);
+
+typed macro macro::set(lhs: lazy, rhs: lazy): lazy = (
+   mov(rhs, lhs)
+);
+
+typed macro macro::set(base index: macro::lhs-index, rhs: lazy): lazy = (
+   $"set[]"( base, index, rhs )
+);
+
+typed macro macro::set(base field: macro::lhs-field, rhs: lazy): lazy = (
+   macro::concat($"set.", field) (base, rhs)
+);
+
+typed macro macro::lhs-as-rhs(v: macro::variable): lazy = (
+   v
+);
+
+typed macro macro::lhs-as-rhs(base: macro::lhs-address-of): lazy = (
+   &v
+);
+
+typed macro macro::lhs-address-of(base: lazy): lazy = (
+   base
+);
+
+typed macro macro::lhs-field(base: lazy, field: lazy): lazy = (
+   base; field
+);
+
+typed macro macro::lhs-as-rhs(base field: macro::lhs-index): lazy = (
+   macro::concat(l".", field)(base)
+);
+
+typed macro macro::lhs-index(base: lazy, index: lazy): lazy = (
+   base; index
+);
+
+typed macro macro::lhs-index(base field: macro::lhs-field, index: lazy): lazy = (
+   macro::concat($".", field)(base); index
+);
+
+typed macro macro::for(item: lazy, iter: List<?>, loop: lazy): lazy = (
+   let uuid(iter-term) = iter;
+   while uuid(iter-term).has-head { match uuid(iter-term) {
+      [item.. uuid(tl)] => (
+         loop; uuid(iter-term) = uuid(tl);
+      );
+   }}
+);
+
+typed macro macro::for(item: lazy, iter: Vector<?>, loop: lazy): lazy = (
+   let uuid(iter-term) = iter;
+   let uuid(iter-i) = 0_u64;
+   let uuid(iter-length) = uuid(iter-term).length;
+   while uuid(iter-i) < uuid(iter-length) { match uuid(iter-term)[uuid(iter-i)] {
+      item => (
+         loop; uuid(iter-i) = uuid(iter-i) + 1;
+      );
+   }}
+);
+
+typed macro macro::while(cond: lazy, body: lazy): lazy = (
+   primitive::while( body as Nil, into-branch-conditional(cond) )
+);
+
+typed macro macro::assert(cond: lazy): lazy = (
+   if not(cond) then fail("Assertion Failed", macro::location(here))
+);
+
+typed macro macro::match(t: lazy, ps: lazy): lazy = (
+   let uuid(term) = open(t);
+   macro::match-pats( uuid(term), ps );
+);
+
+typed macro macro::bind-raw(t: lazy): lazy = (t);
+
+typed macro macro::match(t: macro::bind-raw, ps: lazy): lazy = (
+   let uuid(term) = t;
+   macro::match-pats( uuid(term), ps );
+);
+
+typed macro macro::match-case(lhs: lazy, rhs: lazy, remainder: lazy): lazy = (
+   lhs; rhs; remainder
+);
+
+typed macro macro::match-pats(term: lazy, remainder: lazy): lazy = (
+   remainder
+);
+
+typed macro macro::match-pats(term: lazy, lhs rhs remainder: macro::match-case): lazy = (
+   scope(if macro::match-arm(lhs,term) then rhs else macro::match-pats(term,remainder))
+);
+
+typed macro macro::match-arm(v: macro::variable, term: lazy): lazy = (
+   (let v = term; true)
+);
+
+typed macro macro::match-arm(v: macro::underscore, term: lazy): lazy = (
+   true
+);
+
+typed macro macro::match-arm(c: macro::constant, term: lazy): lazy = (
+   (c == term)
+);
+
+typed macro macro::match-arm(prefix rest: macro::lhs-prefix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-prefix(prefix))
+           (macro::match-arm(rest, uuid(v).remove-prefix(prefix)))
+           (false)
+   )
+);
+
+typed macro macro::match-arm(suffix rest: macro::lhs-suffix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-suffix(suffix))
+           (macro::match-arm(rest, uuid(v).remove-suffix(suffix)))
+           (false)
+   )
+);
+
+typed macro macro::bind(lhs: macro::let-name, rhs: lazy): lazy = (
+   (macro::let( lhs, rhs ))
+);
+
+typed macro macro::bind(lhs: macro::set-name, rhs: lazy): lazy = (
+   (mov( rhs, lhs ))
+);
+
+typed macro macro::bind(lhs: macro::underscore, rhs: lazy): lazy = (
+   ()
+);
+
+typed macro macro::let-name(name: lazy): lazy = (name);
+typed macro macro::set-name(name: lazy): lazy = (name);
+
+typed macro macro::let-bind(rest: lazy, bind: lazy): lazy = (rest; macro::let-name(bind));
+typed macro macro::set-bind(rest: lazy, bind: lazy): lazy = (rest; macro::set-name(bind));
+
+typed macro macro::lhs-prefix(prefix: lazy, rest: lazy): lazy = (prefix; rest; _);
+typed macro macro::lhs-suffix(suffix: lazy, rest: lazy): lazy = (suffix; rest; _);
+
+typed macro macro::lhs-prefix(lhs bind: macro::set-bind, rest: lazy): lazy = (lhs; rest; bind);
+typed macro macro::lhs-prefix(lhs bind: macro::let-bind, rest: lazy): lazy = (lhs; rest; bind);
+typed macro macro::lhs-suffix(lhs bind: macro::set-bind, rest: lazy): lazy = (lhs; rest; bind);
+typed macro macro::lhs-suffix(lhs bind: macro::let-bind, rest: lazy): lazy = (lhs; rest; bind);
+
+typed macro macro::match-arm(prefix rest bind: macro::lhs-prefix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-prefix(prefix))
+           (
+              macro::bind( bind, uuid(v).get-prefix(prefix) );
+              (macro::match-arm(rest, uuid(v).remove-prefix(prefix)))
+           )
+           (false)
+   )
+);
+
+typed macro macro::match-arm(suffix rest bind: macro::lhs-suffix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-suffix(suffix))
+           (
+              macro::bind( bind, uuid(v).get-suffix(suffix) );
+              (macro::match-arm(rest, uuid(v).remove-suffix(suffix)))
+           )
+           (false)
+   )
+);
+
+typed macro macro::lhs-guard(base: lazy, post-condition: lazy): lazy = (base; post-condition);
+
+typed macro macro::match-arm(cond post-condition: macro::lhs-guard, term: lazy): lazy = (
+   (
+      $"if"(macro::match-arm(cond, term))
+           (post-condition)
+           (false)
+   )
+);
+
+typed macro macro::lhs-bound-prefix(bind: macro::variable, prefix: lazy, rest: lazy): lazy = (bind; prefix; rest);
+typed macro macro::lhs-bound-suffix(bind: macro::variable, suffix: lazy, rest: lazy): lazy = (bind; suffix; rest);
+
+typed macro macro::match-arm(bind prefix rest: macro::lhs-bound-prefix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-prefix(prefix))
+           (
+              let uuid(tail) = uuid(v).remove-prefix(prefix);
+              let bind = uuid(v).remove-suffix(uuid(tail));
+              macro::match-arm(rest, uuid(tail))
+           )
+           (false)
+   )
+);
+
+typed macro macro::match-arm(bind suffix rest: macro::lhs-bound-suffix, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-suffix(suffix))
+           (
+              let uuid(tail) = uuid(v).remove-suffix(suffix);
+              let bind = uuid(v).remove-prefix(uuid(tail));
+              macro::match-arm(rest, uuid(tail))
+           )
+           (false)
+   )
+);
+
+typed macro macro::lhs-head(head-lhs: lazy, tail-lhs: lazy): lazy = (head-lhs; tail-lhs);
+
+typed macro macro::match-arm(head-lhs tail-lhs: macro::lhs-head, term: lazy): lazy = (
+   (let uuid(v) = term;
+      $"if"(uuid(v).has-head)
+           (
+              $"if"(macro::match-arm( head-lhs, head(uuid(v)) ))
+                   (macro::match-arm( tail-lhs, tail(uuid(v)) ))
+                   (false)
+           )
+           (false)
+   )
+);
+
+typed macro macro::match-arm(case rest: macro::lhs-struct, term: lazy): lazy = (
+   (let uuid(v) = term; macro::lhs-struct-post(case, rest, term))
+);
+
+typed macro macro::lhs-struct(case: lazy, rest: lazy): lazy = (case; rest);
+typed macro macro::lhs-struct-field(bind: lazy, field: lazy, val: lazy): lazy = (bind; field; val);
+typed macro macro::lhs-struct-field(bind: macro::underscore, field: lazy, val: lazy): lazy = (uuid(x); field; val);
+typed macro macro::lhs-struct-raw-field(bind: lazy, field: lazy): lazy = (bind; field);
+typed macro macro::lhs-struct-raw-field-with-val(bind: lazy, field: lazy, val: lazy): lazy = (bind; field; val);
+
+typed macro macro::lhs-struct-post(tag-name tag-ordinal tag-type: macro::tag, rest: lazy, term: lazy): lazy = (
+   $"if"($".0"(term) == tag-ordinal)
+        (macro::match-arm( rest, $"as"(term, tag-type) ))
+        (false)
+);
+
+typed macro macro::lhs-struct-post(bind field val: macro::lhs-struct-field, rest: rest, term: lazy): lazy = (
+   (
+      let uuid(b) = open(macro::concat($".", field)(term));
+      let bind = uuid(b);
+      $"if"(macro::match-arm( val, uuid(b) ))
+           (macro::match-arm( rest, term ))
+           (false)
+   )
+);
+
+typed macro macro::lhs-struct-post(bind field: macro::lhs-struct-raw-field, rest: rest, term: lazy): lazy = (
+   (
+      let bind = macro::concat($".", field)(term);
+      true
+   )
+);
+
+typed macro macro::lhs-struct-post(bind field val: macro::lhs-struct-raw-field-with-val, rest: rest, term: lazy): lazy = (
+   (
+      let bind = macro::concat($".", field)(term);
+      let uuid(b) = open(bind);
+      $"if"(macro::match-arm( val, uuid(b) ))
+           (macro::match-arm( rest, term ))
+           (false)
+   )
+);
+
+

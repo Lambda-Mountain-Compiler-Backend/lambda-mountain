@@ -1,7 +1,0 @@
-
-let .is-seq(term: AST): U64 = (
-   match term {
-      Seq {} => true;
-      _ => false;
-   }
-);

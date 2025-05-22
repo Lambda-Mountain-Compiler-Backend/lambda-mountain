@@ -8,3 +8,13 @@ let .into(tctx: Maybe<TContext>, tt: Type<String>): String = (
 );
 
 let to-smart-string(tctx: Maybe<TContext>): String = tctx.into(type(String));
+
+let .into(ctx: Maybe<AContext>, tt: Type<String>): String = (
+   let result = "";
+   for Tuple{first=first,second=second} in ctx.get-or([] :: AContext) {
+      result = result + "\{first} : \{second}\n";
+   };
+   result
+);
+
+let to-smart-string(ctx: Maybe<AContext>): String = ctx.into(type(String));

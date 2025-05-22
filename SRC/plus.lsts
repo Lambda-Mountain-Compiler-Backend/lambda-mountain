@@ -1,11 +1,16 @@
 
 let $"+"(l: AST, r: AST): AST = (
-   match r {
-      ASTEOF{} => ();
-      Seq{left=left,right=right} => (
-         l = l + left;
-         l = l + right;
+   match l {
+      Seq{seq=seq} => (match r {
+         Seq{rseq=seq} => (
+            for vector rs in rseq { l = l + rs; };
+            l
+         );
+         _ => Seq{seq.push(r)};
+      });
+      ASTEOF{} => (
+         l = Seq{mk-vector(type(AST))};
+         l + r
       );
-      re => l = Seq{close(l), close(re)};
-   }; l
+   };
 );

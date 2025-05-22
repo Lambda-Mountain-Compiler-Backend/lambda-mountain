@@ -41,3 +41,22 @@ let substitute(ctx: AContext, tt: List<Type>): List<Type> = (
       _ => tt;
    }
 );
+
+let substitute(ctx: AContext, term: AST): AST = (
+   match term {
+      App{left:Var{key:c"uuid"}, right:Var{x=key}} => ctx.lookup(x,term).unique;
+      Var{x=key} => ctx.lookup(x,term).unique;
+      Lit{} => term.unique;
+      Seq{seq=seq} => (
+         let ret = mk-vector(type(AST), seq.length);
+         for vector s in seq { ret = ret.push(substitute(ctx,s)) };
+         Seq{ret}
+      );
+      App{is-cons=is-cons,left=left,right=right} => mk-cons-or-app(is-cons,substitute(ctx,left),substitute(ctx,right));
+      Typedef{lhs=lhs,rhs=rhs} => mk-typedef(substitute(ctx,lhs), substitute(ctx,rhs));
+      Abs{lhs=lhs,rhs=rhs,tt=tt} => mk-abs(substitute(ctx,lhs), substitute(ctx,rhs), tt);
+      Glb{key=key,val=val} => mk-glb(key, substitute(ctx,val));
+      _ => term;
+   }
+);
+

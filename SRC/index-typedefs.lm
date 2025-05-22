@@ -1,15 +1,11 @@
 
 index-typedefs := λ(: program AST). (: (
-   (while (non-zero program) (match program (
+   (for-each-v (p in (.unroll-seq program)) (match p (
       ()
-      ( (Seq( rst (Typedef( lhs rhs )) )) (
+      ( (Typedef( lhs rhs )) (
          (index-typedefs( rhs 0_u64 ))
-         (set program rst)
       ))
-      ( (Seq( rst _ )) (
-         (set program rst)
-      ))
-      ( _ (set program ASTEOF) )
+      ( _ () )
    )))
 ) Nil);
 

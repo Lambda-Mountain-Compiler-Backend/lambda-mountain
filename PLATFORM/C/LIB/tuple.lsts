@@ -1,6 +1,7 @@
 
 type Tuple<x,y> = Tuple { first: x, second: y };
 type Tuple<x,y,z> = Tuple { first: x, second: y, third: z };
+type Tuple<w,x,y,z> = Tuple { first: w, second: x, third: y, fourth: z };
 
 let cmp(l: Tuple<x,y>, r: Tuple<x,y>): Ord = (
    cmp(l.first, r.first) && cmp(l.second, r.second)

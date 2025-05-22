@@ -118,3 +118,11 @@ let .split(s: String, sep: String): List<String> = (
    if start-index < current-index { r = cons(s[start-index:current-index],r); };
    r.reverse;
 );
+
+let .get-prefix(s: String, pre: String): String = (
+   s[:pre.length]
+);
+
+let .get-suffix(s: String, pre: String): String = (
+   s[s.length - pre.length:]
+);

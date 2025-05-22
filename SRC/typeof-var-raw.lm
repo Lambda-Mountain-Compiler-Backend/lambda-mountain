@@ -19,7 +19,7 @@ typeof-var-raw := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
          ) ())
       ) ())
    )) 
-   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
+   (for-each ((Tuple( kt _ t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,Type,AST>>) ))) (
       (if (non-zero found) (
          (if (.is-arrow found) (
             (set found (&&( found kt )))
@@ -45,7 +45,7 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String). (: (
          ) ())
       ) ())
    ))
-   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
+   (for-each ((Tuple( kt _ t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,Type,AST>>) ))) (
       (if (non-zero found) () (
          (set found t)
       ))
@@ -65,22 +65,18 @@ defof-var := λ(: sloc AST)(: tctx Maybe<TContext>)(: vname String)(: tt Type). 
          (set continue 0_u64)
       ) ())
    ))
-   (for-each ((Tuple( kt t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,AST>>) ))) (
-      (if (.is-arrow kt) (
-         (if (can-unify( (.domain kt) tt )) (
-            (if (non-zero found-type) (
-               (set found-type (most-special( found-type kt )))
-               (if (==( found-type kt )) (set found t) ())
-            ) (
-               (set found-type kt)
-               (set found t)
-            ))
-         ) ())
-      ) (
-         (set found t)
+   (for-each ((Tuple( kt _ t )) in (.lookup( global-type-context vname (: LEOF List<Tuple<Type,Type,AST>>) ))) (
+      (if (non-zero found) () (
+         (if (.is-arrow kt) (
+            (if (non-zero tt) (
+               (set found (find-global-callable( vname tt sloc )))
+            ) (set found t))
+         ) (
+            (set found t)
+         ))
       ))
    ))
-   (if (not(non-zero found)) (
+   (if (&&( (not(non-zero found)) (non-zero tt) )) (
       (exit-error( (+( (+( (+( 'Unknown\sReferenced\sVariable:\s_s vname )) '\s:\s_s )) (untern(to-smart-string tt)) )) sloc ))
    ) ())
    found

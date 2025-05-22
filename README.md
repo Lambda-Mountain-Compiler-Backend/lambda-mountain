@@ -4,7 +4,7 @@
 
 * [TUTORIAL](https://github.com/andrew-johnson-4/LSTS/wiki)
 * [WIKI](https://github.com/andrew-johnson-4/-/wiki)
-* [DOCS](https://andrew-johnson-4.github.io/lsts-language-reference/)
+* [DOCS](https://lambda-mountain-compiler-backend.github.io/lsts-language-reference/)
 * [DISCORD](https://discord.gg/sW2ksPY9jj)
 
 ### Not Your Average Assembler

@@ -93,11 +93,11 @@ substitute := λ(: tctx Maybe<TContext>)(: t AST). (: (
             (close(substitute( tctx rt )))
          )))
       ))
-      ( (Seq( lt rt )) (
-         (set t (Seq(
-            (close(substitute( tctx lt )))
-            (close(substitute( tctx rt )))
-         )))
+      ( (Seq( seq )) (
+         (set t ASTEOF)
+         (for-each-v (s in seq) (
+            (set t (+( t (substitute( tctx s )) )))
+         ))
       ))
       ( (Glb( k rt )) (
          (set t (Glb(

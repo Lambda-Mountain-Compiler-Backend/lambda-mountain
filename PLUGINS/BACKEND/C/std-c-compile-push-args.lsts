@@ -1,19 +1,24 @@
 
 let std-c-compile-push-args(ctx: FContext, args: AST): Fragment = (
-   match typeof(args).slot(c"Cons") {
-      TGround{tag:c"Cons", parameters:[p2..p1..]} => (
-         match args {
-            App{le=left, re=right} => (
-               let e1 = std-c-compile-push-args(ctx, le);
-               let e2 = compile-expr-direct(ctx, re, 0, Used);
-               #let e2 = std-c-compile-expr(ctx, re, false);
-               $"fragment::chain"(e1, e2).set(c"expression",
-                  e1.get(c"expression") + SAtom{c","} + e2.get(c"expression")
-               );
+   match args {
+      ASTNil{} => mk-expression(c"");
+      _ => (
+         match typeof(args).slot(c"Cons") {
+            TGround{tag:c"Cons", parameters:[p2..p1..]} => (
+               match args {
+                  App{le=left, re=right} => (
+                     let e1 = std-c-compile-push-args(ctx, le);
+                     let e2 = compile-expr-direct(ctx, re, 0, Used);
+                     #let e2 = std-c-compile-expr(ctx, re, false);
+                     $"fragment::chain"(e1, e2).set(c"expression",
+                        e1.get(c"expression") + SAtom{c","} + e2.get(c"expression")
+                     );
+                  );
+               }
             );
+            _ => compile-expr-direct(ctx, args, 0, Used);
+            #_ => std-c-compile-expr(ctx, args, false);
          }
       );
-      _ => compile-expr-direct(ctx, args, 0, Used);
-      #_ => std-c-compile-expr(ctx, args, false);
    }
 );

@@ -1,10 +1,9 @@
 
 plugins-backend-c-compile := λ . (: (
-   (let preview-program ast-parsed-program)
    (let typedefs ASTEOF)
-   (while (non-zero preview-program) (match preview-program (
+   (for-each-v (program-term in (.unroll-seq ast-parsed-program)) (match program-term (
       ()
-      ( (Seq( rst (@( g-t (Glb( k_t rhs )) )) )) (
+      ( (@( g-t (Glb( k_t rhs )) )) (
          (if (==( k 'main_s )) (set assemble-argv-referenced True_u8) ())
          (let kt (typeof rhs))
          (let fragment (mk-fragment()))
@@ -15,7 +14,7 @@ plugins-backend-c-compile := λ . (: (
                (set global-ctx (.bind(
                   global-ctx k kt fragment
                )))
-               (set std-c-fragment-context (.bind( std-c-fragment-context g-t fragment )))
+               (set std-c-fragment-context (.bind( std-c-fragment-context (def-to-sym g-t) fragment )))
             ) (
                (let clean-tt (.without-tag kt))
                (let mid (mangle-identifier( k clean-tt )))
@@ -26,47 +25,38 @@ plugins-backend-c-compile := λ . (: (
                   (set global-ctx (.bind(
                      global-ctx k kt fragment
                   )))
-                  (set std-c-fragment-context (.bind( std-c-fragment-context g-t fragment )))
+                  (set std-c-fragment-context (.bind( std-c-fragment-context (def-to-sym g-t) fragment )))
                ) (
                   (let repr-tt (&&( clean-tt (t1 'GlobalVariable_s) )))
                   (set global-ctx (.bind(
                      global-ctx k repr-tt fragment
                   )))
-                  (set std-c-fragment-context (.bind( std-c-fragment-context g-t fragment )))
+                  (set std-c-fragment-context (.bind( std-c-fragment-context (def-to-sym g-t) fragment )))
                ))
             ))
          ))
-         (set preview-program rst)
       ))
-      ( (Seq( rst (@( td (Typedef( _ _ )) )) )) (
-         (set typedefs (Seq( (close typedefs) (close td) )))
-         (set preview-program rst)
+      ( (@( td (Typedef( _ _ )) )) (
+         (set typedefs (+( typedefs td )))
       ))
-      ( (Seq( rst _ )) (
-         (set preview-program rst)
-      ))
+      ( _ () )
    )))
-   (let pre-typedefs typedefs)
-   (while (non-zero pre-typedefs) (match pre-typedefs (
+   (for-each-v (td in (.unroll-seq typedefs)) (match td (
       ()
-      ( (Seq( rst (Typedef( (Lit( lhs _ )) rhs )) )) (
+      ( (Typedef( (Lit( lhs _ )) rhs )) (
          (compile-c-typedef-ordinal(parse-type lhs)) 
-         (set pre-typedefs rst)
       ))
-      ( (Seq( rst (Typedef( (AType( lhs )) rhs )) )) (
+      ( (Typedef( (AType( lhs )) rhs )) (
          (compile-c-typedef-ordinal lhs)
-         (set pre-typedefs rst)
       ))
    )))
-   (while (non-zero typedefs) (match typedefs (
+   (for-each-v (td in (.unroll-seq typedefs)) (match td (
       ()
-      ( (Seq( rst (Typedef( (Lit( lhs _ )) rhs )) )) (
+      ( (Typedef( (Lit( lhs _ )) rhs )) (
          (compile-c-typedef( (parse-type lhs) rhs ))
-         (set typedefs rst)
       ))
-      ( (Seq( rst (Typedef( (AType( lhs )) rhs )) )) (
+      ( (Typedef( (AType( lhs )) rhs )) (
          (compile-c-typedef( lhs rhs ))
-         (set typedefs rst)
       ))
    )))
    (try-continue-compile-c-typedefs())

@@ -2,7 +2,7 @@
 let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
    let f = match t {
       Var{ key=key } => (
-         let def = var-to-def-index.lookup(t, ASTEOF);
+         let def = var-to-def(t);
          let e = std-c-fragment-context.lookup(def, mk-fragment());
          if not(non-zero(e)) {
             exit-error( untern("Unable to Find Variable Fragment in Context: \{key}"), t );
@@ -66,7 +66,7 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
                guid = uuid();
                compile-smart-string-index = compile-smart-string-index.bind(val,guid);
                let lit = mk-lit(val); ascript-normal(lit, t1(c"String"));
-               let intern-ss = std-c-compile-call(ctx, c"intern", find-global-callable(c"intern", t1(c"String")), lit);
+               let intern-ss = std-c-compile-call(ctx, c"intern", find-global-callable(c"intern", t1(c"String"), t), lit);
                assemble-header-section = assemble-header-section +
                mangle-c-type(typeof(t)) + SAtom{c" "} + SAtom{guid} + SAtom{c";\n"};
                assemble-string-initializer-section = assemble-string-initializer-section +

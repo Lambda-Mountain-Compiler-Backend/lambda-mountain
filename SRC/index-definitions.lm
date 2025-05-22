@@ -1,7 +1,7 @@
 
 type CompileMode ModeParse | ModePreprocess | ModeTypecheck | ModeCompile;
 
-type IsUsed Used | Unused | Tail | Return | Call | C;
+type IsUsed Used | Unused | Tail | Return | Call;
 type IsScoped Scoped | Unscoped;
 
 type FContext FCtxEOF | (FCtxBind( remainder:FContext[] , k:String , kt:Type , kv:Fragment )); zero FContext FCtxEOF;

@@ -9,7 +9,7 @@ type AST = ASTEOF
          | Lit { key: CString, token: Token }
          | Abs { lhs: AST[], rhs: AST[], tt: Type }
          | AType { tt: Type }
-         | Seq { left: AST[], right: AST[] }
+         | Seq { seq: Vector<AST> }
          | Glb { key: Token , val: AST[] }
          | Typedef { lhs: AST[] , rhs: AST[] }
          | Meta { val: AST[] };

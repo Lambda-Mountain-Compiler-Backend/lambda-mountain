@@ -2,17 +2,17 @@
 cc-blob := λ(: caller-ctx FContext)(: function-name String)(: args AST)(: offset I64). (: (
    # callee context starts as global-ctx
    # caller context is provided but not propagated
-   (let f (.lookup( caller-ctx function-name (typeof args) args )))
    (let r (mk-fragment()))
-   (match (.term f) (
+
+   (let f (find-global-callable( function-name (typeof args) args )))
+   (match f (
       ()
-      ( (Abs( lhs rhs tlt )) (
+      ( (Glb( _ (Abs( lhs rhs tlt )) )) (
          (let e1 (cc-args( global-ctx caller-ctx lhs args offset )))
          (set offset (.2 e1))
          (let tmp-cc-e1 (.1 e1)) (let callee-ctx (.2 tmp-cc-e1)) (set caller-ctx (.1 tmp-cc-e1))
          (set r (blob-render( callee-ctx rhs r offset )))
-         (let t (.term f))
-         (set.type( r (.range(typeof t)) ))
+         (set.type( r (.range(typeof f)) ))
          (set.context( r (close caller-ctx) ))
       ))
    ))
@@ -20,14 +20,13 @@ cc-blob := λ(: caller-ctx FContext)(: function-name String)(: args AST)(: offse
 ) Fragment);
 
 cc-blob := λ(: callee-ctx FContext)(: function-name String)(: args-tt Type)(: offset I64)(: blame AST). (: (
-   (let f (.lookup( callee-ctx function-name args-tt blame )))
    (let r (mk-fragment()))
-   (match (.term f) (
+   (let f (find-global-callable( function-name args-tt blame )))
+   (match f (
       ()
-      ( (Abs( lhs rhs tlt )) (
+      ( (Glb( _ (Abs( lhs rhs tlt )) )) (
          (set r (blob-render( callee-ctx rhs r offset )))
-         (let t (.term f))
-         (set.type( r (.range(typeof t)) ))
+         (set.type( r (.range(typeof f)) ))
          (set.context( r (close callee-ctx) ))
       ))
    ))

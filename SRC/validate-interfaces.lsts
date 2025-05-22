@@ -8,14 +8,14 @@ let validate-interfaces(): Nil = (
          args-type = denormalize(substitute(tctx, args-type).reify-type-variables);
          return-type = substitute(tctx, return-type).reify-type-variables;
          let function-type = typeof-var-raw( blame, None :: Maybe<TContext>, symbol-name );
-         let apply-result = apply-blame(symbol-name, function-type, args-type, false, blame);
-         if not(can-unify(return-type, denormalize(apply-result.return-type))) {
+         let apply-return-type = apply-global-callable(symbol-name, args-type, blame);
+         if not(can-unify(return-type, denormalize(apply-return-type))) {
             fail("Function Application Yielded Unexpected Return Value\n"
                  "\{symbol-name}\n"
                  "With Arguments \{args-type}\n"
                  "At \{blame.location}\n"
                  "Expected: \{symbol-name} : \{args-type} -> \{return-type}\n"
-                 "Received: \{apply-result.return-type}\n");
+                 "Received: \{apply-return-type}\n");
          };
       };
    };

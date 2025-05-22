@@ -9,11 +9,13 @@ let ascript-normal(t: AST, tt: Type): Nil = (
                exit-error("Type Ascription Inequality\n\{normalize(typeof(t))} does not imply \{normalize(tt)}", t);
             }
          }
-      } else {
-         add-concrete-type-instance(tt);
-         tt = denormalize(tt);
-         ascript(t, tt);
-         types-have-changed = true;
-      }
+      } else ascript-force(t, tt);
    }
+);
+
+let ascript-force(t: AST, tt: Type): Nil = (
+   add-concrete-type-instance(tt);
+   tt = denormalize(tt);
+   ascript(t, tt);
+   types-have-changed = true;
 );

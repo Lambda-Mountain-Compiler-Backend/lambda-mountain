@@ -5,12 +5,10 @@ import SRC/quick-prop.lsts;
 
 import SRC/substitute.lm;
 import SRC/cons-root.lsts;
-import SRC/infer-expr.lm;
 import SRC/is-special.lm;
 import SRC/global-is-seen.lm;
 import SRC/index-of-tag.lm;
 import SRC/is-sized-array.lsts;
-import SRC/maybe-specialize.lm;
 
 import SRC/has-infinite.lm;
 import SRC/has-forward.lm;
@@ -19,9 +17,6 @@ import SRC/type-of-s-with-fields.lm;
 
 import SRC/typeof-lhs.lm;
 import SRC/apply.lm;
-import SRC/apply.lsts;
-import SRC/apply-plural.lm;
-import SRC/apply-or-cons-and-specialize.lm;
 import SRC/try-specialize.lm;
 
 import SRC/infer-type-definition.lm;
@@ -30,7 +25,6 @@ import SRC/typeof-var-raw.lm;
 import SRC/typecheck.lm;
 import SRC/specialize.lm;
 import SRC/infer-type-constructor.lm;
-import SRC/infer-global-context.lm;
 import SRC/assert-well-typed.lm;
 import SRC/assert-one-typed.lm;
 import SRC/infer-ctx.lm;

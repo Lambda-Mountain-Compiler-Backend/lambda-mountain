@@ -1,12 +1,5 @@
 
 assert-well-typed := λ(: term AST). (: (
-   (while (.is-seq term) (match term (
-      ()
-      ( (Seq( rst t )) (
-         (assert-well-typed t)
-         (set term rst)
-      ))
-   )))
    (match term (
       ()
       ( ASTEOF () )
@@ -59,9 +52,8 @@ assert-well-typed := λ(: term AST). (: (
          (assert-well-typed r)
          (assert-one-typed term)
       ))
-      ( (Seq( l r )) (
-         (assert-well-typed l)
-         (assert-well-typed r)
+      ( (Seq( seq )) (
+         (for-each-v (s in seq) (assert-well-typed s))
       ))
       ( (Meta( _ )) () )
    ))

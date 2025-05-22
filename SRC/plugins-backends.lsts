@@ -1,12 +1,12 @@
 
-let plugins-backends-index = {} :: HashtableEq<CString,Arrow<Nil,Nil>[]>;
+let plugins-backends-index = {} :: HashtableEq<CString,(Nil -> Nil)[]>;
 
 let plugin-null-backend(): Nil = (
    print("Cannot Compile: No Backend Was Specified\n");
    exit(1);
 );
 
-let register-backend(flag: CString, hook: Arrow<Nil,Nil>[]): Nil = (
+let register-backend(flag: CString, hook: (Nil -> Nil)[]): Nil = (
    plugins-backends-index = plugins-backends-index.bind(flag, hook);
 );
 

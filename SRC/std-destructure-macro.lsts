@@ -1,0 +1,9 @@
+
+let std-destructure-macro(lhs: AST, rhs: AST): AContext? = (
+   let no = None :: AContext?;
+   match (lhs, rhs) {
+      _ => fail("Unexpected std-destructure-macro\nLeft: \{lhs}\nRight: \{rhs}\n");
+   };
+   no
+);
+

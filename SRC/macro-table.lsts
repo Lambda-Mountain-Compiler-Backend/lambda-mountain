@@ -1,0 +1,52 @@
+
+let index-macro-table = {} :: HashtableEq<CString,List<(Type,Type,AST)>>;
+index-macro-table = index-macro-table.bind(c"macro::concat", [] :: List<(Type,Type,AST)>);
+index-macro-table = index-macro-table.bind(c"macro::location", [] :: List<(Type,Type,AST)>);
+index-macro-table = index-macro-table.bind(c"macro::variable", [] :: List<(Type,Type,AST)>);
+index-macro-table = index-macro-table.bind(c"macro::underscore", [] :: List<(Type,Type,AST)>);
+index-macro-table = index-macro-table.bind(c"macro::constant", [] :: List<(Type,Type,AST)>);
+index-macro-table = index-macro-table.bind(c"macro::tag", [] :: List<(Type,Type,AST)>);
+
+# Meta variables can be used to match syntax patterns
+let index-macro-meta = {} :: HashtableEq<CString,List<(Type,Type,AST)>>;
+index-macro-meta = index-macro-meta.bind(c"macro::variable", [] :: List<(Type,Type,AST)>);
+index-macro-meta = index-macro-meta.bind(c"macro::underscore", [] :: List<(Type,Type,AST)>);
+index-macro-meta = index-macro-meta.bind(c"macro::constant", [] :: List<(Type,Type,AST)>);
+index-macro-meta = index-macro-meta.bind(c"macro::tag", [] :: List<(Type,Type,AST)>);
+
+let bind-new-macro(mname: CString, mterm: AST): Nil = (
+   let row = index-macro-table.lookup(mname, [] :: List<(Type,Type,AST)>);
+   let mtype = param-types-of-macro(mterm);
+   row = cons( (denormalize(mtype), macro-type-peep-holes(mtype), mterm), row);
+   index-macro-table = index-macro-table.bind(mname, row);
+);
+
+let param-types-of-macro(mterm: AST): Type = (
+   match mterm {
+      Abs{lhs=lhs} => param-types-of-macro(lhs);
+      App{ rst=left, right:App{left:Lit{key:c":"}, right:App{right:AType{tt=tt}}}  } => t3(c"Cons",param-types-of-macro(rst),tt);
+      App{left:Lit{key:c":"}, right:App{right:AType{tt=tt}}} => tt;
+   }
+);
+
+# A peep-hole determines whether an expression needs to be typechecked or not
+# Yes => means needs to be typechecked
+# ?   => means does not need to be typechecked
+# Rules for whether a type needs to be typechecked
+# a     => no
+# T     => yes
+# T+... => yes
+let macro-type-peep-holes(mtype: Type): Type = (
+   match mtype {
+      TGround{tag:c"Cons", parameters:[p2.. p1..]} => t3(c"Cons",macro-type-peep-holes(p1),macro-type-peep-holes(p2));
+      TGround{} => t1(c"Yes");
+      TAnd{conjugate=conjugate} => (
+         let peep = ta;
+         for vector c in conjugate {
+            peep = peep || macro-type-peep-holes(c);
+         };
+         peep;
+      );
+      _ => ta;
+   }
+);

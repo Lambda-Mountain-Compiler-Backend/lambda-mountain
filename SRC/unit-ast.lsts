@@ -7,7 +7,6 @@ import SRC/ast-definitions.lsts;
 import SRC/ast-location.lsts;
 import SRC/mk-location.lsts;
 import SRC/mk-token.lsts;
-import SRC/is-seq.lsts;
 import SRC/non-zero.lsts;
 import SRC/uuid.lsts;
 import SRC/smart-token-location.lsts;

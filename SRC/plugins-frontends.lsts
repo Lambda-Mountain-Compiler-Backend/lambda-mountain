@@ -1,11 +1,11 @@
 
-let plugins-frontends-index = {} :: HashtableEq<CString,Arrow<CString,Nil>>;
+let plugins-frontends-index = {} :: HashtableEq<CString,CString -> Nil>;
 
 let plugin-null-frontend(fp: CString): Nil = (
    print("Unable to find a suitable frontend: \{fp}\n");
    exit(1);
 );
 
-let register-frontend(extension: CString, hook: Arrow<CString,Nil>): Nil = (
+let register-frontend(extension: CString, hook: CString -> Nil): Nil = (
    plugins-frontends-index = plugins-frontends-index.bind(extension, hook);
 );

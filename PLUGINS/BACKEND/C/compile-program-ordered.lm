@@ -1,17 +1,9 @@
 
 compile-program-ordered := λ(: global-ctx FContext)(: program AST). (: (
-   (let ordered (: LEOF List<AST>))
-   (while (non-zero program) (match program (
-      ()
-      ( (Seq( rst t )) (
-         (set ordered (cons( t ordered )))
-         (set program rst)
-      ))
-   )))
-   (for-each (g in ordered) (match g (
+   (for-each-v (g in (.unroll-seq program)) (match g (
       ()
       ( (Glb( k_t rhs )) (
-         (if (.is-open(typeof g)) () (
+         (if (.is-open(typeof(def-to-sym g))) () (
             (compile-global( global-ctx k rhs ))
          ))
       ))

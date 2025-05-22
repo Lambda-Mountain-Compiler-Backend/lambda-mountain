@@ -6,3 +6,7 @@ let mk-var(val: CString): AST = (
 let mk-var(val: SmartString): AST = (
    Var{ untern(val), mk-token(val) }
 );
+
+let mk-var(val: Token): AST = (
+   Var{ val.key, val }
+);

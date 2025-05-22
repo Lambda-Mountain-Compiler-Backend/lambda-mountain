@@ -3,6 +3,36 @@ let mk-app(f: AST, a: AST): AST = (
    App{ close(f), close(a) }
 );
 
+let mk-cons-or-app(is-cons: U64, f: AST, a: AST): AST = (
+   App{ is-cons, close(f), close(a) }
+);
+
 let mk-cons(f: AST, a: AST): AST = (
    App{ true, close(f), close(a) }
 );
+
+let mk-glb(k: Token, v: AST): AST = (
+   Glb{ k, close(v) }
+);
+
+let mk-seq(): AST = (
+   Seq{ mk-vector(type(AST)) }
+);
+
+let mk-typedef(l: AST, r: AST): AST = (
+   Typedef{ close(l), close(r) }
+);
+
+let mk-abs(l: AST, r: AST, t: Type): AST = (
+   Abs{ close(l), close(r), t }
+);
+
+let mk-meta(l: AST): AST = (
+   Meta{ close(l) }
+);
+
+let mk-nil(): AST = ASTNil{};
+let mk-eof(): AST = ASTEOF{};
+
+let .is-lit(t: AST): U64 = match t { Lit{} => true; _ => false; };
+

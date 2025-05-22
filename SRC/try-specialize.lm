@@ -1,23 +1,18 @@
 
 
 try-specialize := λ(: function-name String)(: ft Type)(: unify-ctx Maybe<TContext>)(: result-type Type). (: (
-   (for-each ((Tuple( kt t )) in (.lookup( global-type-context function-name (: LEOF List<Tuple<Type,AST>>) ))) (
-      (let special-type result-type)
-      (if (.is-t( kt 'Blob_s )) () (
-         (set special-type (normalize special-type))
-      ))
-      (if (is-special( function-name special-type )) () (
-         (set kt (.slot( kt 'Arrow_s )))
-         (if (==( ft kt )) (
+   (for-each ((Tuple( kt _ t )) in (.lookup( global-type-context function-name (: LEOF List<Tuple<Type,Type,AST>>) ))) (
+      (if (==( kt ft )) (
+         (if (is-special( function-name result-type )) () (
             (match t (
                ()
                ( (Glb( _ (Abs( _ _ _ )) )) (
-                  (set stack-to-specialize (cons( (StackToSpecialize( function-name ft unify-ctx special-type )) stack-to-specialize )))
+                  (set stack-to-specialize (cons( (StackToSpecialize( function-name ft unify-ctx result-type )) stack-to-specialize )))
                ))
                ( _ () )
             ))
-         ) ())
-      ))
+         ))
+      ) ())
    ))
 ) Nil);
 

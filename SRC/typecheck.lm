@@ -1,30 +1,9 @@
 
 typecheck := λ. (: (
-   (let p ast-parsed-program)
-   (let ordered-type-exprs ASTEOF)
-   (while (non-zero p) (match p (
-      ()
-      ( (Seq( rst r )) (
-         (set ordered-type-exprs (Seq( (close ordered-type-exprs) (close r) )))
-         (set p rst)
-      ))
-   )))
-   (let preordered-type-exprs ordered-type-exprs)
-   (while (non-zero preordered-type-exprs) (match preordered-type-exprs (
-      ()
-      ( (Seq( rst r )) (
-         (infer-global-context( r ))
-         (set preordered-type-exprs rst)
-      ))
-   )))
-   (while (non-zero ordered-type-exprs) (match ordered-type-exprs (
-      ()
-      ( (Seq( rst r )) (
-         (infer-global-context-2( r ))
-         (set ordered-type-exprs rst)
-      ))
-   )))
-   (infer-expr( (: None Maybe<TContext>) ast-parsed-program Unscoped TAny Used ))
+   (infer-global-context ast-parsed-program)
+   (set ast-parsed-program (infer-global-terms ast-parsed-program))
+   (let tctx-ast (std-infer-expr( (: None Maybe<TContext>) ast-parsed-program false Used TAny )))
+   (set ast-parsed-program (.second tctx-ast))
    (while (non-zero stack-to-specialize) (match stack-to-specialize (
       ()
       ( (LCons( (StackToSpecialize( function-name ft unify-ctx special-type )) rst )) (
@@ -34,4 +13,5 @@ typecheck := λ. (: (
    )))
    (validate-interfaces())
    (assert-well-typed ast-parsed-program)
+   (decorate-var-to-def())
 ) Nil);

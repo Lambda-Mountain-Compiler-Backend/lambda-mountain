@@ -1,6 +1,7 @@
 
 assert-one-typed := λ(: term AST). (: (
    (if (non-zero(typeof term)) () (
+      (print 'Assert\sOne\s_s)(print term)(print '\n_s)
       (exit-error( 'Unable\sto\sinfer\stype\sof\sexpression_s term ))
    ))
 ) Nil);

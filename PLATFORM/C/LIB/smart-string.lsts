@@ -63,6 +63,17 @@ let print(io: IO::File, x: SmartString): Nil = (
    };
 );
 
+let print(x: SmartString): Nil = print( $"io::file::stdout"() as IO::File, x );
+
+let eprint(io: IO::File, x: SmartString): Nil = (
+   let start = x.start;
+   while start != x.end {
+      fwrite(start, 1_u64, 1_u64, $"io::file::stderr"());
+      start = start + 1_u64;
+   };
+);
+let eprint(x: SmartString): Nil = print( $"io::file::stderr"() as IO::File, x );
+
 let .pad-left-str(self: String, value: U8, minlen: U64): String = (
    self.pad-left(value, minlen).into(type(String))
 );

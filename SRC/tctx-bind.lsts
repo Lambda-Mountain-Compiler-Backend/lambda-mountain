@@ -1,10 +1,11 @@
 
-let .bind(tctx: HashtableEq<CString,List<Tuple<Type,AST>>>, k: CString, kt: Type, kv: AST): HashtableEq<CString,List<Tuple<Type,AST>>> = (
-   let row = tctx.lookup(k, [] :: List<Tuple<Type,AST>>);
-   row = cons(Tuple{kt, kv}, row);
+let .bind(tctx: HashtableEq<CString,List<Tuple<Type,Type,AST>>>, k: CString, kt: Type, kv: AST): HashtableEq<CString,List<Tuple<Type,Type,AST>>> = (
+   let ktd = denormalize-strong(kt);
+   let row = tctx.lookup(k, [] :: List<(Type,Type,AST)>);
+   row = cons((kt, ktd, kv), row);
    tctx.bind(k, row);
 );
 
-let .bind(tctx: Maybe<TContext>, k: CString, kt: Type, kv: AST): Maybe<TContext> = (
+let .bind(tctx: TContext?, k: CString, kt: Type, kv: AST): TContext? = (
    Some{ cons(Tuple{k, kt, kv}, tctx.get-or([] :: TContext)) };
 );

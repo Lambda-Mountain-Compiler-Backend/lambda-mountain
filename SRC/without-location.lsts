@@ -5,8 +5,12 @@ let without-location(term: AST): AST = (
    match term {
       Var{key=key,token=token} => Var{key,without-location(token)};
       Lit{key=key,token=token} => Lit{key,without-location(token)};
-      App{left=left,right=right} => App{close(without-location(left)),close(without-location(right))};
-      Seq{left=left,right=right} => Seq{close(without-location(left)),close(without-location(right))};
+      App{is-cons=is-cons,left=left,right=right} => App{is-cons,close(without-location(left)),close(without-location(right))};
+      Seq{seq=seq} => (
+         let ret = mk-vector(type(AST), seq.length);
+         for vector s in seq { ret = ret.push(without-location(s)) };
+         Seq{ret}
+      );
       Abs{lhs=lhs,rhs=rhs,tt=tt} => Abs{close(without-location(lhs)),close(without-location(rhs)),tt};
       Typedef{lhs=lhs,rhs=rhs} => Typedef{close(without-location(lhs)),close(without-location(rhs))};
       Glb{key=key,val=val} => Glb{key,close(without-location(val))};

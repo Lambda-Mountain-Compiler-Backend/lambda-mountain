@@ -4,7 +4,8 @@ compile-expr := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used IsUsed
    (match used (
       ()
       ( Return (
-         (set e (compile-stack-calls( ctx 'cdecl::return_s TAny (typeof term) term stack-offset used )))
+         (let fterm (find-global-callable( 'cdecl::return_s (typeof term) term )))
+         (set e (std-c-compile-call( ctx 'cdecl::return_s fterm term )))
       ))
       ( _ (
          (set e (compile-expr-direct( ctx term stack-offset used )))

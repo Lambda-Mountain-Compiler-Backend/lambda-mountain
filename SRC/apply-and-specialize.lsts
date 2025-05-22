@@ -1,0 +1,13 @@
+
+let apply-and-specialize(fname: CString, ft: Type, ft-denormal: Type, at: Type, blame: AST): Type = (
+   if not(can-apply(ft-denormal, at)) then fail("Unable to apply and specialize: \{fname}\nFunction: \{ft}\nArguments: \{at}\nAt \{blame.location}\n");
+   let tctx = unify(ft-denormal.domain, at);
+   if tctx.is-none then fail("Unable to apply and specialize (unify): \{fname}\nFunction: \{ft}\nArguments: \{at}\nAt \{blame.location}\n");
+   let closed-type = substitute(tctx, ft);
+   if closed-type.is-open then fail("Error: Unification Did Not Closed Before Specialization\nfunction: \{ft}\nargs: \{at}\nAt \{blame.location}\n");
+   if ft.is-open then try-specialize(fname, ft, tctx, closed-type);
+   let r = substitute(tctx, ft.range);
+   if ft.is-t(c"Prop") then r = r && cons-root(at);
+   r
+);
+

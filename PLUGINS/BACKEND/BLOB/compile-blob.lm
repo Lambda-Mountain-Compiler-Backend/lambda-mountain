@@ -1,12 +1,9 @@
 
 plugins-backend-blob-compile := λ. (: (
-   (let preview-program ast-parsed-program)
-   (while (non-zero preview-program) (match preview-program (
+   (for-each-v (p in (.unroll-seq ast-parsed-program)) (match p (
       ()
-      ( (Seq( rst (Typedef( lhs rhs )) )) (
-         (set preview-program rst)
-      ))
-      ( (Seq( rst (Glb( k_t rhs )) )) (
+      ( (Typedef( lhs rhs )) () )
+      ( (Glb( k_t rhs )) (
          (match rhs (
             ()
             ( (Abs( _ _ _ )) (
@@ -20,33 +17,22 @@ plugins-backend-blob-compile := λ. (: (
             ))
             ( _ () )
          ))
-         (set preview-program rst)
       ))
-      ( (Seq( rst rhs )) (
-         (set preview-program rst)
-      ))
+      ( _ () )
    )))
    (let blob SNil)
-   (set preview-program ast-parsed-program)
-   (while (non-zero preview-program) (match preview-program (
+   (for-each-v (p in (.unroll-seq ast-parsed-program)) (match p (
       ()
-      ( (Seq( rst (Glb( k_t rhs )) )) (
-         (set preview-program rst)
-      ))
-      ( (Seq( rst (Typedef( lhs rhs )) )) (
-         (set preview-program rst)
-      ))
-      ( (Seq( rst (Meta( _ )) )) (
-         (set preview-program rst)
-      ))
-      ( (Seq( rst expr )) (
+      ( (Glb( k_t rhs )) () )
+      ( (Typedef( lhs rhs )) () )
+      ( (Meta( _ )) () )
+      ( expr (
          (let cs (blob-render-simple( global-ctx 'expression_s expr 0_i64 )))
          (let s (.1 cs))
          (set blob (SCons(
              (close blob)
              (close s)
          )))
-         (set preview-program rst)
       ))
    )))
    (set assemble-final (clone-rope(escape-string blob)))

@@ -1,7 +1,3 @@
-apply := λ(: function-name String)(: ft Type)(: pt Type)(: blame AST). (: (
-   (apply-blame( function-name ft pt 0_u64 blame ))
-) ApplyResult);
-
 apply := λ(: ctx AContext)(: term AST). (: (
    (let return term)
    (match term (
@@ -29,11 +25,11 @@ apply := λ(: ctx AContext)(: term AST). (: (
             tlt
          )))
       ))
-      ( (Seq( vl vr )) (
-         (set return (Seq(
-            (close(apply( ctx vl )))
-            (close(apply( ctx vr )))
-         )))
+      ( (Seq( seq )) (
+         (set return ASTEOF)
+         (for-each-v (s in seq) (
+            (set return (+( return (apply( ctx s )) )))
+         ))
       ))
       ( (Typedef( vl vr )) (
          (set return (Typedef(

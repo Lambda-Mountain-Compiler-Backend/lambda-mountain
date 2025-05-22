@@ -1,5 +1,7 @@
 
 let std-c-compile-call(ctx: FContext, fname: CString, fterm: AST, args: AST): Fragment = (
+   fterm = find-global-callable(fname, typeof(args), args);
+   if not(non-zero(fterm)) then fail("std-c-compile-call Function was null: \{fterm}\nArguments: \{typeof(args)}\n");
    if typeof(fterm).is-t(c"Blob") {
       let r = mk-fragment();
       match fterm {
@@ -13,11 +15,13 @@ let std-c-compile-call(ctx: FContext, fname: CString, fterm: AST, args: AST): Fr
    } else if typeof(fterm).is-t(c"Prop") { std-c-compile-expr(ctx, args, false)
    } else {
       let push-args = std-c-compile-push-args(ctx, args);
-      let ictx = mk-fragment().set(c"function-id", SAtom{mangle-identifier(fname, typeof(fterm))});
+      let function-id = if typeof(fterm).is-t(c"FFI") || typeof(fterm).is-t(c"C-FFI")
+                        then fname else mangle-identifier(fname, typeof(fterm));
+      let ictx = mk-fragment().set(c"function-id", SAtom{function-id});
       let inner-ctx = mk-fctx().bind(c"ictx", t1(c"ImplicitContext"), ictx)
                                .bind(c"args", typeof(args), push-args);
       let r = mk-fragment();
-      match find-global-callable(c"primitive::call", t3(c"Cons",t1(c"ImplicitContext"),typeof(args))) {
+      match find-global-callable(c"primitive::call", t3(c"Cons",t1(c"ImplicitContext"),typeof(args)), args) {
          Glb{val:Abs{lhs=lhs, rhs=rhs}} => (
             r = blob-render(inner-ctx, rhs, r, 0);
             r.context = close(ctx);

@@ -25,7 +25,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
                   (set e (compile-expr( ctx t stack-offset Used )))
                ) )
                ( (TGround( 'Array_s (LCons( TAny (LCons( inner-tt LEOF )) )) )) (
-                  (let fterm (.lookup( var-to-def-index o-t ASTEOF )))
+                  (let fterm (var-to-def o-t))
                   (set e (std-c-compile-call( ctx 'open_s fterm t )))
                ))
                ( (TGround( 'Array_s (LCons( array-length (LCons( inner-tt LEOF )) )) )) (
@@ -33,7 +33,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
                ))
             ))
          ) (
-            (let fterm (.lookup( var-to-def-index o-t ASTEOF )))
+            (let fterm (var-to-def o-t))
             (set e (std-c-compile-call( ctx 'open_s fterm t )))
          ))
       ))
@@ -184,10 +184,8 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             (match f (
                ()
                ( (Var( fname _ )) (
-                  (set e (compile-stack-calls( ctx fname (typeof f) (typeof term) a stack-offset used )))
-               ))
-               ( (App( (Lit( ':_s _ )) (App( (Var( fname _ )) (AType ft) )) )) (
-                  (set e (compile-stack-calls( ctx fname (typeof f) (typeof term) a stack-offset used )))
+                  (let fterm (var-to-def f))
+                  (set e (std-c-compile-call( ctx fname fterm a )))
                ))
                ( (Lit( fname _ )) (
                   (set e (compile-constructor( ctx fname (typeof term) (typeof a) a stack-offset )))

@@ -30,14 +30,6 @@ untern := λ(: s SmartString). (: (
    (-( (.end x) (.start x) ))
 ) U64);
 
-print := λ(: x SmartString). (: (
-   (let start (.start x))
-   (while (!=( start (.end x) )) (
-      (putchar(as ([]( start 0_u64 )) U32))
-      (set start (+( start 1_u64 )))
-   ))
-) Nil);
-
 [:] := λ(: x SmartString)(: low U64)(: hi U64). (: (
    ([:]( x (as low I64) (as hi I64) ))
 ) SmartString);

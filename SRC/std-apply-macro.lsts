@@ -1,0 +1,130 @@
+
+let std-apply-macro(tctx: Maybe<TContext>, t: AST, used: IsUsed): (TContext?, AST) = (
+   match t {
+      App{left:Var{mname=key}, margs=right} => (
+         std-apply-macro(tctx, mname, margs, used);
+      );
+   }
+);
+
+let std-apply-macro(tctx: Maybe<TContext>, mname: CString, margs: AST, used: IsUsed): (TContext?, AST) = std-apply-macro(tctx, mname, margs, used, true);
+let std-apply-macro-weak(tctx: Maybe<TContext>, mname: CString, margs: AST, used: IsUsed): (TContext?, AST) = std-apply-macro(tctx, mname, margs, used, false);
+
+let std-apply-macro-concat(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   match margs {
+      App{ left:Var{left-key=key}, right:Var{right-key=key} } => (tctx, mk-var(left-key + right-key));
+      _ => (tctx, ASTEOF);
+   }
+);
+
+let std-apply-macro-variable(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   match margs {
+      Var{} => (tctx, margs);
+      _ => (tctx, ASTEOF);
+   }
+);
+
+let std-apply-macro-underscore(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   match margs {
+      Var{key:c"_"} => (tctx, margs);
+      _ => (tctx, ASTEOF);
+   }
+);
+
+let std-apply-macro-tag(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   match margs {
+      Lit{key=key} => (
+         if index-of-tag(key)==unknown-index-of-tag then (tctx, ASTEOF) else {
+            let tag-name    = mk-lit(to-string(index-of-tag(key)));
+            let tag-ordinal = tag-name.ascript(t1(c"Constant") && t1(c"Literal") && t1(c"U64"));
+            let tag-type    = mk-atype(t1(c"Tag::" + key));
+            (tctx, mk-cons(mk-cons(tag-name, tag-ordinal), tag-type))
+         }
+      );
+      _ => (tctx, ASTEOF);
+   }
+);
+
+let std-apply-macro-constant(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   match margs {
+      App{ left:Lit{key:c":"}, right:App{left:Lit{},right:AType{}} } => (tctx, margs);
+      _ => (tctx, ASTEOF);
+   }
+);
+
+let std-apply-macro-location(tctx: Maybe<TContext>, mname: CString, margs: AST): (TContext?, AST) = (
+   (tctx, mk-lit(to-smart-string(margs.location)).ascript(t1(c"SmartString")))
+);
+
+let std-apply-macro(tctx: Maybe<TContext>, mname: CString, margs: AST, used: IsUsed, strong: Bool): (TContext?, AST) = (
+   let result = ASTEOF;
+   if mname==c"macro::concat" then (tctx, result) = std-apply-macro-concat(tctx, mname, margs)
+   else if mname==c"macro::location" then (tctx, result) = std-apply-macro-location(tctx, mname, margs)
+   else if mname==c"macro::variable" then (tctx, result) = std-apply-macro-variable(tctx, mname, margs)
+   else if mname==c"macro::underscore" then (tctx, result) = std-apply-macro-underscore(tctx, mname, margs)
+   else if mname==c"macro::constant" then (tctx, result) = std-apply-macro-constant(tctx, mname, margs)
+   else if mname==c"macro::tag" then (tctx, result) = std-apply-macro-tag(tctx, mname, margs)
+   else {
+      let row = index-macro-table.lookup(mname, [] :: List<(Type,Type,AST)>);
+      let peep-holes = TAny;
+      let peeped = TAny;
+      for Tuple{mtype=first, peep=second, mterm=third} in row {
+         if non-zero(peep-holes) {
+            if peep-holes != peep then fail("Error: Macros must have the same pre-inference expectation.\n\{mname} : \{peeped}\n\{mname} : \{mtype}\n");
+         } else {
+            peep-holes = peep;
+            peeped = mtype;
+         };
+      };
+      (let peeped-type, margs) = std-infer-peeped-arguments(tctx, margs, peep-holes);
+
+      let matched = [] :: List<(Type,AST)>;
+      for Tuple{mtype=first, mterm=third} in row {
+         if can-unify(mtype, peeped-type) then matched = cons( (mtype,mterm), matched );
+      }; 
+
+      let dominant-type = TAny;
+      let candidates = [] :: List<(Type,AST)>;
+      for Tuple{mtype=first, mterm=second} in matched {
+         if non-zero(dominant-type) {
+            if can-unify(mtype,dominant-type) && can-unify(dominant-type,mtype) {
+               candidates = cons( (mtype,mterm), candidates );
+            } else if can-unify(dominant-type,mtype) {
+               dominant-type = mtype;
+               candidates = [(mtype,mterm)];
+            } else if can-unify(mtype,dominant-type) { # existing is dominant, keep existing and ignore new
+            } else fail("Conflicting type candidates encountered during macro specialization:\n\{mname} : \{dominant-type}\n\{mname} : \{mtype}\n");
+         } else {
+            dominant-type = mtype;
+            candidates = [(mtype,mterm)];
+         }
+      };
+      (tctx, result) = std-apply-macro-candidates(tctx, mname, margs, candidates);
+   };
+   if strong && not(non-zero(result)) then exit-error("Failed to Apply Macro: \{mname}\nArgs: \{margs}\n", margs);
+   if strong then (tctx, result) = std-infer-expr(tctx, result, false, used, TAny);
+   (tctx, result)
+);
+
+let std-infer-peeped-arguments(tctx: Maybe<TContext>, t: AST, peep: Type): (Type, AST) = (
+   match peep {
+      TGround{tag:c"Cons", parameters:[p2.. p1..]} => (
+         match t {
+            App{is-cons=is-cons, left=left, right=right} => (
+               (let lt, let new-left) = std-infer-peeped-arguments(tctx, left, p1);
+               (let rt, let new-right) = std-infer-peeped-arguments(tctx, right, p2);
+               if not(is(left,new-left)) || not(is(right,new-right))
+               then t = mk-cons-or-app(is-cons,new-left,new-right);
+               (t3(c"Cons",lt,rt), t)
+            );
+            _ => fail("std-infer-peeped-arguments expected cons term: \{t}\n");
+         }
+      );
+      TAny{} => (ta, t);
+      TVar{} => (ta, t);
+      _ => (
+         (_, t) = std-infer-expr(tctx, t, false, Used, TAny);
+         (typeof(t), t);
+      );
+   }
+);
