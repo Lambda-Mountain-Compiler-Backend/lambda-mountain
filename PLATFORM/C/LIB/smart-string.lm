@@ -94,27 +94,11 @@ head-string := λ(: x SmartString). (: (
    ([]( x 0_i64 ))
 ) U8);
 
-.has-suffix := λ(: base SmartString)(: sfx SmartString). (: (
-   (&&( (>=( (.length base) (.length sfx) ))
-        (==(
-          ([:]( base (as (-( (.length base) (.length sfx) )) I64) (as (.length base) I64) ))
-          sfx ))
-   ))
-) U64);
-
 .remove-suffix := λ(: base SmartString)(: sfx SmartString). (: (
    (if (.has-suffix( base sfx ))
        ([:]( base 0_i64 (as (-( (.length base) (.length sfx) )) I64) ))
        base)
 ) SmartString);
-
-.has-prefix := λ(: base SmartString)(: pfx SmartString). (: (
-   (&&( (>=( (.length base) (.length pfx) ))
-      (==(
-         ([:]( base 0_i64 (as (.length pfx) I64) ))
-         pfx ))
-   ))
-) U64);
 
 .remove-prefix := λ(: base SmartString)(: pfx SmartString). (: (
    (if (.has-prefix( base pfx ))

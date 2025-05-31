@@ -124,23 +124,3 @@ print := λ(: l List<x>). (: (
    ))
    r
 ) U64);
-
-.contains := λ(: l List<x>)(: i x). (: (
-   (let r 0_u64)
-   (while (non-zero l) (
-      (if (==( (head l) i )) (set r 1_u64) ())
-      (set l (tail l))
-   ))
-   r
-) U64);
-
-.join :=  λ(: l List<String>)(: sep String). (: (
-   (let r SNil)
-   (while (non-zero l) (
-      (set r (+( r (SAtom(head l)) )))
-      (set l (tail l))
-      (if (non-zero l) (set r (+( r (SAtom sep) ))) ())
-   ))
-   (clone-rope r)
-) String);
-

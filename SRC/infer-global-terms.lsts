@@ -29,7 +29,7 @@ let infer-global-terms(term: AST): AST = (
 let infer-global-context(term: AST): Nil = (
    match term {
       Seq{seq=seq} => (
-         for vector s in seq { infer-global-context(s) }
+         for s in seq { infer-global-context(s) }
       );
       Typedef{ lhs:Lit{base-type=key}, case-constructors=rhs } => (
          # TODO: remove when LM frontend is removed
@@ -56,7 +56,7 @@ let infer-global-context(term: AST): Nil = (
 let infer-global-context-2(term: AST): Nil = (
    match term {
       Seq{seq=seq} => (
-         for vector s in seq { infer-global-context-2(s) }
+         for s in seq { infer-global-context-2(s) }
       );
       Typedef2{} => infer-type2-definition(term);
       _ => ();

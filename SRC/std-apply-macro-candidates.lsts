@@ -75,7 +75,7 @@ let std-macro-helper-name(tt: Type): CString = (
       TVar{name=name} => if name.has-prefix(c"macro::") then name else c"";
       TAnd{conjugate=conjugate} => (
          let name = c"";
-         for vector c in conjugate {
+         for c in conjugate {
             if not(non-zero(name)) then name = std-macro-helper-name(c);
          };
          name

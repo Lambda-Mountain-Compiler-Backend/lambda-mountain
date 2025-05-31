@@ -1,0 +1,15 @@
+
+import LIB/default.lsts;
+
+assert( "Hello".into(type(Vector<U8>)).has-prefix("Hel") == 1 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix("Hello") == 1 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix-at(1, "ello") == 1 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix-at(1, "ell") == 1 );
+
+assert( "Hello".into(type(Vector<U8>)).has-prefix-at(1, "nol") == 0 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix-at(1, "ellooo") == 0 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix("ello") == 0 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix("el") == 0 );
+assert( "Hello".into(type(Vector<U8>)).has-prefix("h") == 0 );
+
+print("Success\n");

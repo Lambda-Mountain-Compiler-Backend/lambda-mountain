@@ -20,9 +20,9 @@ let substitute(ctx: AContext, tt: Type): Type = (
       );
       TAnd{conjugate=conjugate} => (
          let result = mk-vector(type(Type), 0_u64);
-         for vector c in conjugate {
+         for c in conjugate {
             match substitute(ctx,c) {
-               TAnd{rconjugate=conjugate} => for vector rc in rconjugate { result = result.push(rc) };
+               TAnd{rconjugate=conjugate} => for rc in rconjugate { result = result.push(rc) };
                TAny{} => ();
                rc => ( result = result.push(rc); () );
             }
@@ -49,7 +49,7 @@ let substitute(ctx: AContext, term: AST): AST = (
       Lit{} => term.unique;
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(substitute(ctx,s)) };
+         for s in seq { ret = ret.push(substitute(ctx,s)) };
          Seq{ret}
       );
       App{is-cons=is-cons,left=left,right=right} => mk-cons-or-app(is-cons,substitute(ctx,left),substitute(ctx,right));

@@ -60,7 +60,7 @@ is-incomplete-typedef := λ(: tt Type). (: (
          (set r (||( (is-incomplete-typedef p1) (is-incomplete-typedef p2) )))
       ))
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (set r (||( r (is-incomplete-typedef c) ))))
+         (for-each (c in conjugate) (set r (||( r (is-incomplete-typedef c) ))))
       ))
       ( TAny () )
       ( (TVar _) () )

@@ -1,5 +1,6 @@
 
-type String implements Collection<U8>;
+type CString implements Iterable<U8>;
+type CString implements Collection<U8>;
 
 # TODO: instead do U8 iterator for S
 
@@ -22,15 +23,49 @@ let clone-rope-impl(s: S, out: Vector<U8>): Vector<U8> = (
       );
 
       SAtom { a=atom } => (
-         while non-zero(a) {
-            out = out.push(head-string(a));
-            a = tail-string(a);
-         };
+         out = out.push-all(a);
       );
 
       r => ();
    };
    out
+);
+
+type CStringIter = CStringIter { ptr: CString };
+type CStringIter implements Iterator<U8>;
+
+let .next(self: CStringIter[]): Maybe<U8> = (
+   let val = (open(self).ptr as U8[])[0];
+   if val == 0_u8 {
+      None :: Maybe<U8>
+   } else {
+      self[0] = CStringIter { open(self).ptr.substring(1) };
+      Some { val }
+   }
+);
+
+let .skip(self: CStringIter, num: U64): CStringIter = (
+   CStringIter { self.ptr.substring(num) }
+);
+
+let .iter(self: CString): CStringIter = (
+   let ln = self.length();
+   let v = mk-vector(type(U8), ln+1);
+   let i = 0;
+   while i < ln {
+      v.push(self[i]);
+      i = i + 1;
+   };
+   self = v.into(type(CString));
+   CStringIter { self }
+);
+
+let .unsafe-iter(self: CString): CStringIter = (
+   CStringIter { self }
+);
+
+let .substring(self: CString, begin: U64): CString = (
+    ((((self as U8[]) as U64) + begin) as U8[]) as CString
 );
 
 let cmp(l: CString, r: CString): Ord = (

@@ -17,7 +17,7 @@ mangle-c-type-internal := λ(: tt Type)(: blame AST). (: (
    (match tt (
       ()
       ( (TAnd( conjugate )) (
-         (for-each-v (c in conjugate) (
+         (for-each (c in conjugate) (
             (if (non-zero r) () (set r (mangle-c-type-internal( c blame ))))
          ))
       ))

@@ -5,7 +5,7 @@ let std-c-is-ctype(tt: Type): U64 = (
       TGround{tag:c"Array", parameters:[_.. base-type..]} => std-c-is-ctype(base-type);
       TAnd{ conjugate=conjugate } => (
          let result = false as U64;
-         for vector c in conjugate { result = result || std-c-is-ctype(c) };
+         for c in conjugate { result = result || std-c-is-ctype(c) };
          result
       );
       _ => false;

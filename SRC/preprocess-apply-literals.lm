@@ -59,7 +59,7 @@ preprocess-apply-literals := λ(: program AST). (: (
       ))
       ( (Seq( seqs )) (
          (set r ASTEOF)
-         (for-each-v (p in seqs) (
+         (for-each (p in seqs) (
             (set r (+( r (preprocess-apply-literals p) )))
          ))
       ))

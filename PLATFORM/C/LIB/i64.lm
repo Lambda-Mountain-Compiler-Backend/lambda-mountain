@@ -29,6 +29,10 @@ to-string := λ(: i I64). (: (
    (clone-rope(SCons( (close sign) (close r) )))
 ) String);
 
+to-smart-string := λ(: i I64). (: (
+   (intern(to-string i))
+) SmartString);
+
 to-i64 := λ(: s String). (: (
    (let negative False_u8)
    (if (==( (head-string s) 45_u8 )) (

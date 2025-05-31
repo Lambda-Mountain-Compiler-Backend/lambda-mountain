@@ -13,8 +13,7 @@ assert(v.length == 128);
 let last-cap = v.capacity;
 
 ai = 0_u64;
-while ai < v.length {
-   let x = v[ai];
+for x in v.iter() {
    assert(x == to-smart-string(ai));
    ai = ai + 1;
 };
@@ -30,9 +29,7 @@ assert(v.capacity < last-cap);
 last-cap = v.capacity;
 
 ai = 0_u64;
-while ai < v.length {
-   let x = v[ai];
+for x in v.iter() {
    assert(x == to-smart-string(ai));
    ai = ai + 1;
 };
-

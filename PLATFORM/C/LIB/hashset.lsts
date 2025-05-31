@@ -1,0 +1,59 @@
+
+type Hashset<t> = Hashset { back: HashtableEq<t,U8> };
+type Hashset<t> implements Iterable<t>;
+
+let mk-hashset(ty: Type<t>): Hashset<t> = (
+   Hashset { ({} :: HashtableEq<t,U8>) }
+);
+
+let .put(self: Hashset<t>, val: t): Hashset<t> = (
+   Hashset { (self.back.put(val, 0_u8)) }
+);
+
+let .contains(self: Hashset<t>, val: t): U64 = (
+   self.backing.contains(val)
+);
+
+## if the hashset already contains the value, returns 1
+## otherwise, returns 0 and puts it into the hashtable
+let .contains-or-put(self: Hashset<t>, val: t): Tuple<Hashset<t>, U64> = (
+   let c = self.contains(val);
+   Tuple { (self.put(val)), c }
+);
+
+let .collect(x: Iterator<t>, to: Hashset<t>): Hashset<t> = (
+   for item in x {
+      to = to.put(item);
+   };
+   to
+);
+
+let .collect(x: Iterator<t>, tot: Type<Hashset<t>>): Hashset<t> = (
+   let to = mk-hashset(type(t));
+   to = x.collect(to);
+   to
+);
+
+type HashsetIter<t> = HashsetIter { back: HashtableEqIter<t,U8> };
+type HashsetIter<t> implements Iterator<t>;
+
+let .next(vp: HashsetIter<t>[]): Maybe<t> = (
+   let v = open(vp);
+   let val = match (&v.back).next() {
+      Some { content=content } => (
+         Some { k.1 }
+      );
+
+      None {} => ( None {} :: Maybe<t> );
+   };
+   vp[0] = v;
+   val
+);
+
+let .unsafe-iter(self: Hashset<t>): HashsetIter<t> = (
+   HashsetIter { self.backing.unsafe-iter() }
+);
+
+let .iter(self: Hashset<t>): HashsetIter<t> = (
+   HashsetIter { self.backing.iter() }
+);

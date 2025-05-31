@@ -1,0 +1,9 @@
+
+import LIB/default.lsts;
+
+let v = "Hello".into(type(Vector<U8>));
+
+for x in v {
+   print(x);
+   print("\n");
+};

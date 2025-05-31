@@ -2,6 +2,64 @@
 type HashtableEq<k,v> = HashtableEq { occupied: U64, capacity: U64, contents: Tuple<k,v>[] }
                       | HashtableEqEOF;
 
+type HashtableEq<k,v> implements Iterable<Tuple<k,v>>;
+
+let .clone(self: HashtableEq<k,v>): HashtableEq<k,v> = (
+   match self {
+      HashtableEq { occupied=occupied } => (
+         let contents = (self as Tag::HashtableEq).contents;
+         let new-sz = sizeof(Tuple<k,v>) * occupied;
+         let cpy = malloc(new-sz) as Tuple<k,v>[];
+
+         let i = 0;
+         while i < occupied {
+            cpy[i] = contents[i];
+            i = i + 1;
+         };
+
+         HashtableEq { occupied, occupied, cpy }
+      );
+
+      HashtableEqEOF {} => (HashtableEqEOF :: HashtableEq<k,v>);
+   }
+);
+
+type HashtableEqIter<k,v> = HashtableEqIter { table: HashtableEq<k,v>, idx: U64 };
+type HashtableEqIter<k,v> implements Iterator<Tuple<k,v>>;
+
+# for safety, we clone the table
+# All modifications done to the vector after creating the iterator will not be seen
+let .iter(self: HashtableEq<k,v>): HashtableEqIter<k,v> = (
+   let clone = self.clone();
+   clone.unsafe-iter()
+);
+
+# If you modify the table after creating the iterator, weird things will happen
+let .unsafe-iter(self: HashtableEq<k,v>): HashtableEqIter<k,v> = (
+   HashtableEqIter { self, 0_u64 }
+);
+
+let .next(p: Array<HashtableEqIter<k,v>,?>): Maybe<Tuple<k,v>> = (
+   let v = open(p);
+   match v.table {
+     HashtableEq { occupied=occupied } => (
+        if v.idx < occupied {
+           let contents = (v.table as Tag::HashtableEq).contents;
+           let val = contents[v.idx];
+           v.idx = v.idx + 1;
+           p[0] = v;
+           Some { val } :: Maybe<Tuple<k,v>>
+        } else {
+           None :: Maybe<Tuple<k,v>>
+        }
+     );
+
+     HashtableEqEOF {} => (
+        None :: Maybe<Tuple<k,v>>
+     );
+   };
+);
+
 let .lookup(table: HashtableEq<k,v>, key: k, default: v): v = (
    let capacity = (table as Tag::HashtableEq).capacity;
    if capacity > 0_u64 {
@@ -20,7 +78,12 @@ let .lookup(table: HashtableEq<k,v>, key: k, default: v): v = (
    default
 );
 
+##[DEPRECATED .contains]
 let .has(table: HashtableEq<k,v>, key: k): U64 = (
+   table.contains(key)
+);
+
+let .contains(table: HashtableEq<k,v>, key: k): U64 = (
    let capacity = (table as Tag::HashtableEq).capacity;
    let replacing = false;
    if capacity > 0_u64 {
@@ -37,7 +100,12 @@ let .has(table: HashtableEq<k,v>, key: k): U64 = (
    replacing
 );
 
+##[DEPRECATED .put]
 let .bind(table: HashtableEq<k,v>, key: k, value: v): HashtableEq<k,v> = (
+   table.put(key, value)
+);
+
+let .put(table: HashtableEq<k,v>, key: k, value: v): HashtableEq<k,v> = (
    if is(table, (HashtableEqEOF :: HashtableEq<k,v>)) {
       table = HashtableEq { 0_u64, 0_u64, (0_u64 as Tuple<k,v>[]) };
    };

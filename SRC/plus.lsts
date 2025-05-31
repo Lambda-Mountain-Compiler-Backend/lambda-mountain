@@ -3,7 +3,7 @@ let $"+"(l: AST, r: AST): AST = (
    match l {
       Seq{seq=seq} => (match r {
          Seq{rseq=seq} => (
-            for vector rs in rseq { l = l + rs; };
+            for rs in rseq { l = l + rs; };
             l
          );
          _ => Seq{seq.push(r)};

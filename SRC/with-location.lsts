@@ -6,7 +6,7 @@ let with-location(term: AST, loc: SourceLocation): AST = (
       App{left=left,right=right} => App{close(with-location(left,loc)),close(with-location(right,loc))};
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(with-location(s,loc)) };
+         for s in seq { ret = ret.push(with-location(s,loc)) };
          Seq{ret}
       );
       Abs{lhs=lhs,rhs=rhs,tt=tt} => Abs{close(with-location(lhs,loc)),close(with-location(rhs,loc)),tt};
@@ -29,7 +29,7 @@ let with-location-preserve(term: AST, loc: SourceLocation): AST = (
       App{is-cons=is-cons,left=left,right=right} => mk-cons-or-app(is-cons,with-location-preserve(left,loc),with-location-preserve(right,loc));
       Seq{seq=seq} => (
          let ret = mk-vector(type(AST), seq.length);
-         for vector s in seq { ret = ret.push(with-location-preserve(s,loc)) };
+         for s in seq { ret = ret.push(with-location-preserve(s,loc)) };
          Seq{ret}
       );
       Abs{lhs=lhs,rhs=rhs,tt=tt} => Abs{close(with-location-preserve(lhs,loc)),close(with-location-preserve(rhs,loc)),tt};

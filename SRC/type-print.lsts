@@ -7,7 +7,7 @@ let print(io: IO::File, tt: Type): Nil = (
       TVar{name=name} => print(io, name);
       TAnd{conjugate=conjugate} => (
          let ongoing = false;
-         for vector c in conjugate {
+         for c in conjugate {
             if ongoing && c.is-arrow then print(io, " +\n")
             else if ongoing then print(io, " + ");
             print(io, c);
