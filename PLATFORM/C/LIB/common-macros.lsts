@@ -72,15 +72,19 @@ typed macro macro::assert(cond: lazy): lazy = (
 );
 
 typed macro macro::match(t: lazy, ps: lazy): lazy = (
-   let uuid(term) = open(t);
-   macro::match-pats( uuid(term), ps );
+   scope(
+      let uuid(term) = open(t);
+      macro::match-pats( uuid(term), ps );
+   )
 );
 
 typed macro macro::bind-raw(t: lazy): lazy = (t);
 
 typed macro macro::match(t: macro::bind-raw, ps: lazy): lazy = (
-   let uuid(term) = t;
-   macro::match-pats( uuid(term), ps );
+   scope(
+      let uuid(term) = t;
+      macro::match-pats( uuid(term), ps );
+   )
 );
 
 typed macro macro::match-case(lhs: lazy, rhs: lazy, remainder: lazy): lazy = (
@@ -140,6 +144,8 @@ typed macro macro::set-name(name: lazy): lazy = (name);
 
 typed macro macro::let-bind(rest: lazy, bind: lazy): lazy = (rest; macro::let-name(bind));
 typed macro macro::set-bind(rest: lazy, bind: lazy): lazy = (rest; macro::set-name(bind));
+typed macro macro::let-bind(rest: lazy, bind: macro::underscore): lazy = (rest; _);
+typed macro macro::set-bind(rest: lazy, bind: macro::underscore): lazy = (rest; _);
 
 typed macro macro::lhs-prefix(prefix: lazy, rest: lazy): lazy = (prefix; rest; _);
 typed macro macro::lhs-suffix(suffix: lazy, rest: lazy): lazy = (suffix; rest; _);
@@ -208,13 +214,17 @@ typed macro macro::match-arm(bind suffix rest: macro::lhs-bound-suffix, term: la
    )
 );
 
-typed macro macro::lhs-head(head-lhs: lazy, tail-lhs: lazy): lazy = (head-lhs; tail-lhs);
+typed macro macro::lhs-head(head-lhs: lazy, tail-lhs: lazy): lazy = (head-lhs; tail-lhs; _);
+typed macro macro::lhs-head(lhs bind: macro::let-bind, tail-lhs: lazy): lazy = (head-lhs; tail-lhs; bind);
+typed macro macro::lhs-head(lhs bind: macro::set-bind, tail-lhs: lazy): lazy = (head-lhs; tail-lhs; bind);
 
-typed macro macro::match-arm(head-lhs tail-lhs: macro::lhs-head, term: lazy): lazy = (
+typed macro macro::match-arm(head-lhs tail-lhs bind: macro::lhs-head, term: lazy): lazy = (
    (let uuid(v) = term;
       $"if"(uuid(v).has-head)
            (
-              $"if"(macro::match-arm( head-lhs, head(uuid(v)) ))
+              macro::let(uuid(h), head(uuid(v)));
+              macro::bind( bind, uuid(h) );
+              $"if"(macro::match-arm( head-lhs, uuid(h) ))
                    (macro::match-arm( tail-lhs, tail(uuid(v)) ))
                    (false)
            )
@@ -222,15 +232,25 @@ typed macro macro::match-arm(head-lhs tail-lhs: macro::lhs-head, term: lazy): la
    )
 );
 
+typed macro macro::lhs-tail(tail-lhs: lazy): lazy = (tail-lhs; _);
+typed macro macro::lhs-tail(tail-lhs bind: macro::let-bind): lazy = (tail-lhs; bind);
+typed macro macro::lhs-tail(tail-lhs bind: macro::set-bind): lazy = (tail-lhs; bind);
+
+typed macro macro::match-arm(tail-lhs bind: macro::lhs-tail, term: lazy): lazy = (
+   (let uuid(v) = term;
+    macro::bind( bind, uuid(v) );
+    not(uuid(v).has-head)
+   )
+);
+
 typed macro macro::match-arm(case rest: macro::lhs-struct, term: lazy): lazy = (
    (let uuid(v) = term; macro::lhs-struct-post(case, rest, term))
 );
 
-typed macro macro::lhs-struct(case: lazy, rest: lazy): lazy = (case; rest);
 typed macro macro::lhs-struct-field(bind: lazy, field: lazy, val: lazy): lazy = (bind; field; val);
-typed macro macro::lhs-struct-field(bind: macro::underscore, field: lazy, val: lazy): lazy = (uuid(x); field; val);
-typed macro macro::lhs-struct-raw-field(bind: lazy, field: lazy): lazy = (bind; field);
-typed macro macro::lhs-struct-raw-field-with-val(bind: lazy, field: lazy, val: lazy): lazy = (bind; field; val);
+typed macro macro::lhs-raw-struct-field(bind: lazy, field: lazy, val: lazy): lazy = (bind; field; val);
+
+typed macro macro::lhs-struct(case: lazy, rest: lazy): lazy = (case; rest);
 
 typed macro macro::lhs-struct-post(tag-name tag-ordinal tag-type: macro::tag, rest: lazy, term: lazy): lazy = (
    $"if"($".0"(term) == tag-ordinal)
@@ -241,25 +261,18 @@ typed macro macro::lhs-struct-post(tag-name tag-ordinal tag-type: macro::tag, re
 typed macro macro::lhs-struct-post(bind field val: macro::lhs-struct-field, rest: rest, term: lazy): lazy = (
    (
       let uuid(b) = open(macro::concat($".", field)(term));
-      let bind = uuid(b);
+      macro::bind( bind, uuid(b) );
       $"if"(macro::match-arm( val, uuid(b) ))
            (macro::match-arm( rest, term ))
            (false)
    )
 );
 
-typed macro macro::lhs-struct-post(bind field: macro::lhs-struct-raw-field, rest: rest, term: lazy): lazy = (
+typed macro macro::lhs-struct-post(bind field val: macro::lhs-raw-struct-field, rest: rest, term: lazy): lazy = (
    (
-      let bind = macro::concat($".", field)(term);
-      true
-   )
-);
-
-typed macro macro::lhs-struct-post(bind field val: macro::lhs-struct-raw-field-with-val, rest: rest, term: lazy): lazy = (
-   (
-      let bind = macro::concat($".", field)(term);
-      let uuid(b) = open(bind);
-      $"if"(macro::match-arm( val, uuid(b) ))
+      let uuid(b) = macro::concat($".", field)(term);
+      macro::bind( bind, uuid(b) );
+      $"if"(macro::match-arm( val, open(uuid(b)) ))
            (macro::match-arm( rest, term ))
            (false)
    )

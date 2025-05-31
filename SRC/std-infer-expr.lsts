@@ -86,6 +86,7 @@ let std-infer-expr(tctx: Maybe<TContext>, term: AST, is-scoped: Bool, used: IsUs
       ASTNil{} => ascript-normal(term, t1(c"Nil"));
       Meta{} => ascript-normal(term, t1(c"Nil"));
       Typedef{} => ();
+      Typedef2{} => ();
       AType{tt=tt} => ascript-normal(term, tt);
       Seq{seq=seq} => (
          let def-i = 0_u64;

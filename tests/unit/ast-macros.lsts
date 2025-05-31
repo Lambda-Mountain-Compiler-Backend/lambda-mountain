@@ -41,91 +41,64 @@ match2 "def" { d.."ef" => print("\{d}ef"); };
 match2 "abc" { a="a"..bc => print("\{a}\{bc}"); };
 match2 "def" { d..ef="ef" => print("\{d}\{ef}"); };
 
-#(
-#   macro::match(123, macro::match-case(
-#      x, print(x), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+match2 [1,2,3] { [x=1.. y.. z] => print("\{x}\{y}\{z}"); };
+match2 [4,5,6] { [xyz] => print("\{xyz}"); };
+match2 [] :: List<U64> { [] => print("[]"); };
 
-#(
-#   macro::match(4, macro::match-case(
-#      4, print(4), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+match2 (A{123}) {
+   _{} => print("_");
+};
 
-#(
-#   macro::match(5, macro::match-case(
-#      _, print(5), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+match2 (A{123}) {
+   A => print("A");
+};
 
-#(
-#   macro::match(c"ABC", macro::match-case(
-#      macro::lhs-prefix(c"A", x), print(x), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+match2 (A{123}) {
+   A{a:123} => print(".");
+};
+match2 (A{123}) {
+   A{a=a} => print(a);
+};
+match2 (A{123}) {
+   A{a=a:123} => print(a);
+};
+match2 (A{123}) {
+   A{let a=a} => print(a);
+};
+match2 (A{123}) {
+   A{let raw a=a} => print(a);
+};
+match2 (A{123}) {
+   A{let a=a:123} => print(a);
+};
+match2 (A{123}) {
+   A{let raw a=a:123} => print(a);
+};
+(
+   let x = 555;
+   match2 (A{123}) {
+      A{set x=a} => print(x);
+   };
+   match2 (A{123}) {
+      A{set x=a:123} => print(x);
+   };
+   match2 (A{123}) {
+      A{set raw x=a} => print(x);
+   };
+   match2 (A{123}) {
+      A{set raw x=a:123} => print(x);
+   };
+);
 
-#(
-#   macro::match(c"ABC", macro::match-case(
-#      macro::lhs-suffix(c"BC", x), print(x), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+type ABCD = AB{ab:U64} | CD{cd:U64};
 
-#(
-#   macro::match(c"ABC", macro::match-case(
-#      macro::lhs-bound-prefix(x, c"A", y), (print(x); print(y)), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+match2 AB{1} { AB{ab=ab} => print(ab); };
+match2 CD{1} { CD{cd=cd} => print(cd); };
 
-#(
-#   macro::match(c"ABC", macro::match-case(
-#      macro::lhs-bound-suffix(y, c"BC", x), (print(x); print(y)), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
+type ABC = ABC{ a:U64, b:U64, c:U64 };
+match2 ABC{1,2,3} { ABC{a:1, b=b, let c=c} => print("1\{b}\{c}"); };
 
-#(
-#   macro::match([1,2], macro::match-case(
-#      macro::lhs-head(x, y), (print(x); print(y)), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-#(
-#   macro::match(A{123}, macro::match-case(
-#      macro::lhs-struct(A, _), print("A"), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-#(
-#   macro::match(A{123}, macro::match-case(
-#      macro::lhs-struct(A, macro::lhs-struct(macro::lhs-struct-field(x,a,123), _) ), print(x), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-#(
-#   macro::match(A{123}, macro::match-case(
-#      macro::lhs-struct(A, macro::lhs-struct(macro::lhs-struct-raw-field(x,a), _) ), print("Raw"), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-#(
-#   macro::match(A{123}, macro::match-case(
-#      macro::lhs-struct(A, macro::lhs-struct(macro::lhs-struct-raw-field-with-val(x,a,123), _) ), print("Raw"), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-#type B = B { b: A[] };
-
-#(
-#   macro::match(B{close(A{123})}, macro::match-case(
-#      macro::lhs-struct(B, macro::lhs-struct(macro::lhs-struct-field(_,b,
-#         macro::lhs-struct(A, macro::lhs-struct(macro::lhs-struct-raw-field-with-val(x,a,123), _) )
-#      ), _) ),
-#      print("Raw\{x}"), fail("Pattern Match Failure",macro::location(here))
-#   ));
-#);
-
-
-# for
-#$"macro::for"(x, [1, 2], print(x));
-#$"macro::for"(x, mk-vector(type(U64)).push(3).push(4), print(x));
+print(match2 ABC{1,2,3} {
+   ABC{} => (1; 2);
+});
 

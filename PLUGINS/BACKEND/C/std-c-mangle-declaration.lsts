@@ -1,28 +1,28 @@
 
-let std-c-mangle-declaration(tt: Type): Tuple<S,S> = (
-   std-c-mangle-declaration-internal(normalize(tt).rewrite-opaque-type-alias)
+let std-c-mangle-declaration(tt: Type, blame: AST): Tuple<S,S> = (
+   std-c-mangle-declaration-internal(normalize(tt).rewrite-opaque-type-alias, blame)
 );
 
-let std-c-mangle-declaration-internal(tt: Type): Tuple<S,S> = (
+let std-c-mangle-declaration-internal(tt: Type, blame: AST): Tuple<S,S> = (
    match tt {
       TGround{tag:c"Array", parameters:[ TGround{tag:c"CONST"}.. array-base.. ]} => (
-         let rest = std-c-mangle-declaration-internal(array-base);
+         let rest = std-c-mangle-declaration-internal(array-base, blame);
          ( rest.first, rest.second + SAtom{c"[]"} )
       );
       TGround{tag:c"Array", parameters:[ TGround{tag:c"C",parameters:[TGround{width=tag}..]}.. array-base.. ]} => (
-         let rest = std-c-mangle-declaration-internal(array-base);
+         let rest = std-c-mangle-declaration-internal(array-base, blame);
          ( rest.first, rest.second + SAtom{c"["} + SAtom{width} + SAtom{c"]"} )
       );
       TGround{tag:c"Array", parameters:[ TGround{width=tag}.. array-base.. ]} => (
-         let rest = std-c-mangle-declaration-internal(array-base);
+         let rest = std-c-mangle-declaration-internal(array-base, blame);
          ( rest.first, rest.second + SAtom{c"["} + SAtom{width} + SAtom{c"]"} )
       );
       TGround{tag:c"Arrow", parameters:[ rng.. dom.. ]} => (
-         let returns = std-c-mangle-type-internal(rng);
-         let accepts = std-c-mangle-type-internal(dom);
+         let returns = std-c-mangle-type-internal(rng, blame);
+         let accepts = std-c-mangle-type-internal(dom, blame);
          ( returns + SAtom{c"(*"},
            SAtom{c")("} + accepts + SAtom{c")"} )
       );
-      _ => (std-c-mangle-type-internal(tt), SNil);
+      _ => (std-c-mangle-type-internal(tt, blame), SNil);
    }
 );

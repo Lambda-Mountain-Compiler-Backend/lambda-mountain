@@ -40,7 +40,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
       ( (App( (Var( 'sizeof_s _ )) (AType tt) )) (
          (set e (mk-expression(
             (+( (SAtom '\[sizeof\[_s)
-                (+( (mangle-c-type tt) (SAtom '\]\]_s) ))
+                (+( (mangle-c-type( tt term )) (SAtom '\]\]_s) ))
             ))
          )))
          (let et (&&(
@@ -60,7 +60,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
             (+(
                (+(
                   (SAtom '\[\[_s)
-                  (mangle-c-type (typeof term))
+                  (mangle-c-type( (typeof term) term ))
                ))
                (+(
                   (SAtom '\]\[_s)
@@ -81,7 +81,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let ef (compile-expr( (open(.context ec)) f 0_i64 Tail )))
          (set.type( ef (typeof f) ))
          (if (.is-t( (typeof f) 'Never_s )) (
-            (set ef (never-as-expr-type( ef (typeof t) )))
+            (set ef (never-as-expr-type( ef (typeof t) term )))
          ) ())
 
          (let ictx (mk-fragment()))
@@ -109,7 +109,7 @@ compile-expr-direct := λ(: ctx FContext)(: term AST)(: stack-offset I64)(: used
          (let fr (fragment::local-variable( 0_i64 rtype )))
          (set std-c-fragment-context (.bind( std-c-fragment-context lhs-t fr )))
          (set ctx (.bind( ctx lhs rtype fr )))
-         (let prepost (mangle-c-declaration rtype))
+         (let prepost (mangle-c-declaration( rtype term )))
          (if (is-const-array rtype) (
             (set e (compile-expr( ctx rhs stack-offset Used )))
             (set e (.set( e 'frame_s (

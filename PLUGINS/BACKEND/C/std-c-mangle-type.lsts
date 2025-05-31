@@ -1,16 +1,17 @@
 
-let std-c-mangle-type(tt: Type): S = (
+let std-c-mangle-type(tt: Type, blame: AST): S = (
    tt = normalize(tt).rewrite-opaque-type-alias;
-   let r = std-c-mangle-type-internal(tt);
+   let r = std-c-mangle-type-internal(tt, blame);
+   if not(non-zero(r)) then fail("Unable To Mangle \{tt}\nAt \{blame.location}\n\{blame}\n");
    r
 );
 
-let std-c-mangle-type-internal(tt: Type): S = (
+let std-c-mangle-type-internal(tt: Type, blame: AST): S = (
    match tt {
       TAnd{ conjugate=conjugate } => (
          let result = SNil;
          for c in conjugate {
-            let rt = std-c-mangle-type-internal(c);
+            let rt = std-c-mangle-type-internal(c, blame);
             result = if non-zero(result) && non-zero(rt) then result + SAtom{c" "} + rt
             else if non-zero(result) then result
             else rt;
@@ -18,14 +19,14 @@ let std-c-mangle-type-internal(tt: Type): S = (
          result;
       );
       TAny{} => SNil;
-      TGround{tag:c"Type", parameters:[inner-tt..]} => std-c-mangle-type-internal(inner-tt);
+      TGround{tag:c"Type", parameters:[inner-tt..]} => std-c-mangle-type-internal(inner-tt, blame);
       TGround{tag:c"Array", parameters:[_.. array-base..]} => (
          if array-base.is-arrow
-         then std-c-mangle-type-internal(array-base)
-         else ( std-c-mangle-type-internal(array-base) + SAtom{c"*"} );
+         then std-c-mangle-type-internal(array-base, blame)
+         else ( std-c-mangle-type-internal(array-base, blame) + SAtom{c"*"} );
       );
       TGround{tag:c"Arrow"} => (
-         (let pre, let post) = std-c-mangle-declaration-internal(tt);
+         (let pre, let post) = std-c-mangle-declaration-internal(tt, blame);
          let td-id = uuid();
          assemble-header-section = assemble-header-section
                                  + SAtom{c"typedef "}

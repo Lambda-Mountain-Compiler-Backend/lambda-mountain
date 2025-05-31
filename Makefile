@@ -2,7 +2,7 @@ CC = cc
 CFLAGS = -O3 -march=native -mtune=native -ferror-limit=50
 
 dev: install-production
-	lm tests/unit/ast-macros.lsts
+	lm tests/unit/typedefs.lsts
 	cc tmp.c
 	./a.out
 

@@ -1,0 +1,22 @@
+
+import LIB/default.lsts;
+
+type2 A size 2_B;
+type2 B size 3_b;
+
+type2 alias C = B;
+type2 opaque alias D = C;
+
+interface self implements E {
+   let f(p1: self, p2: A): A;
+};
+
+let f(p1: F<c,d>, p2: A): A = p2;
+type2 F<c,d> implements E;
+
+type2 TT<a,b> = { a: a, b: b };
+type2 G = { a: A, b: B, h: H };
+type2 H = { g: TT<A,A> } H1 { g2: A } | H2 { g3: B };
+
+# TODO constructor / instantiate
+# TODO field get/set/get indirect/set indirect

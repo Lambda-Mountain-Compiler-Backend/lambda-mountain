@@ -1,7 +1,7 @@
 
 let cons-tail-or-self(tt: Type): Type = (
    match tt {
-      TGround{tag:c"Cons",parameters:[tl..hd..]} => tl;
+      TGround{tag:c"Cons",parameters:[tl..hd..]} => cons-tail-or-self(tl);
       _ => tt;
    }
 );

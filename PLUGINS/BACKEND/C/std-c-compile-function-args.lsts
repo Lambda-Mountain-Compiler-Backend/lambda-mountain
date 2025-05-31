@@ -2,7 +2,7 @@
 let std-c-compile-function-args(ctx: FContext, lhs: AST): S = (
    match lhs {
       App{ rest=left, right:App{ left:Lit{key:c":"}, right:App{ v-t=left:Var{k=key}, right:AType{kt=tt} } } } => (
-         let decl = std-c-mangle-declaration(kt);
+         let decl = std-c-mangle-declaration(kt, lhs);
          let text = std-c-compile-function-args(ctx, rest);
          text = text + SAtom{c","};
          if can-unify( t2(c"C",t1(c"...")), kt ) {
@@ -19,7 +19,7 @@ let std-c-compile-function-args(ctx: FContext, lhs: AST): S = (
          text
       );
       App{ left:Lit{key:c":"}, right:App{ v-t=left:Var{k=key}, right:AType{kt=tt} } } => (
-         let decl = std-c-mangle-declaration(kt);
+         let decl = std-c-mangle-declaration(kt, lhs);
          let text = SNil{};
          if can-unify( t2(c"C",t1(c"...")), kt ) {
             text = text + SAtom{c"..."};

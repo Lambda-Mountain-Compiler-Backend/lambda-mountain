@@ -6,6 +6,9 @@ declare-unop( $".3", raw-type(CaseNumber<cn>+Field::3<a>), raw-type(a), ( l"("; 
 declare-unop( $".4", raw-type(CaseNumber<cn>+Field::4<a>), raw-type(a), ( l"("; x; l".field_"; 4_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".5", raw-type(CaseNumber<cn>+Field::5<a>), raw-type(a), ( l"("; x; l".field_"; 5_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".6", raw-type(CaseNumber<cn>+Field::6<a>), raw-type(a), ( l"("; x; l".field_"; 6_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".7", raw-type(CaseNumber<cn>+Field::7<a>), raw-type(a), ( l"("; x; l".field_"; 7_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".8", raw-type(CaseNumber<cn>+Field::8<a>), raw-type(a), ( l"("; x; l".field_"; 8_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".9", raw-type(CaseNumber<cn>+Field::9<a>), raw-type(a), ( l"("; x; l".field_"; 9_l + 1000_l * (cn :: L); l")"; ) );
 
 declare-binop( $"set.1", raw-type(CaseNumber<cn>+Field::1<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 1_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.2", raw-type(CaseNumber<cn>+Field::2<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 2_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
@@ -13,6 +16,9 @@ declare-binop( $"set.3", raw-type(CaseNumber<cn>+Field::3<a>), raw-type(a), raw-
 declare-binop( $"set.4", raw-type(CaseNumber<cn>+Field::4<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 4_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.5", raw-type(CaseNumber<cn>+Field::5<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 5_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.6", raw-type(CaseNumber<cn>+Field::6<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 6_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.7", raw-type(CaseNumber<cn>+Field::7<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 7_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.8", raw-type(CaseNumber<cn>+Field::8<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 8_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.9", raw-type(CaseNumber<cn>+Field::9<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l".field_"; 9_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 
 declare-unop( $".0", raw-type(LMStruct[]), raw-type(U64), ( l"("; x; l"->field_0)"; ) );
 declare-unop( $".0", raw-type(base-type[]+LMStruct), raw-type(U64), ( l"("; x; l"->field_0)"; ) );
@@ -22,6 +28,9 @@ declare-unop( $".3", raw-type(Array<?,?>+CaseNumber<cn>+Field::3<a>), raw-type(a
 declare-unop( $".4", raw-type(Array<?,?>+CaseNumber<cn>+Field::4<a>), raw-type(a), ( l"("; x; l"->field_"; 4_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".5", raw-type(Array<?,?>+CaseNumber<cn>+Field::5<a>), raw-type(a), ( l"("; x; l"->field_"; 5_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".6", raw-type(Array<?,?>+CaseNumber<cn>+Field::6<a>), raw-type(a), ( l"("; x; l"->field_"; 6_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".7", raw-type(Array<?,?>+CaseNumber<cn>+Field::7<a>), raw-type(a), ( l"("; x; l"->field_"; 7_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".8", raw-type(Array<?,?>+CaseNumber<cn>+Field::8<a>), raw-type(a), ( l"("; x; l"->field_"; 8_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".9", raw-type(Array<?,?>+CaseNumber<cn>+Field::9<a>), raw-type(a), ( l"("; x; l"->field_"; 9_l + 1000_l * (cn :: L); l")"; ) );
 
 declare-binop( $"set.1", raw-type(Array<?,?>+CaseNumber<cn>+Field::1<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 1_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.2", raw-type(Array<?,?>+CaseNumber<cn>+Field::2<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 2_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
@@ -29,6 +38,9 @@ declare-binop( $"set.3", raw-type(Array<?,?>+CaseNumber<cn>+Field::3<a>), raw-ty
 declare-binop( $"set.4", raw-type(Array<?,?>+CaseNumber<cn>+Field::4<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 4_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.5", raw-type(Array<?,?>+CaseNumber<cn>+Field::5<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 5_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 declare-binop( $"set.6", raw-type(Array<?,?>+CaseNumber<cn>+Field::6<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 6_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.7", raw-type(Array<?,?>+CaseNumber<cn>+Field::7<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 7_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.8", raw-type(Array<?,?>+CaseNumber<cn>+Field::8<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 8_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
+declare-binop( $"set.9", raw-type(Array<?,?>+CaseNumber<cn>+Field::9<a>), raw-type(a), raw-type(Nil), ( l"({"; x; l"->field_"; 9_l + 1000_l * (cn :: L); l"="; y; l";({});})"; ) );
 
 declare-unop( $".1", raw-type(Array<?,?>+CaseNumber<cn>+Field::1<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 1_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".2", raw-type(Array<?,?>+CaseNumber<cn>+Field::2<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 2_l + 1000_l * (cn :: L); l")"; ) );
@@ -36,3 +48,7 @@ declare-unop( $".3", raw-type(Array<?,?>+CaseNumber<cn>+Field::3<a>+Raw), raw-ty
 declare-unop( $".4", raw-type(Array<?,?>+CaseNumber<cn>+Field::4<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 4_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".5", raw-type(Array<?,?>+CaseNumber<cn>+Field::5<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 5_l + 1000_l * (cn :: L); l")"; ) );
 declare-unop( $".6", raw-type(Array<?,?>+CaseNumber<cn>+Field::6<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 6_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".7", raw-type(Array<?,?>+CaseNumber<cn>+Field::7<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 7_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".8", raw-type(Array<?,?>+CaseNumber<cn>+Field::8<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 8_l + 1000_l * (cn :: L); l")"; ) );
+declare-unop( $".9", raw-type(Array<?,?>+CaseNumber<cn>+Field::9<a>+Raw), raw-type(a[]), ( l"(&"; x; l"->field_"; 9_l + 1000_l * (cn :: L); l")"; ) );
+

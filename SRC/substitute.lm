@@ -100,6 +100,20 @@ substitute := λ(: tctx Maybe<TContext>)(: t AST). (: (
          ))
       ))
       ( (Glb( k rt )) (
+         (let found 0_u64)
+         (for-each ( (Tuple( tk tv ta )) in
+             (.get-or( tctx (: LEOF List<Tuple<String,Type,AST>>) ))
+         ) (
+            (if (&&( (not found) (==( (.key k) tk )) )) (
+               (match ta (
+                  ()
+                  ( (Var( tvk tvtk )) (
+                     (set k tvtk)
+                  ))
+               ))
+               (set found 1_u64)
+            ) ())
+         ))
          (set t (Glb(
             (unique k)
             (close(substitute( tctx rt )))

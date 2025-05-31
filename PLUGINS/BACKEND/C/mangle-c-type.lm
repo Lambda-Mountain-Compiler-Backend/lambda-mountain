@@ -1,18 +1,24 @@
 
-mangle-c-type := λ(: tt Type). (: (
+mangle-c-type := λ(: tt Type)(: blame AST). (: (
    (set tt (normalize tt))
    (set tt (.rewrite-opaque-type-alias tt))
-   (let r (mangle-c-type-internal tt))
+   (let r (mangle-c-type-internal( tt blame )))
+   (if (not(non-zero r)) (
+      (print 'Failed\sTo\sMangle\s_s)(print tt)(print '\n_s)
+      (print 'At\s_s)(print (to-smart-string(.location blame)))(print '\n_s)
+      (print blame)(print '\n_s)
+      (exit 1_u64)
+   ) ())
    r
 ) S);
 
-mangle-c-type-internal := λ(: tt Type). (: (
+mangle-c-type-internal := λ(: tt Type)(: blame AST). (: (
    (let r SNil)
    (match tt (
       ()
       ( (TAnd( conjugate )) (
          (for-each (c in conjugate) (
-            (if (non-zero r) () (set r (mangle-c-type c)))
+            (if (non-zero r) () (set r (mangle-c-type-internal( c blame ))))
          ))
       ))
       ( TAny (set r (SAtom 'void_s)) )
@@ -37,13 +43,13 @@ mangle-c-type-internal := λ(: tt Type). (: (
       ( (TGround( 'Regex_s _ )) (set r (SAtom 'regex_t_s)) )
       ( (TGround( 'Array_s (LCons( _ (LCons( array-base _ )) )) )) (
          (if (.is-arrow array-base) (
-            (set r (mangle-c-type array-base))
+            (set r (mangle-c-type( array-base blame )))
          ) (
-            (set r (+( (mangle-c-type array-base) (SAtom '*_s) )))
+            (set r (+( (mangle-c-type( array-base blame )) (SAtom '*_s) )))
          ))
       ))
       ( (TGround( 'Arrow_s _ )) (
-         (let pre-post (mangle-c-declaration-internal tt))
+         (let pre-post (mangle-c-declaration-internal( tt blame )))
          (let td-id (uuid()))
          (set assemble-header-section (+(
             assemble-header-section
@@ -74,19 +80,19 @@ mangle-c-type-internal := λ(: tt Type). (: (
    r
 ) S);
 
-mangle-c-declaration := λ(: tt Type). (: (
+mangle-c-declaration := λ(: tt Type)(: blame AST). (: (
    (set tt (normalize tt))
-   (let r (mangle-c-declaration-internal tt))
+   (let r (mangle-c-declaration-internal( tt blame )))
    r
 ) Tuple<S,S>);
 
-mangle-c-declaration-internal := λ(: tt Type). (: (
+mangle-c-declaration-internal := λ(: tt Type)(: blame AST). (: (
    (let pre SNil)
    (let post SNil)
    (match tt (
       ()
       ( (TGround( 'Array_s (LCons( (TGround( 'CONST_s _ )) (LCons( array-base _ )) )) )) (
-         (let rst (mangle-c-declaration-internal array-base))
+         (let rst (mangle-c-declaration-internal( array-base blame )))
          (set pre (.first rst))
          (set post (+(
             (.second rst)
@@ -94,7 +100,7 @@ mangle-c-declaration-internal := λ(: tt Type). (: (
          )))
       ))
       ( (TGround( 'Array_s (LCons( (TGround( index _ )) (LCons( array-base _ )) )) )) (
-         (let rst (mangle-c-declaration-internal array-base))
+         (let rst (mangle-c-declaration-internal( array-base blame )))
          (set pre (.first rst))
          (set post (+(
             (.second rst)
@@ -102,13 +108,13 @@ mangle-c-declaration-internal := λ(: tt Type). (: (
          )))
       ))
       ( (TGround( 'Arrow_s (LCons( rng (LCons( dom _ )) )) )) (
-         (let returns (mangle-c-type-internal rng))
-         (let accepts (mangle-c-type-internal dom))
+         (let returns (mangle-c-type-internal( rng blame )))
+         (let accepts (mangle-c-type-internal( dom blame )))
          (set pre (+( returns (SAtom '\[*_s) )))
          (set post (+( (SAtom '\]\[_s) (+( accepts (SAtom '\]_s) )) )))
       ))
       ( _ (
-         (set pre (mangle-c-type tt))
+         (set pre (mangle-c-type( tt blame )))
       ))
    ))
    (Tuple( pre post ))

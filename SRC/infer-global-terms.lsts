@@ -52,3 +52,13 @@ let infer-global-context(term: AST): Nil = (
       _ => ();
    }
 );
+
+let infer-global-context-2(term: AST): Nil = (
+   match term {
+      Seq{seq=seq} => (
+         for s in seq { infer-global-context-2(s) }
+      );
+      Typedef2{} => infer-type2-definition(term);
+      _ => ();
+   }
+);

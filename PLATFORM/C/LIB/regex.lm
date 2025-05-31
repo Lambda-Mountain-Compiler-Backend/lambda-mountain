@@ -39,7 +39,23 @@ atom suffix Regex _rgx;
    ))
 ) U64);
 
+# TODO remove (this method name is a misnomer)
 .remove-prefix := λ(: text SmartString)(: rgx Regex). (: (
+   (let matches (: __uninitialized C_regmatch__t_[1]))
+   (let status (regexec(
+      (as (& rgx) C_regex__t_*_)
+      (as (.start text) C_char_*)
+      (as 1_u64 C_size__t_)
+      (as matches C_regmatch__t_*)
+      (as 0_u64 C_int)
+   )))
+   (if (!=( (.rm_so([]( matches 0_u64 ))) 0_u64 )) (
+      (fail 'Remove\sSmartString\sPrefix\sBy\sRegex\sNot\sA\sPrefix_s)
+   ) ())
+   ([:]( text 0_i64 (as (.rm_eo([]( matches 0_u64 ))) I64) ))
+) SmartString);
+
+.get-prefix := λ(: text SmartString)(: rgx Regex). (: (
    (let matches (: __uninitialized C_regmatch__t_[1]))
    (let status (regexec(
       (as (& rgx) C_regex__t_*_)

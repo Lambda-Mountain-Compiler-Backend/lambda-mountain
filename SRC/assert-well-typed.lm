@@ -10,6 +10,7 @@ assert-well-typed := λ(: term AST). (: (
          ))
       ))
       ( (Typedef( _ _ )) () )
+      ( (Typedef2( _ )) () )
       ( (App( (Abs( (Var( lname _ )) ASTNil tlt )) rhs )) (
          (assert-well-typed rhs)
          (assert-one-typed term)

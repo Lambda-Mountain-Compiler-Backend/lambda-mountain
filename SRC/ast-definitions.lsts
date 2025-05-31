@@ -12,6 +12,8 @@ type AST = ASTEOF
          | Seq { seq: Vector<AST> }
          | Glb { key: Token , val: AST[] }
          | Typedef { lhs: AST[] , rhs: AST[] }
+         | Typedef2 { location: SourceLocation, lhs-type: Type, implies: Vector<Type>, implements: Vector<Type>, constraints: Vector<(CString,Type)>,
+                      size: Type, alias: Type, opaque-alias: Type, cases: Vector<(CString,Vector<(CString,Type)>)> }
          | Meta { val: AST[] };
 zero AST = ASTEOF;
 

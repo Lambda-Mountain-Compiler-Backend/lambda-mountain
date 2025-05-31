@@ -21,6 +21,14 @@ let print(io: IO::File, l: Tuple<x,y,z>): Nil = (
 );
 type Tuple<x,y,z> implements DefaultPrintable;
 
+let cmp(l: Tuple<x,y,z>, r: Tuple<x,y,z>): Ord = (
+   cmp(l.first, r.first) && cmp(l.second, r.second) && cmp(l.third, r.third)
+);
+
+let deep-hash(l: Tuple<x,y,z>): U64 = (
+   deep-hash(l.first) + deep-hash(l.second) + deep-hash(l.third)
+);
+
 let $"=="(l: Tuple<x,y>, r: Tuple<x,y>): U64 = (
    l.first == r.first && l.second == r.second
 );

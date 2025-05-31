@@ -29,6 +29,7 @@ let .into(t: AST, tgt: Type<String>): String = (
          ret
       );
       Typedef{lhs=lhs,rhs=rhs} => "type \{lhs} = \{rhs};";
+      Typedef2{} => "type2;";
       Meta{val=val} => "meta \{val}\n";
    };
 );

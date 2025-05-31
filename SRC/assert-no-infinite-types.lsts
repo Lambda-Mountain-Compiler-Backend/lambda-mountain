@@ -1,0 +1,35 @@
+
+let assert-no-infinite-types(): Nil = (
+   let fields-of-type = {} :: HashtableEq<(CString,U64),Vector<(Type,Type)>>;
+   for td in ast-parsed-program.unroll-seq { match td {
+      Typedef2{} => (
+         let lhs-type = (td as Tag::Typedef2).lhs-type;
+         let cases = (td as Tag::Typedef2).cases;      
+         for Tuple{case-name=first, fields=second} in cases {
+         for Tuple{field-name=first, field-type=second} in fields {
+            let row = fields-of-type.lookup(lhs-type.ground-tag-and-arity, mk-vector(type((Type,Type))));
+            row = row.push( (lhs-type, field-type) );
+            fields-of-type = fields-of-type.bind(lhs-type.ground-tag-and-arity, row);
+         }};
+      );
+      _ => ();
+   }};
+   for td in ast-parsed-program.unroll-seq { match td {
+      Typedef2{} => (
+         let lhs-type = (td as Tag::Typedef2).lhs-type;
+         assert-no-infinite-type(fields-of-type, [lhs-type.ground-tag-and-arity], lhs-type, lhs-type, td);
+      );
+      _ => ();
+   }};
+);
+
+let assert-no-infinite-type(fields-of-type: HashtableEq<(CString,U64),Vector<(Type,Type)>>,
+                            seen: List<(CString,U64)>, visiting: Type, root-type: Type, blame: AST): Nil = (
+   for Tuple{base-type=first,field-type=second} in fields-of-type.lookup(visiting.ground-tag-and-arity, mk-vector(type((Type,Type)))) {
+      let tctx = unify(base-type, visiting);
+      base-type = substitute(tctx, base-type);
+      field-type = substitute(tctx, field-type);
+      if seen.contains(field-type.ground-tag-and-arity) then fail("Type definition has infinite size: \{root-type} at \{blame.location}\n");
+      assert-no-infinite-type(fields-of-type, cons( visiting.ground-tag-and-arity, seen ), field-type, root-type, blame);
+   };
+);

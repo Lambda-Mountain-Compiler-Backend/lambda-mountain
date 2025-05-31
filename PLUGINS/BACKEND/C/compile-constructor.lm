@@ -6,7 +6,7 @@ compile-constructor := λ(: ctx FContext)(: tag-name String)(: return-type Type)
    (set r (initialize-c-struct( ctx args case-number 1_u64 )))
    (set r (.set( r 'expression_s (
       (+(
-         (+( (+( (SAtom '\[{_s) (mangle-c-type(normalize bare-ordinal)) )) (SAtom '\srvalue={.field_0=_s) ))
+         (+( (+( (SAtom '\[{_s) (mangle-c-type( (normalize bare-ordinal) args )) )) (SAtom '\srvalue={.field_0=_s) ))
          (+(
             (+( (SAtom(to-string case-number)) (SAtom '}\:_s) ))
             (+( (.get( r 'expression_s )) (SAtom 'rvalue\:}\]_s) ))

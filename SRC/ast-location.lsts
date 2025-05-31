@@ -12,6 +12,7 @@ let .location(term: AST): SourceLocation = (
          loc
       );
       Typedef{ lhs=lhs, rhs=rhs } => lhs.location || rhs.location;
+      Typedef2{ location=location } => location;
       _ => mk-location();
    }
 );

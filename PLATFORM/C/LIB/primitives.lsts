@@ -16,3 +16,20 @@ declare-unop( into-branch-conditional, raw-type(BranchConditional), raw-type(Bra
 declare-unop( $"cdecl::return", raw-type(Any), raw-type(Nil), (l"return "; x; l";";) );
 declare-unop( $"cdecl::return", raw-type(Nil), raw-type(Nil), (x; l";";) );
 
+declare-unop( $"primitive::field-get", raw-type(base-type), raw-type(field-type), ( l"("; x; l"."; mangle(field-name :: L); l")"; ) );
+declare-binop( $"primitive::field-set", raw-type(base-type), raw-type(field-type), raw-type(Nil), ( l"("; x; l"."; mangle(field-name :: L); l"="; y; l")"; ) );
+
+declare-unop( $"primitive::field-get-indirect", raw-type(base-type[]), raw-type(field-type), ( l"("; x; l"->"; mangle(field-name :: L); l")"; ) );
+declare-binop( $"primitive::field-set-indirect", raw-type(base-type[]), raw-type(field-type), raw-type(Nil), ( l"("; x; l"->"; mangle(field-name :: L); l"="; y; l")"; ) );
+
+declare-unop( $"primitive::constructor", raw-type(arg-types), raw-type(return-type), (
+   l"{"; mangle-pre(return-type); l" "; uuid(return); mangle-post(return-type); l";";
+      if case-tag :: L {
+         uuid(return); l".discriminator_case_tag="; discriminator-case-tag :: L; l";";
+      };
+      for Tuple{field-name=first, field-type=second} in arguments {
+         uuid(return); l"."; mangle(field-name); l"="; $(field-name); l";"
+      };
+      uuid(return); l";";
+   l"}";
+));

@@ -1,0 +1,16 @@
+
+let td2-implies(l: Type, r: Type): AST = (
+   Typedef2{}
+);
+
+let td2-implements(l: Type, r: Type): AST = (
+   Typedef2{}
+);
+
+let td2-opaque-alias(l: Type, r: Type): AST = (
+   Typedef2{}
+);
+
+let td2-alias(l: Type, r: Type): AST = (
+   Typedef2{}
+);

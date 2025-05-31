@@ -44,10 +44,10 @@ plugins-backend-c-compile := λ . (: (
    (for-each (td in (.unroll-seq typedefs)) (match td (
       ()
       ( (Typedef( (Lit( lhs _ )) rhs )) (
-         (compile-c-typedef-ordinal(parse-type lhs)) 
+         (compile-c-typedef-ordinal( (parse-type lhs) td )) 
       ))
       ( (Typedef( (AType( lhs )) rhs )) (
-         (compile-c-typedef-ordinal lhs)
+         (compile-c-typedef-ordinal( lhs td ))
       ))
    )))
    (for-each (td in (.unroll-seq typedefs)) (match td (

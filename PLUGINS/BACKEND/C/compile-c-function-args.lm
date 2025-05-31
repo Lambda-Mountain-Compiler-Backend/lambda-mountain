@@ -4,7 +4,7 @@ compile-c-function-args := λ(: ctx FContext)(: lhs AST). (: (
    (match lhs (
       ()
       ( (App( rst (App( (Lit( ':_s _ )) (App( (@( v-t (Var( k _ )) )) (AType kt) )) )) )) (
-         (let decl (mangle-c-declaration kt))
+         (let decl (mangle-c-declaration( kt lhs )))
          (set r (compile-c-function-args(ctx rst)))
          (set r (+( r (SAtom ',_s) )))
          (set r (+( r (.first decl) )))
@@ -14,7 +14,7 @@ compile-c-function-args := λ(: ctx FContext)(: lhs AST). (: (
          (set r (+( r (.second decl) )))
       ))
       ( (App( (Lit( ':_s _ )) (App( (@( v-t (Var( k _ )) )) (AType kt) )) )) (
-         (let decl (mangle-c-declaration kt))
+         (let decl (mangle-c-declaration( kt lhs )))
          (set r (.first decl))
          (set r (+( r (SAtom '\s_s) )))
          (let def-bound (.lookup( std-c-fragment-context v-t (mk-fragment()) )))

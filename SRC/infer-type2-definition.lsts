@@ -1,0 +1,88 @@
+
+let visit-field-template(field-name: CString, base-type: Type, field-type: Type, blame: AST): Nil = (
+   let ctx = None :: Maybe<TContext>;
+   ctx = ctx.bind( c"base-type", base-type, ASTEOF );
+   ctx = ctx.bind( c"field-type", field-type, ASTEOF );
+   ctx = ctx.bind( c"field-name", TAny, mk-lit(field-name) );
+   ctx = ctx.bind( c"primitive::field-get", TAny, mk-var(c"."+field-name) );
+   ctx = ctx.bind( c"primitive::field-set", TAny, mk-var(c"set."+field-name) );
+   ctx = ctx.bind( c"primitive::field-get-indirect", TAny, mk-var(c"."+field-name) );
+   ctx = ctx.bind( c"primitive::field-set-indirect", TAny, mk-var(c"set."+field-name) );
+   let field-get = substitute(ctx, find-global-callable(c"primitive::field-get", base-type, blame));
+   let field-set = substitute(ctx, find-global-callable(c"primitive::field-set", t3(c"Cons", base-type, field-type), blame));
+   let field-get-indirect = substitute(ctx, find-global-callable(c"primitive::field-get-indirect", t3(c"Array",base-type,TAny), blame));
+   let field-set-indirect = substitute(ctx, find-global-callable(c"primitive::field-set-indirect", t3(c"Cons", t3(c"Array",base-type,TAny), field-type), blame));
+   infer-global-context(field-get);
+   infer-global-context(field-set);
+   infer-global-context(field-get-indirect);
+   infer-global-context(field-set-indirect);
+
+   ast-parsed-program = ast-parsed-program + field-get + field-set + field-get-indirect + field-set-indirect;
+);
+
+
+let infer-type2-definition(term: AST): Nil = (
+   match term { Typedef2{} => (); };
+   let lhs-type = (term as Tag::Typedef2).lhs-type;
+   let implies = (term as Tag::Typedef2).implies;
+   let implements = (term as Tag::Typedef2).implements;
+   let constraints = (term as Tag::Typedef2).constraints;
+   let size = (term as Tag::Typedef2).size;
+   let alias = (term as Tag::Typedef2).alias;
+   let opaque-alias = (term as Tag::Typedef2).opaque-alias;
+   let cases = (term as Tag::Typedef2).cases;
+   for rhs-type in implies {
+      add-quick-prop(lhs-type, lhs-type, rhs-type);
+      add-weaken-quick-prop(lhs-type, lhs-type, rhs-type);
+   };
+   for rhs-type in implements {
+      add-quick-prop(lhs-type, lhs-type, rhs-type);
+      add-weaken-quick-prop(lhs-type, lhs-type, rhs-type);
+      interface-implementors = cons( (lhs-type, rhs-type, term), interface-implementors );
+   };
+   if non-zero(size) then print("sizeof(\{lhs-type}) = \{size}\n");
+   if non-zero(alias) then add-type-alias(lhs-type, alias);
+   if non-zero(opaque-alias) then add-opaque-type-alias(lhs-type, opaque-alias);
+   for Tuple{ case-tag=first, case-fields=second } in cases {
+      print("Case '\{case-tag}'\n");
+      for Tuple{ field-name=first, field-type=second } in case-fields {
+         let guard = lhs-type && (if non-zero(case-tag) then t1(c"Tag::"+case-tag) else TAny);
+         let field-wrapped-type = t2(c"Field::"+field-name, field-type);
+         add-quick-prop(lhs-type, guard, field-wrapped-type);
+         add-weaken-quick-prop(lhs-type, guard, field-wrapped-type);
+         visit-field-template(field-name, guard, field-type, term);
+      };
+   };
+   let common-fields = [] :: List<(CString,Type)>;
+   let has-tag-case = false;
+   for Tuple{ case-tag=first, case-fields=second } in cases {
+      if case-tag==c"" {
+         for Tuple{ field-name=first, field-type=second } in case-fields {
+            common-fields = cons((field-name, field-type), common-fields);
+         };
+      } else has-tag-case = true;
+   };
+   if not(has-tag-case) then infer-type2-yield-constructor(lhs-type, lhs-type.simple-tag, 0, common-fields);
+   let case-index = 0_u64;
+   for Tuple{ case-tag=first, case-fields=second } in cases {
+      if case-tag!=c"" {
+         let o-case-fields = common-fields;
+         for Tuple{ field-name=first, field-type=second } in case-fields {
+            o-case-fields = cons((field-name, field-type), o-case-fields);
+         };
+         infer-type2-yield-constructor(lhs-type, case-tag, case-index, o-case-fields);
+         case-index = case-index + 1;
+      };
+   };
+);
+
+let type-constructor-tag-ordinal-index = {} :: HashtableEq<(CString,U64,CString),U64>;
+
+let infer-type2-yield-constructor(base-type: Type, case-tag: CString, case-number: U64, case-fields: List<(CString,Type)>): Nil = (
+   print("Yield constructor \{case-tag}#\{case-number} : \{base-type}\n");
+   for Tuple{field-name=first, field-type=second} in case-fields {
+      print("\t\{field-name} : \{field-type}\n");
+   };
+   (let base-tag, let base-arity) = base-type.ground-tag-and-arity;
+   type-constructor-tag-ordinal-index = type-constructor-tag-ordinal-index.bind( (base-tag,base-arity,case-tag), case-number );
+);

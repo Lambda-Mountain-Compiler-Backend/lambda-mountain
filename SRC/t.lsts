@@ -1,4 +1,5 @@
 
+let ts(tag: CString, ps: List<Type>): Type = TGround{ tag, close(ps) };
 let t1(tag: CString): Type = TGround{ tag, close([] :: List<Type>) };
 let t2(tag: CString, p1: Type): Type = TGround{ tag, close([p1]) };
 let t3(tag: CString, p1: Type, p2: Type): Type = TGround{ tag, close([p2, p1]) };
