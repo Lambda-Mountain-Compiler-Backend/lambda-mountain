@@ -1,0 +1,40 @@
+
+## x..<y
+type RangeEx<t> = { start: t, end: t };
+
+## x..=y
+type RangeInc<t> = { start: t, end: t };
+
+## x...
+type RangeOpen<t> = { start: t };
+
+type RangeEx<t> implements Iterator<t>;
+let .next(p: RangeEx<t>[]): Maybe<t> = (
+   let start = open(p).start;
+   let n = start + 1;
+   let end = open(p).end;
+   if n > end {
+      None : Maybe<t>
+   } else {
+      p[0_u64] = RangeEx(n, end);
+      Some(start) : Maybe<t>
+   }
+);
+
+type RangeInc<t> implements Iterator<t>;
+let .next(rp: RangeInc<t>[]): Maybe<t> = (
+   let r = open(rp);
+   if r.start > r.end {
+      None : Maybe<t>
+   } else {
+      rp[0_u64] = RangeInc(r.start + 1, r.end);
+      Some(r.start) : Maybe<t>
+   }
+);
+
+type RangeOpen<t> implements Iterator<t>;
+let .next(rp: RangeOpen<t>[]): Maybe<t> = (
+   let r = open(rp);
+   rp[0_u64] = RangeOpen(r.start + 1);
+   Some(r.start) : Maybe<t>
+);

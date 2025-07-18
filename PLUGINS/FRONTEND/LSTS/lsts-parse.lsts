@@ -555,7 +555,7 @@ let lsts-parse-range(tokens: List<Token>): Tuple<AST,List<Token>> = (
    let is-ex = lsts-parse-head(tokens) == c"..<";
    let is-open = lsts-parse-head(tokens) == c"...";
 
-   if is-open || is-inc || is-ex {
+   if is-inc || is-ex {
       let range-tok = head(tokens);
       tokens = tail(tokens);
       let term2-rest = lsts-parse-add(tokens);
@@ -563,12 +563,19 @@ let lsts-parse-range(tokens: List<Token>): Tuple<AST,List<Token>> = (
       let v = c"RangeInc";
       if is-ex {
          v = c"RangeEx";
-      } else {
-         v = c"RangeOpen";
       };
       term = mk-app(
          Var( v, range-tok ),
          mk-cons(term, term2-rest.first)
+      );
+   };
+
+   if is-open {
+      let range-tok = head(tokens);
+      tokens = tail(tokens);
+      term = mk-app(
+         Var(c"RangeOpen", range-tok),
+         term
       );
    };
 
