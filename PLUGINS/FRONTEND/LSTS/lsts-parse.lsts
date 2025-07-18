@@ -546,8 +546,37 @@ let lsts-parse-add(tokens: List<Token>): Tuple<AST,List<Token>> = (
    Tuple ( term, tokens )
 );
 
-let lsts-parse-cmp(tokens: List<Token>): Tuple<AST,List<Token>> = (
+let lsts-parse-range(tokens: List<Token>): Tuple<AST,List<Token>> = (
    let term-rest = lsts-parse-add(tokens);
+   let term = term-rest.first;
+   tokens = term-rest.second;
+
+   let is-inc = lsts-parse-head(tokens) == c"..=";
+   let is-ex = lsts-parse-head(tokens) == c"..<";
+   let is-open = lsts-parse-head(tokens) == c"...";
+
+   if is-open || is-inc || is-ex {
+      let range-tok = head(tokens);
+      tokens = tail(tokens);
+      let term2-rest = lsts-parse-add(tokens);
+      tokens = term2-rest.second;
+      let v = c"RangeInc";
+      if is-ex {
+         v = c"RangeEx";
+      } else {
+         v = c"RangeOpen";
+      };
+      term = mk-app(
+         Var( v, range-tok ),
+         mk-cons(term, term2-rest.first)
+      );
+   };
+
+   Tuple(term, tokens)
+);
+
+let lsts-parse-cmp(tokens: List<Token>): Tuple<AST,List<Token>> = (
+   let term-rest = lsts-parse-range(tokens);
    let term = term-rest.first;
    tokens = term-rest.second;
    while lsts-parse-head(tokens)==c"==" || lsts-parse-head(tokens)==c"!=" ||
@@ -558,7 +587,7 @@ let lsts-parse-cmp(tokens: List<Token>): Tuple<AST,List<Token>> = (
          (op==c">" && lsts-parse-head(tokens)==c">") {
          op = op + op; op-t = with-key(op-t, op); tokens = tail(tokens);
       };
-      let term2-rest = lsts-parse-add(tokens);
+      let term2-rest = lsts-parse-range(tokens);
       tokens = term2-rest.second;
       term = mk-app( 
          Var( op, op-t ),
