@@ -1,0 +1,6 @@
+
+type TypeContextRow = { key: CString, nt: Type, dt: Type, def: AST };
+type PhiContextRow = { phi-id: CString, phi-tt: Type, blame: AST };
+type TypeContext = { tctx:List<TypeContextRow>, pctx: List<PhiContextRow>, is-unsafe: U64, is-blob: U64, function-name:CString };
+
+let mk-tctx(): TypeContext = TypeContext( [] : List<TypeContextRow>, [] : List<PhiContextRow>, false, false, c"" );

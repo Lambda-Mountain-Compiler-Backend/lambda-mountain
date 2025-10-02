@@ -1,0 +1,35 @@
+
+let substitute(tctx: TypeContext?, tt: List<Type>): List<Type> = (
+   match tt {
+      LCons{head=head,tail=tail} => cons( substitute(tctx,head), substitute(tctx,tail) );
+      _ => tt;
+   }
+);
+
+let substitute(tctx: TypeContext?, tt: Type): Type = (
+   match tt {
+      TAnd{conjugate=conjugate} => (
+         let result = mk-vector(type(Type), 0_u64);
+         for c in conjugate {
+            match substitute(tctx,c) {
+               TAnd{rconjugate=conjugate} => for rc in rconjugate { result = result.push(rc) };
+               TAny{} => ();
+               rc => ( result = result.push(rc); () );
+            }
+         };
+         if result.length==0 then ta
+         else if result.length==1 then result[0]
+         else tand(result)
+      );
+      TGround{tag:c"Linear",parameters:[TGround{tag:c"Phi::Live"}..]} => tt;
+      TGround{tag:c"Cons",parameters=parameters} => TGround(c"Cons",close(substitute(tctx,parameters)));
+      TGround{tag:c"Arrow",parameters=parameters} => TGround(c"Arrow",close(substitute(tctx,parameters)));
+      TGround{tag=tag,parameters=parameters} => TGround(tag,close(substitute-normalized(tctx,parameters)));
+      TVar{name=name} => (
+         let tn = tctx.get-or(mk-tctx()).tctx.lookup(name,TypeContextRow(c"",ta,ta,mk-eof())).direct-type;
+         tn = normalize(tn).without-phi-id && tn.with-only-phi-state;
+         if non-zero(tn) then tn else tt;
+      );
+      _ => tt;
+   }
+);

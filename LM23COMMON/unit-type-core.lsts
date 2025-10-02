@@ -1,8 +1,6 @@
 
 import lib/std/minimal.lsts;
 
-let safe-alloc-block-count = 0;
-
 import LM23COMMON/type-definition.lsts;
 import LM23COMMON/type-constructor.lsts;
 import LM23COMMON/type-destructor.lsts;
@@ -15,3 +13,6 @@ import LM23COMMON/type-is-arrow.lsts;
 import LM23COMMON/type-is-open.lsts;
 import LM23COMMON/type-simple-tag.lsts;
 import LM23COMMON/type-can-unify.lsts;
+import LM23COMMON/type-unify.lsts;
+
+let safe-alloc-block-count = 0;

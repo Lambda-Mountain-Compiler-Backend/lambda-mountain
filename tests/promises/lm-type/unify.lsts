@@ -1,5 +1,5 @@
 
-import LM23COMMON/unit-type-core.lsts;
+import LM23COMMON/unit-inference-core.lsts;
 
 assert( (t0(c"A") && t0(c"B")) <: t0(c"A") );
 assert( (t0(c"A") && t0(c"B")) <: t0(c"B") );
