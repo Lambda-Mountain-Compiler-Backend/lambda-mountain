@@ -1,4 +1,7 @@
 
+# constructor with a default argument
+let $"App"(left: AST[], right: AST[]): AST = App ( false, left, right );
+
 let mk-app(f: AST, a: AST): AST = (
    App( close(f), close(a) )
 );

@@ -1,6 +1,8 @@
 
 import lib/std/minimal.lsts;
 
+import LM23COMMON/unit-util.lsts;
+
 import LM23COMMON/type-definition.lsts;
 import LM23COMMON/type-constructor.lsts;
 import LM23COMMON/type-destructor.lsts;

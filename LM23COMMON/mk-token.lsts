@@ -4,6 +4,6 @@ let mk-token(s: CString): Token = (
 );
 
 let mk-token(s: String): Token = (
-   Token ( untern(s), iuid(), s.location )
+   Token ( untern(s), iuid(), mk-location() )
 );
 

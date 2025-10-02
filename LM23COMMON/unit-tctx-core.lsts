@@ -1,3 +1,6 @@
 
 import LM23COMMON/tctx-definition.lsts;
 import LM23COMMON/tctx-substitute.lsts;
+import LM23COMMON/tctx-bind.lsts;
+import LM23COMMON/tctx-and.lsts;
+import LM23COMMON/tctx-union.lsts;

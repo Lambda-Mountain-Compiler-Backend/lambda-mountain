@@ -2,9 +2,6 @@
 let .skey(t: Token): String = intern(t.key);
 type AST implements DefaultFormattable;
 
-# constructor with a default argument
-let $"App"(left: AST[], right: AST[]): AST = App ( false, left, right );
-
 type TypeContextRow = { key: CString, nt: Type, dt: Type, def: AST };
 type PhiContextRow = { phi-id: CString, phi-tt: Type, blame: AST };
 let .direct-type(tr: TypeContextRow): Type = if non-zero(tr.nt) then tr.nt else tr.dt;
