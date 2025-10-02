@@ -1,4 +1,6 @@
 
+let $"<:"(pt: Type, fpt: Type): U64 = can-unify(fpt, pt);
+
 let can-unify(fpt: List<Type>, pt: List<Type>): U64 = (
    if fpt.length == pt.length {
       let ok = true;

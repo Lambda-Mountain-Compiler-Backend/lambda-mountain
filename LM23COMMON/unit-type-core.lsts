@@ -13,6 +13,5 @@ import LM23COMMON/type-is-t.lsts;
 import LM23COMMON/type-slot.lsts;
 import LM23COMMON/type-is-arrow.lsts;
 import LM23COMMON/type-is-open.lsts;
-
-import LM23COMMON/type-unify.lsts;
+import LM23COMMON/type-simple-tag.lsts;
 import LM23COMMON/type-can-unify.lsts;

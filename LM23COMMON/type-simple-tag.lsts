@@ -1,0 +1,7 @@
+
+let .simple-tag(tt: Type): CString = (
+   match tt {
+      TGround { tag=tag } => tag;
+      _ => c"";
+   }
+);
