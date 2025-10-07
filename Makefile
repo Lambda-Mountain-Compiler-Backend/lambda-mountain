@@ -15,8 +15,11 @@ build: compile-production
 	rm -f deploy1 deploy1.c deploy2.c
 	cargo test regression_tests
 
+test:
+	cargo test
+
 deploy: build smoke-test
-deploy-lite: build smoke-test-lite
+deploy-lite: test smoke-test-lite
 
 valgrind: install-bootstrap
 	valgrind --tool=callgrind lm --v2 SRC/index.lsts
