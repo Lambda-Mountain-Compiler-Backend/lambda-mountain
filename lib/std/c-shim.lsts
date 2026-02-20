@@ -20,4 +20,5 @@ let :FFI fclose(f: IO::File): U32 = ();
 let :FFI execvp(file: U8[], argv: U8[][]): U32 = ();
 let :FFI mktemp(template: U8[]): U8[] = ();
 let :FFI system(command: U8[]): U32 = ();
+let :FFI system(command: CString): U32 = ();
 
