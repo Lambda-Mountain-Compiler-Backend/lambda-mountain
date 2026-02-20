@@ -76,7 +76,7 @@ let std-c-compile-expr(ctx: FContext, t: AST, is-stmt: Bool): Fragment = (
             let def = var-to-def(t);
             let e = std-c-fragment-context.lookup(def, mk-fragment());
             if not(non-zero(e)) {
-               exit-error( untern("Unable to Find Variable Fragment in Context: \{key}"), t );
+               exit-error("Unable to Find Variable Fragment in Context: \{key}", t );
             }; e
          }
       );

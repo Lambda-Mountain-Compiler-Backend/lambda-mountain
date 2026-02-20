@@ -13,7 +13,7 @@ let std-c-mangle-declaration(tt: Type, blame: AST): Tuple<S,S> = (
 
 let std-c-mangle-declaration-internal(tt: Type, blame: AST): Tuple<S,S> = std-c-mangle-declaration-internal(tt, false, blame);
 
-let std-c-mangle-declaration-internal(tt: Type, is-flexible-array-member: U64, blame: AST): Tuple<S,S> = (
+let std-c-mangle-declaration-internal(tt: Type, is-flexible-array-member: Bool, blame: AST): Tuple<S,S> = (
    match tt {
       TGround{tag:c"Array", parameters:[ TGround{tag:c"CONST"}.. array-base.. ]} => (
          let rest = std-c-mangle-declaration-internal(array-base, false, blame);

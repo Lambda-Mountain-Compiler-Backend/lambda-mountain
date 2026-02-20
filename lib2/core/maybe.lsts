@@ -54,3 +54,17 @@ let .is-none(m: Maybe<x>): Bool = (
 let .is-some(m: Maybe<x>): Bool = (
    m.discriminator-case-tag == (m as Tag::Some).discriminator-case-tag
 );
+
+let .expect(l: Maybe<x>, msg: CString): x = (
+   match l {
+      Some{content=content} => content;
+      _ => fail(msg);
+   }
+);
+
+let .expect(l: Maybe<x>, msg: String): x = (
+   match l {
+      Some{content=content} => content;
+      _ => fail(msg);
+   }
+);
