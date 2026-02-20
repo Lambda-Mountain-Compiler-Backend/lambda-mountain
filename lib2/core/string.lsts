@@ -178,10 +178,10 @@ let .has-suffix(base: String, sfx: String): Bool = (
    base[ (base.length - sfx.length) as I64 : base.length as I64 ] == sfx
 );
 
-let .remove-suffix(base: String, sfx: String): String = (
+let .remove-suffix(base: String, sfx: String): String? = (
    if base.has-suffix(sfx)
-   then base[ 0_i64 : (base.length - sfx.length) as I64 ]
-   else base
+   then Some(base[ 0_i64 : (base.length - sfx.length) as I64 ])
+   else (None : String?)
 );
 
 let .has-prefix(base: String, pfx: String): Bool = (
@@ -189,10 +189,10 @@ let .has-prefix(base: String, pfx: String): Bool = (
    base[ 0_i64 : pfx.length as I64 ] == pfx
 );
 
-let .remove-prefix(base: String, pfx: String): String = (
+let .remove-prefix(base: String, pfx: String): String? = (
    if base.has-prefix(pfx)
-   then base[ pfx.length as I64 : minimum-I64 ]
-   else base
+   then Some(base[ pfx.length as I64 : minimum-I64 ])
+   else (None : String?)
 );
 
 let tail(x: String): String = x[ 1_i64 : x.length as I64 ];

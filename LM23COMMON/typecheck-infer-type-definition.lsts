@@ -1,6 +1,6 @@
 
 let type-ast-inserts = mk-vector(type(AST));
-let complex-type-index = {} : Hashtable<(CString,U64),U64>;
+let complex-type-index = {} : Hashtable<(CString,U64),Bool>;
 
 let visit-field-template(field-name: CString, base-type: Type, field-type: Type, blame: AST, field-ordinal: U64, case-number: U64): Nil = (
    let mangled-field-name = case-number.into(type(CString)) + c"_" + field-name;
@@ -83,7 +83,7 @@ let infer-type-definition(term: AST): Nil = (
 
       let case-number = 0_u64;
       for vector Tuple{ case-tag2=first, case-fields=second } in cases {
-         complex-type-index = complex-type-index.bind( lhs-type.ground-tag-and-arity, 1_u64 );
+         complex-type-index = complex-type-index.bind( lhs-type.ground-tag-and-arity, true );
          datatype-index = datatype-index.bind( lhs-type.ground-tag-and-arity, true );
          let field-ordinal = 0_u64;
          for vector Tuple{ field-name3=first, field-type=second } in case-fields {

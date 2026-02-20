@@ -159,15 +159,17 @@ deprecated macro (rl"match-pats-arm"(term,rl"macro::lhs-head"(x,rest))) ((
 
 deprecated macro (rl"match-pats-arm"(term,rl"macro::lhs-prefix-or-suffix"( rl":Literal:"(l), rest ))) ((
    $"let"(uuid(v))(term);
-   $"if"(uuid(v).has-prefix(l))
-        (match-pats-arm(uuid(v).remove-prefix(l),rest))
+   $"let"(uuid(p))(uuid(v).remove-prefix(l));
+   $"if"(uuid(p).is-some)
+        (match-pats-arm(uuid(p).get-or-panic,rest))
         (branchfalse())
 ));
 
 deprecated macro (rl"match-pats-arm"(term,rl"macro::lhs-prefix-or-suffix"( rest, rl":Literal:"(l) ))) ((
    $"let"(uuid(v))(term);
-   $"if"(uuid(v).has-suffix(l))
-        (match-pats-arm(uuid(v).remove-suffix(l),rest))
+   $"let"(uuid(p))(uuid(v).remove-suffix(l));
+   $"if"(uuid(p).is-some)
+        (match-pats-arm(uuid(p).get-or-panic,rest))
         (branchfalse())
 ));
 

@@ -1,7 +1,7 @@
 
 let escape-string(s: CString): CString = (
    let e = SNil;
-   while head(s) {
+   while head(s) != 0 {
       if head(s) == 92 {
          s = tail(s);
          match head(s) {
@@ -27,7 +27,7 @@ let escape-string(s: CString): CString = (
 
 let escape-string(s: S): S = (
    match s {
-      SAtom{atom=atom} => SAtom(escape-string(atom));
+      SAtom{atom=atom} => SAtom(escape-string(atom.into(type(CString))));
       SCons{left=left, right=right} => escape-string(left) + escape-string(right);
       _ => SNil;
    }
