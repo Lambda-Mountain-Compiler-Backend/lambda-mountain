@@ -1,17 +1,17 @@
 
 let c-frontend(fp: CString): Nil = (
-   let tmp = intern(mktemp(untern("/tmp/lm.tmp.XXXXXX") as U8[]) as CString);
-   let cmd = "cpp /dev/null -o " + tmp;
-   cmd = cmd + " -U__USE_MISC";
-   cmd = cmd + " -D__STRICT_ANSI__";
-   cmd = cmd + " -D__LM__";
-   cmd = cmd + " -include \"" + intern(fp) + "\"";
+   let tmp = mktemp(c"/tmp/lm.tmp.XXXXXX" as U8[]) as CString;
+   let cmd = c"cpp /dev/null -o " + tmp;
+   cmd = cmd + c" -U__USE_MISC";
+   cmd = cmd + c" -D__STRICT_ANSI__";
+   cmd = cmd + c" -D__LM__";
+   cmd = cmd + c" -include \"" + fp + c"\"";
 
-   if system(untern(cmd) as U8[]) != 0 {
-      fail("cpp failed. command: \"" + cmd + "\"");
+   if system(cmd) != 0 {
+      fail(c"cpp failed. command: \"" + cmd + c"\"");
    };
 
-   let file-contents = read-file(untern(tmp));
+   let file-contents = read-file(tmp);
    let tokens = std-c-tokenize-string(fp, file-contents);
    std-c-parse(tokens);
 );
